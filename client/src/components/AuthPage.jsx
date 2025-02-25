@@ -1,28 +1,24 @@
 'use client';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios'; 
+import axios from 'axios'; // Import axios
 import config from '../config';
 
-const LoginPage = () => {
+const AuthPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+  const [isLogin, setIsLogin] = useState(false); // Start with signup form
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const url = `${config.API_URL}/login`;
+    const url = isLogin ? `${config.API_URL}/login` : `${config.API_URL}/signup`; // Switch URL based on form
 
     try {
-      // Send login request with axios
-      const response = await axios.post(url, {
-        email,
-        password,
-      });
-
+      const response = await axios.post(url, { email, password });
       const data = response.data;
 
       if (response.status === 200) {
@@ -31,6 +27,7 @@ const LoginPage = () => {
         setPassword('');
         localStorage.setItem('userId', data.userId);
         setError('');
+
         navigate('/transactions');
       } else {
         setError(data.message);
@@ -43,7 +40,9 @@ const LoginPage = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <div className="max-w-sm mx-auto p-6 bg-white shadow-lg rounded-lg w-full">
-        <h2 className="text-2xl font-bold text-center mb-6">Log In</h2>
+        <h2 className="text-2xl font-bold text-center mb-6">
+          {isLogin ? 'Log In' : 'Sign Up'}
+        </h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-gray-700">
@@ -75,7 +74,7 @@ const LoginPage = () => {
             type="submit"
             className="w-full py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
           >
-            Log In
+            {isLogin ? 'Log In' : 'Sign Up'}
           </button>
         </form>
 
@@ -85,9 +84,19 @@ const LoginPage = () => {
         {error && (
           <p className="mt-4 text-red-600 text-center">{error}</p>
         )}
+
+        {/* Toggle Button */}
+        <div className="mt-4 text-center">
+          <button
+            onClick={() => setIsLogin(!isLogin)}
+            className="text-indigo-600 hover:text-indigo-800"
+          >
+            {isLogin ? 'Don\'t have an account? Sign Up' : 'Already have an account? Log In'}
+          </button>
+        </div>
       </div>
     </div>
   );
 };
 
-export default LoginPage;
+export default AuthPage;

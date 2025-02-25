@@ -3,6 +3,8 @@ const router = express.Router();
 const User = require("../models/User"); 
 const { plaidClient, Products } = require('../config/plaidConfig');
 
+/// I NEED JWT + BCRYPT
+
 // stole this from plaid quickstart
 const PLAID_PRODUCTS = (process.env.PLAID_PRODUCTS || Products.Transactions).split(
   ',',
