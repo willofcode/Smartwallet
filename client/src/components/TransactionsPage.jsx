@@ -10,17 +10,17 @@ const TransactionsPage = () => {
   const [error, setError] = useState(null);
   const [linkToken, setLinkToken] = useState(null);
   const [isLinkReady, setIsLinkReady] = useState(false);
-  const [isLoading, setIsLoading] = useState(false); // Loading state for transactions
-  const navigate = useNavigate(); // useNavigate for routing
+  const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
 
-  // Fetch userId from localStorage
+  // gimme gimme userid 
   useEffect(() => {
     const storedUserId = localStorage.getItem('userId');
     if (storedUserId) {
       setUserId(storedUserId);
       createLinkToken(storedUserId);
     } else {
-      navigate('/login'); // Redirect to login if no userId found
+      navigate('/login');
     }
   }, [navigate]);
 
