@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios'; // Import axios
+import axios from 'axios';
 import config from '../config';
 
 const AuthPage = () => {
@@ -9,13 +9,13 @@ const AuthPage = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
-  const [isLogin, setIsLogin] = useState(false); // Start with signup form
+  const [isLogin, setIsLogin] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const url = isLogin ? `${config.API_URL}/login` : `${config.API_URL}/signup`; // Switch URL based on form
+    const url = isLogin ? `${config.API_URL}/login` : `${config.API_URL}/signup`;
 
     try {
       const response = await axios.post(url, { email, password });
