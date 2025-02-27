@@ -1,0 +1,130 @@
+/* General Styles */
+.bills-container {
+    display: flex;
+    height: 100vh;
+    background-color: #1a1d33;
+    color: white;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 250px;
+    height: 100vh;
+    background-color: #242849;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.user-img-placeholder {
+    width: 40px;
+    height: 40px;
+    background: white;
+    color: black;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 18px;
+}
+
+.sidebar ul {
+    list-style: none;
+}
+
+.sidebar ul li {
+    padding: 10px;
+    cursor: pointer;
+}
+
+.sidebar ul li a {
+    text-decoration: none;
+    color: white;
+}
+
+.sidebar ul li.active {
+    background-color: #3a3f66;
+    border-radius: 5px;
+}
+
+/* Main Content */
+.bills-content {
+    flex-grow: 1;
+    padding: 20px;
+}
+
+/* Header */
+.bills-header {
+    background-color: #2d325b;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+/* Bills Table */
+.bills-list {
+    background-color: #1e2245;
+    padding: 20px;
+    border-radius: 10px;
+}
+
+/* Table Header */
+.bills-table-header {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr 0.5fr; /* Ensure headers align with table rows */
+    padding: 15px 10px;
+    font-weight: bold;
+    text-align: left;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Month Section */
+.month-section {
+    margin-top: 15px;
+}
+
+/* Month Title */
+.month-title {
+    background-color: #3a3f66;
+    padding: 10px;
+    border-radius: 5px;
+    display: inline-block;
+    font-weight: bold;
+}
+
+/* Bills Row */
+.bill-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr 0.5fr; /* Aligns columns with header */
+    padding: 15px 10px;
+    margin-top: 5px;
+    background-color: #292d52;
+    border-radius: 5px;
+    align-items: center;
+}
+
+/* Align text inside table */
+.bill-row span,
+.bills-table-header span {
+    text-align: left;
+    padding-left: 10px;
+}
+
+/* Details Column */
+.details {
+    font-size: 18px;
+    text-align: center;
+    cursor: pointer;
+}
+
+/* Sign Out */
+.sign-out {
+    padding-top: 10px;
+}
+
+.sign-out a {
+    color: white;
+    text-decoration: none;
+}
