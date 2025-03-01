@@ -1,9 +1,12 @@
+'use client'; 
+/// This was done with chat gpt study the codebase tmmr morning
 import { useEffect, useState } from 'react';
 import { usePlaidLink } from 'react-plaid-link';
 import axios from 'axios';
 import config from '../config';
 import { useNavigate } from 'react-router-dom';
 
+//UX
 const TransactionsPage = () => {
   const [userId, setUserId] = useState(null);
   const [transactions, setTransactions] = useState([]);
@@ -52,14 +55,14 @@ const TransactionsPage = () => {
       try {
         setIsLoading(true);
         // Step 1: Get access token from the public token
-        const accessTokenResponse = await axios.post(`${import.meta.env.VITE_API_URL}/get_access_token`, {
+        const accessTokenResponse = await axios.post(`${config.API_URL}/get_access_token`, {
           public_token: publicToken,
         });
 
         const { access_token } = accessTokenResponse.data;
         if (access_token) {
           // Step 2: Fetch transactions using the access token
-          const transactionsResponse = await axios.post(`${import.meta.env.VITE_API_URL}/get_transactions`, {
+          const transactionsResponse = await axios.post(`${config.API_URL}/get_transactions`, {
             access_token: access_token,
           });
 
@@ -84,7 +87,7 @@ const TransactionsPage = () => {
   const handleLogout = () => {
     localStorage.removeItem('userId');
     setUserId(null); 
-    navigate('/');  // Redirect to home or login page
+    navigate('/');
   };
 
   return (

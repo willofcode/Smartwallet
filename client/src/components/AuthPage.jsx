@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import config from '../config';
 
+// UX
 const AuthPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -37,6 +38,7 @@ const AuthPage = () => {
     }
   };
 
+// UI
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <div className="max-w-sm mx-auto p-6 bg-white shadow-lg rounded-lg w-full">

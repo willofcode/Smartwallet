@@ -119,7 +119,7 @@ router.post('/get_transactions', async (req, res) => {
   try {
     let cursor = null;
     let hasMore = true;
-    let allTransactions = []; // initially the array will hold 0 transactions.
+    let allTransactions = [];
 
     while (hasMore) {
       const transactionResponse = await plaidClient.transactionsSync({
