@@ -27,17 +27,18 @@ const Bills = () => {
 
   return (
     <div className="bills-container">
-      {/* Sidebar */}
+      {/* 
+      Sidebar 
       <div className="sidebar">
         <div className="top">
           <div className="logo">
-            <span>🟣</span> {/* Placeholder for Logo */}
+            <span>🟣</span> 
             <span>SmartWallet</span>
           </div>
         </div>
 
         <div className="user">
-          <div className="user-img-placeholder">🧑</div> {/* Placeholder for Profile Picture */}
+          <div className="user-img-placeholder">🧑</div> 
           <div>
             <p className="bold">Daniel</p>
             <p>Admin</p>
@@ -56,7 +57,7 @@ const Bills = () => {
         <div className="sign-out">
           <a href="#">🚪 Sign Out</a>
         </div>
-      </div>
+      </div> */}
 
       {/* Main Content */}
       <main className="bills-content">

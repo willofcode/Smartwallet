@@ -1,0 +1,163 @@
+.dashboard-container {
+    padding: 2rem;
+    background-color: #1B203F;
+    color: #ffffff;
+    font-family: 'Poppins', sans-serif;
+  }
+  
+  .dashboard-header {
+    margin-bottom: 2rem;
+  }
+  
+  .dashboard-header h2 {
+    font-size: 2rem;
+  }
+  
+  .dashboard-header .time-filters button {
+    background: #2C325C;
+    color: #fff;
+    border: none;
+    padding: 0.5rem 1rem;
+    margin-right: 0.5rem;
+    border-radius: 0.5rem;
+    cursor: pointer;
+  }
+  
+  .dashboard-header .time-filters .active {
+    background-color: #ffffff;
+    color: #1B203F;
+  }
+  
+  .dashboard-main {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    grid-template-rows: auto;
+    gap: .5rem;
+    grid-template-areas:
+        "header header"
+        "left right";
+  }
+  
+  .left-section,
+  .right-section {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+  
+  .left-section {
+    grid-area: left;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+  
+  .right-section {
+    grid-area: right;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+  
+  .widget {
+    background-color: #2C325C;
+    padding: 1.5rem;
+    border-radius: 1rem;
+    box-shadow: 0 0 10px rgba(0,0,0,0.2);
+  }
+
+  .dashboard-header-widget {
+    grid-area:header;
+    min-height: 150px;
+
+  }
+  .time-filters{
+    display: flex;
+    gap: 0.5rem;
+  }
+  
+  .widget-dashboard-header-widget h2{
+    margin-bottom: 10rem;
+
+  }
+  
+  .spending-overview .spending-chart {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+  }
+  
+  .circle-chart {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    background: conic-gradient(#7c3aed 0% 40%, #10b981 40% 70%, #3b82f6 70% 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    background-color: #1B203F;
+  }
+  
+  .spending-breakdown {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .spending-breakdown li {
+    margin-bottom: 0.5rem;
+  }
+  
+  .dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 0.5rem;
+  }
+  
+  .dot.entertainment {
+    background-color: #7c3aed;
+  }
+  
+  .dot.food {
+    background-color: #10b981;
+  }
+  
+  .dot.rent {
+    background-color: #3b82f6;
+  }
+  
+  .habit-cards {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+  
+  .habit-card {
+    background-color: #ffffff;
+    color: #1B203F;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    text-align: center;
+  }
+  
+  .upcoming-bills .bills-list div {
+    margin-bottom: 0.5rem;
+  }
+  
+  .my-cards img {
+    width: 100%;
+    height: auto;
+  }
+  
+  .spending-goals p {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .spending-goals small {
+    font-size: 0.8rem;
+    color: #ccc;
+  }
+  

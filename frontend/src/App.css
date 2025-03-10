@@ -36,3 +36,15 @@
     transform: rotate(360deg);
   }
 }
+
+.app-contents {
+  display: flex;
+  height: 100vh;
+}
+
+.main-content {
+  flex-grow: 1;
+  overflow-y: auto;
+  background-color: #1B203F; 
+  padding: 2rem; 
+}

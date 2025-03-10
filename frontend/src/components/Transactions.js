@@ -52,7 +52,7 @@ const Transactions = () => {
 
   return (
     <div className="transactions-container">
-      {/* Sidebar */}
+      {/* 
       <div className="sidebar">
         <div className="top">
           <div className="logo">
@@ -77,7 +77,7 @@ const Transactions = () => {
           <li><a href="#">Bills</a></li>
           <li><a href="#">Logout</a></li>
         </ul>
-      </div>
+      </div>*/}
 
       {/* Main Content */}
       <main className="content">

@@ -1,0 +1,227 @@
+.sidebar {
+    background-color: #2C325C;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    top: 0;
+    left: 0;
+    padding: 2rem 3rem;
+    width: 20rem;
+    height: 100vh;
+    transition: 0.5s all;
+}
+
+.sidebar .logoSection {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.sidebar .logoSection h2.title {
+    font-size: 32px;
+    color: white;
+    padding: 0 0 0 1rem;
+}
+
+.sidebar .logoSection i{
+    font-size: 3rem;
+    margin-right: -0.5rem;
+    margin-left: -0.6rem;
+}
+.sidebar .closingSection {
+    content:"";
+    background-color: black;
+    position:absolute;
+    right: calc(-35px / 2); 
+    top: calc(9rem / 1.15);
+    width: 35px;
+    height: 35px;
+    border-radius: 2rem;
+    z-index: 1;
+}
+
+.sidebar .closingSection::after{
+    content:"";
+    position: absolute;
+    right: 35px;
+    top:calc(35px / 2);
+    z-index: 0;
+    width: calc(6rem + 15rem);
+    height: 2px;
+    background-color: darkgray;
+    transition: 0.5s all;
+}
+
+.sidebar .closingSection .closingTrigger{
+    content: "";
+    width: 35px;
+    height: 35px;
+    background-color: red;
+    cursor: pointer;
+    z-index: 6;
+    opacity: 0;
+    position: relative;
+
+}
+
+.sidebar .closingSection .closingMenu{
+    content:"";
+    background-color: black;
+    position: relative;
+    z-index: 1;
+    width: 20px;
+    height: 3px;
+    border-radius: 2rem;
+    bottom: calc(35px / 2);
+    left: 0.45rem;
+    transition: 0.5s all;
+}
+
+.sidebar .closingSection .closingMenu::after{
+    content:"";
+    background-color: white;
+    position:absolute;
+    width: 20px;
+    height: 3px;
+    border-radius: 2rem;
+    top: 0.4rem;
+    transform: translateY(-0.4rem) rotate(45deg);
+    transition: 0.5s all;
+}
+
+.sidebar .closingSection .closingMenu::before{
+    content:"";
+    background-color: white;
+    position:absolute;
+    width: 20px;
+    height: 3px;
+    border-radius: 2rem;
+    top: -0.4rem;
+    transform: translateY(0.4rem) rotate(-45deg);
+    transition: 0.5s all;
+}
+
+.sidebar .profileSection { 
+    padding: 6rem 0 0 0;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+   
+}
+
+.sidebar .profileSection .profile {
+    width: auto;
+    height: 3rem;
+    border-radius: 50%;  
+    object-fit: cover;  
+}
+
+.sidebar .profileSection .profileInfo {
+    padding: 0 0 0 1rem;
+}
+
+.sidebar .profileSection .profileInfo p.name {
+    padding: 0;
+    margin: 0;
+    font-size: 16.7px;
+    color: darkgray;
+    font-weight: bold;
+}
+
+.sidebar .contentsSection {
+    margin: 2rem 0 0 0;
+}
+
+.sidebar .contentsSection ul{
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        flex-direction: column;
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+.sidebar .contentsSection li{
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    flex-direction: row;
+    margin: 0.75rem 0;
+    padding: 0.75rem 0;
+    width: 100%;
+    border-radius: 1rem;
+    cursor: pointer;
+
+}
+.sidebar .contentsSection li:hover{
+    background-color: gray;
+    transition: 0.25s all;
+}
+.sidebar.active .contentsSection li:hover{
+    background-color: transparent;
+    transition: none;
+}
+.sidebar .contentsSection li i{
+    font-size: 2rem;
+    color: white;
+    padding: 0 1rem 0 0.5rem;
+
+}
+
+.sidebar .contentsSection li a{
+    color: white;
+    text-decoration: none;
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 0 0 0 0.5rem;
+
+}
+
+.sidebar .contentsSection li:hover i{
+    color: #1B203F;
+    transform: scale(1.2);
+}
+
+.sidebar .contentsSection li:hover a{
+    color: #1B203F;
+}
+
+.sidebar.active{
+    width: 10rem;
+    transition: 0.5s all;
+}
+
+.sidebar.active .logoSection.active{
+    h2.title{
+        opacity: 0;
+    }
+}
+
+.sidebar.active .closingSection.active{
+    transition: 0.5s all;
+}
+.sidebar.active .closingSection.active .closingMenu{
+    background-color: black;
+    transition: 0.5s all;
+}
+
+.sidebar.active .closingSection.active .closingMenu::before{
+    transform: translateY(0rem) rotate(0deg);
+    transition: 0.5s all;
+}
+.sidebar.active .closingSection.active .closingMenu::after{
+    transform: translateY(0rem) rotate(0deg);
+    transition: 0.5s all;
+}
+.sidebar.active .profileSection .profileInfo{
+    opacity: 0;
+}
+
+.sidebar.active  .contentsSection a{
+    opacity: 0;
+}
