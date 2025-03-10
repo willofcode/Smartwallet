@@ -1,12 +1,14 @@
+'use client';
+
 import { useEffect, useState } from 'react';
 import { usePlaidLink } from 'react-plaid-link';
 import axios from 'axios';
 import config from '../config';
 import { useNavigate } from 'react-router-dom';
+import Navbar from './Navbar';
 
 const TransactionsPage = () => {
   const [userId, setUserId] = useState(null);
-  const [userName, setUserName] = useState('');
   const [transactions, setTransactions] = useState([]);
   const [filteredTransactions, setFilteredTransactions] = useState([]);
   const [accounts, setAccounts] = useState([]);
@@ -18,34 +20,23 @@ const TransactionsPage = () => {
   const [endDate, setEndDate] = useState('');
   const navigate = useNavigate();
 
-  // UX: Fetch user ID, name, and link token
+  // Fetch user ID and link token
   useEffect(() => {
     const storedUserId = localStorage.getItem('userId');
     const storedLinkToken = localStorage.getItem('linkToken');
 
     if (storedUserId) {
       setUserId(storedUserId);
-      fetchUserName(storedUserId);
       if (storedLinkToken) {
         setLinkToken(storedLinkToken);
         setIsLinkReady(true);
       } else {
         setError('Link token not found. Please try again.');
-        console.error('Link token not found in local storage');
       }
     } else {
       navigate('/');
     }
   }, [navigate]);
-
-  const fetchUserName = async (id) => {
-    try {
-      const response = await axios.get(`${config.API_URL}/getUser/${id}`);
-      setUserName(response.data.name || 'User');
-    } catch (err) {
-      setUserName('User');
-    }
-  };
 
   const { open, ready } = usePlaidLink({
     token: linkToken,
@@ -64,11 +55,7 @@ const TransactionsPage = () => {
 
           const { transactions, accounts } = transactionsResponse.data;
           if (transactions && accounts) {
-            const sortedTransactions = transactions.sort((a, b) => {
-              const dateA = new Date(a.date);
-              const dateB = new Date(b.date);
-              return dateB - dateA;
-            });
+            const sortedTransactions = transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
             setTransactions(sortedTransactions);
             setAccounts(accounts);
             setFilteredTransactions(sortedTransactions); 
@@ -102,10 +89,6 @@ const TransactionsPage = () => {
     const start = new Date(startDate);
     const end = new Date(endDate);
 
-    // Thamida or sajed 
-    // Make sure start date is earlier than end date
-    
-
     const filtered = transactions.filter((transaction) => {
       const transactionDate = new Date(transaction.date);
       return transactionDate >= start && transactionDate <= end;
@@ -116,57 +99,34 @@ const TransactionsPage = () => {
 
   return (
     <div className="min-h-screen flex bg-gray-100">
-      {/* Sidebar */}
-      <div className="sidebar w-60 bg-indigo-800 text-white p-6">
-        <div className="top mb-8">
-          <div className="logo text-2xl font-semibold">SmartWallet</div>
-        </div>
+      <Navbar />
 
-        <div className="user flex items-center mb-8">
-          <img src="pfp.jpg" alt="profile picture" className="user-img w-12 h-12 rounded-full mr-4" />
-          <div>
-            <p className="font-semibold">{userName}</p>
-            <p className="text-sm">User</p>
-          </div>
-        </div>
-
-        <ul className="space-y-4">
-          <li><a href="#" className="hover:text-indigo-400">Dashboard</a></li>
-          <li className="active"><a href="#" className="text-indigo-400">Transactions</a></li>
-          <li><a href="#" className="hover:text-indigo-400">Wallet</a></li>
-          <li><a href="#" className="hover:text-indigo-400">Advisor</a></li>
-          <li><a href="#" className="hover:text-indigo-400">Budgeting</a></li>
-          <li><a href="#" className="hover:text-indigo-400">Bills</a></li>
-          <li><a href="#" className="text-red-500" onClick={handleLogout}>Logout</a></li>
-        </ul>
-      </div>
-
-      {/* Main Content */}
+      {/* main content */}
       <main className="content flex-grow p-8">
         <header className="summary-header bg-indigo-600 text-white p-6 rounded-lg shadow-lg mb-6 flex justify-between">
           <h1 className="text-4xl font-semibold">Your Transactions</h1>
 
-              {/* Date Range Filters */}
-              <div className="mb-6">
-                <input
-                  type="date"
-                  value={startDate}
-                  onChange={(e) => setStartDate(e.target.value)}
-                  className="mr-4 p-2 border rounded-lg"
-                />
-                <input
-                  type="date"
-                  value={endDate}
-                  onChange={(e) => setEndDate(e.target.value)}
-                  className="mr-4 p-2 border rounded-lg"
-                />
-                <button
-                  onClick={handleDateFilter}
-                  className="cursor mr-4 p-2 border bg-indigo-600 text-white py-2 px-4 rounded-lg hover:bg-indigo-700"
-                >
-                  Filter Dates
-                </button>
-              </div>
+          {/* Date Range Filters */}
+          <div className="mb-6">
+            <input
+              type="date"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              className="mr-4 p-2 border rounded-lg"
+            />
+            <input
+              type="date"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+              className="mr-4 p-2 border rounded-lg"
+            />
+            <button
+              onClick={handleDateFilter}
+              className="mr-4 p-2 border bg-indigo-600 text-white py-2 px-4 rounded-lg hover:bg-indigo-700"
+            >
+              Filter Dates
+            </button>
+          </div>
         </header>
 
         <div className="bg-white p-6 rounded-lg shadow-lg">
