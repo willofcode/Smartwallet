@@ -15,4 +15,4 @@ const HomePage = () => {
     );
 };
 
-export default Homepage;
+export default HomePage;

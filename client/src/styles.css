@@ -1,0 +1,31 @@
+/* Container for the carousel */
+.logos-carousel {
+    display: flex;
+    flex-wrap: nowrap;
+    width: 100%;
+    overflow: hidden;
+  }
+  
+  /* Wrapper that holds the logos */
+  .logos-wrapper {
+    display: flex;
+    flex-wrap: nowrap;
+    animation: scrollLogos 35s linear infinite;
+  }
+  
+  /* Individual logo styles */
+  .logo {
+    width: 100px; /* Adjust logo width as needed */
+    height: auto;
+    margin-right: 20px; /* Space between logos */
+  }
+  
+  /* Smooth animation for the logos */
+  @keyframes scrollLogos {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-50%); /* Scroll until half of the total width */
+    }
+  }  

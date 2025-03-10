@@ -1,14 +1,12 @@
 const mongoose = require('mongoose');
-const { v4: uuidv4 } = require('uuid'); 
+const { v4: uuidv4 } = require('uuid');
 
 const userSchema = new mongoose.Schema({
-  // add name to our schema
-  /*
+  
   name: {
     type: String,
     required: true,
   },
-  */
  
   email: 
   { type: String, 

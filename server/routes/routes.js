@@ -2,8 +2,10 @@ const express = require('express');
 const router = express.Router();
 const User = require("../models/User"); 
 const { plaidClient, Products } = require('../config/plaidConfig');
-
-/// I NEED JWT + BCRYPT
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
+const authMiddleware = require("../middleware/authMiddleware");
+const SECRET_KEY = process.env.JWT_SECRET_KEY
 
 // stole this from plaid quickstart
 const PLAID_PRODUCTS = (process.env.PLAID_PRODUCTS || Products.Transactions).split(
@@ -16,67 +18,132 @@ const PLAID_COUNTRY_CODES = (process.env.PLAID_COUNTRY_CODES || 'US').split(
 
 //200
 router.post("/signup", async (req, res) => {
-  let { email, password } = req.body;
+  let { name,
+        email, 
+        password 
+      } = req.body;
 
-  let newUser = new User({ email, password });
+  /*emailVerifier.verify(email, async (error, response) => {
+    if (error) {
+      return res.status(500).send({ message: "Error verifying email" });
+    }*/
+  
+  //let newUser = new User({ name, email, password });
+  // (william)
+  //check if the name, email and password were all inputted
+  //send an error if not all inputs were given
 
-  try {
-    const user = await newUser.save();
-    console.log("User created with ID:", user.userId);
-    res.send({ message: `User created with ID: ${user.userId}`, userId: user.userId });
-  } catch (error) {
-    res.status(500).send({ message: `Error creating user: ${error.message}` });
-  }
+    try {
+
+      // if the user exist --> send message "user already exist"
+      const existingUser = await User.findOne({ email });
+      if (existingUser) {
+        return res.status(400).send({ message: "User exists" });
+      }
+
+      //hashing --> bcrypt 
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(password, salt);
+
+      let newUser = new User({ name, email, password: hashedPassword });
+      const user = await newUser.save();
+
+      const token = jwt.sign({ userId: user.userId }, SECRET_KEY, {expiresIn: "1h" });
+
+      console.log("User created with ID:", user.userId);
+      res.status(200).send({ message: `User created with ID: ${user.userId}`, userId: user.userId, token });
+    } catch (error) {
+      res.status(500).send({ message: `Error creating user: ${error.message}` });
+    }
 });
 
-//200  (ISSUE #1: userid not retained after signout)
+//200  
 router.post("/login", async (req, res) => {
-  let { email, password } = req.body;
+  let { 
+        email, 
+        password 
+      } = req.body;
 
   try {
-    const user = await User.findOne({ email, password });
+    const user = await User.findOne({ email });
+    console.log('User found:', user);
 
     if (!user) {
       return res.status(400).send({ message: "Invalid email or password" });
     }
 
+    const isMatch = await bcrypt.compare(password, user.password);
+    console.log('Password match:', isMatch);
+
+    if (!isMatch) {
+      return res.status(400).send({ message: "Invalid email or password" });
+    }
+
+    const token = jwt.sign({ userId: user.userId }, process.env.JWT_SECRET_KEY, { expiresIn: "1h" });
+
     console.log("Login successful for user ID:", user.userId);
-    res.send({ id: user.userId });
+    res.status(200).send({ message: "Login successful", userId: user.userId, token });
+
   } catch (error) {
+    console.error('Error during login:', error);
     res.status(500).send({ message: `Error during login: ${error.message}` });
   }
 });
 
-// (ISSUE #2: we need a user logout endpoint)
-router.post('/logout', async (req, res) => {
-  
-  try { await res.send('hi logout'); // needs actual user logout functionality.
+/// get a user by it's Id I've done this before!!!!!
+router.get('/getUser/:id',  async (req, res) => {
+  //const user = await User.findById(req.params.id);
 
-    console.log("Logout successful for user ID:", user.userId);
+  try{
+    const user = await User.findOne({ userId: req.params.id });
+
+    if(!user) {
+
+      return res.status(404).send({ message: "user not found" });
+    }
+
+    res.json({ name: user.name });
+
+  } catch(error){
+      res.status(500).json({
+          message: error.message
+      });
+  }
+});
+
+router.post('/logout',  (req, res) => {
+  res.send({ messeage: "Logout successful" });
+});
+
+// (ISSUE #2: we need a user logout endpoint) the frontend!!!!!! should handle the logout
+  /*try { await req.logout();
+              req.session.destroy();
+              
+    res.redirect('/login');
     res.send({ id: user.userId });
 
   } catch(error) {
     res.status(500).send ({ message: `Error logging user out: ${error.message}` });
-  }
+  }*/
 
-});
-
-//200 
-router.post("/create_link_token", async (req, res) => {
+//200
+router.post("/create_link_token", authMiddleware, async (req, res) => {
   const { uid } = req.body;
 
-  if (!uid) {
+  if (!uid && !req.user?.userId) {
     return res.status(400).json({ error: "User ID is required" });
   }
 
   try {
-    console.log("Received UID:", uid); 
+    const userId = req.user?.userId || uid;
+
+    console.log("Received UID:", userId);
 
     const response = await plaidClient.linkTokenCreate({
       client_id: process.env.PLAID_CLIENT_ID,
       secret: process.env.PLAID_SECRET,
       user: {
-        client_user_id: uid,
+        client_user_id: userId,
       },
       client_name: "SmartWallet",
       products: PLAID_PRODUCTS,
@@ -90,6 +157,7 @@ router.post("/create_link_token", async (req, res) => {
     res.status(500).json({ error: "Can't Create Public Token" });
   }
 });
+
 
 // 200 (For testing REQUIRES public token, no real reason to save this in a db, public tokens expire in about 30 mins.)
 // works client-side
@@ -143,32 +211,3 @@ router.post('/get_transactions', async (req, res) => {
 });
 
 module.exports = router;
-
-/*
-
-// test endpoint to see if I get anything
-
-/*
-CREATE --> POST tasks to my db (Make a new task) 200 / 400(client side error, bad input)
-READ   --> GET tasks from my db (Get all tasks or one specific task) 200 / 500(server side error like if an API call fails)
-UPDATE --> PATCH tasks in my db (Update one specific task) 200 / 400(client side error, bad input)
-DELETE --> DELETE tasks from my db (Delete one specific task) 200 / 400(client side error, bad input)
-
-router.get('/get', (req, res) => {
-    res.json({ message: "Hello World! YOUR BACKEND IS CONNECTED BUT NOT PROPERLY!!" });
-  });
-
-router.patch('/update', (req, res) => {
-    res.json({ message: 'Got a UPDATE request'});
-  });
-
-router.delete('/delete', (req, res) => {
-    res.json({ message: 'Got a DELETE request'});
-  });
-
-*/
-
-/*
-console.log(PLAID_PRODUCTS);
-console.log(PLAID_COUNTRY_CODES);
-*/

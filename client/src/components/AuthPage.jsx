@@ -1,34 +1,35 @@
 'use client';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import axios from 'axios';
 import config from '../config';
 
-// UX
 const AuthPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
-  const [isLogin, setIsLogin] = useState(false);
+  const [isLogin, setIsLogin] = useState(true);
+  const [linkToken, setLinkToken] = useState('');
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
 
-    const url = isLogin ? `${config.API_URL}/login` : `${config.API_URL}/signup`;
-
     try {
-      const response = await axios.post(url, { email, password });
+      const response = await axios.post(`${config.API_URL}/login`, { email, password });
       const data = response.data;
 
       if (response.status === 200) {
         setSuccessMessage(data.message);
         setEmail('');
         setPassword('');
+        localStorage.setItem('token', data.token);
         localStorage.setItem('userId', data.userId);
-        setError('');
 
+        setError('');
         navigate('/transactions');
       } else {
         setError(data.message);
@@ -38,63 +39,165 @@ const AuthPage = () => {
     }
   };
 
-// UI
+  const handleSignUp = async (e) => {
+    e.preventDefault();
+  
+    try {
+      const response = await axios.post(`${config.API_URL}/signup`, { email, password, name });
+      const data = response.data;
+  
+      if (response.status === 200) {
+        setSuccessMessage(data.message);
+        setEmail('');
+        setPassword('');
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('userId', data.userId);
+
+        await createLinkToken(data.userId);
+  
+        setError('');
+        navigate('/transactions'); 
+      } else {
+        setError(data.message);
+      }
+    } catch (err) {
+      setError('Something went wrong. Please try again.');
+    }
+  };
+  
+  const createLinkToken = async (userId) => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setError('Authentication failed. Please log in again.');
+        return;
+      }
+  
+      const response = await axios.post(
+        `${config.API_URL}/create_link_token`,
+        { userId },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+  
+      if (response.status === 200 && response.data.link_token) {
+        const linkToken = response.data.link_token;
+        setLinkToken(linkToken);
+        localStorage.setItem('linkToken', linkToken);
+        setSuccessMessage('Link token created successfully!');
+      } else {
+        setError('Failed to create Plaid link token.');
+      }
+    } catch (err) {
+      setError('Error creating Plaid link token.');
+      console.error(err);
+    }
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="max-w-sm mx-auto p-6 bg-white shadow-lg rounded-lg w-full">
-        <h2 className="text-2xl font-bold text-center mb-6">
-          {isLogin ? 'Log In' : 'Sign Up'}
-        </h2>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-              Email:
-            </label>
-            <input
-              type="email"
-              id="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            />
+      <div className="relative w-[600px] h-[450px] bg-white shadow-lg rounded-lg overflow-hidden flex">
+        <div className="relative flex w-full h-full">
+          
+          {/* Login Form */}
+          <div className="w-1/2 p-6 z-10">
+            <h2 className="text-2xl font-bold text-center mb-6">Log In</h2>
+            <form onSubmit={handleLogin} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Email:</label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Password:</label>
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                />
+              </div>
+              <button
+                type="submit"
+                className="w-full py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              >
+                Log In
+              </button>
+            </form>
           </div>
-          <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-              Password:
-            </label>
-            <input
-              type="password"
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            />
+
+          {/* Sign Up Form */}
+          <div className="w-1/2 p-6 z-10">
+            <h2 className="text-2xl font-bold text-center mb-6">Sign Up</h2>
+            <form onSubmit={handleSignUp} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Name:</label>
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Email:</label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Password:</label>
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                />
+              </div>
+              <button
+                type="submit"
+                className="w-full py-2 bg-indigo-500 text-white rounded-md hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              >
+                Sign Up
+              </button>
+            </form>
           </div>
-          <button
-            type="submit"
-            className="w-full py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          >
-            {isLogin ? 'Log In' : 'Sign Up'}
-          </button>
-        </form>
 
-        {successMessage && (
-          <p className="mt-4 text-green-600 text-center">{successMessage}</p>
-        )}
-        {error && (
-          <p className="mt-4 text-red-600 text-center">{error}</p>
-        )}
-
-        {/* Toggle Button */}
-        <div className="mt-4 text-center">
-          <button
-            onClick={() => setIsLogin(!isLogin)}
-            className="text-indigo-600 hover:text-indigo-800"
+          {/* Toggle between Login and Sign Up */}
+          <motion.div
+            className="absolute top-0 left-0 w-1/2 h-full bg-gray-900 text-white flex flex-col items-center justify-center z-20 rounded-lg"
+            animate={{ x: isLogin ? "0%" : "100%" }}
+            transition={{ type: "spring", stiffness: 100, damping: 15 }}
           >
-            {isLogin ? 'Don\'t have an account? Sign Up' : 'Already have an account? Log In'}
-          </button>
+            <h2 className="text-2xl font-bold mb-4">
+              {isLogin ? "Got an account?" : "New Here?"}
+            </h2>
+            <p className="text-sm mb-6 text-center px-4">
+              {isLogin
+                ?  "Log in to access your transactions and financial tools."
+                : "Sign up to start managing your finances efficiently."}
+            </p>
+            <button
+              onClick={() => setIsLogin(!isLogin)}
+              className="bg-white text-gray-900 px-6 py-2 rounded-md shadow-md hover:bg-gray-300 transition"
+            >
+              {isLogin ? "Log In" : "Sign Up"}
+            </button>
+          </motion.div>
+
         </div>
       </div>
     </div>
