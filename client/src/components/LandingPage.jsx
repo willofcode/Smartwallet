@@ -19,15 +19,15 @@ const LandingPage = () => {
                     <li>
                         <a href="/authform" className="bg-white text-[#0c064d] px-4 py-2 rounded-2xl font-semibold shadow-lg opacity-100 hover:opacity-70 transition">Get started</a>
                     </li>
-                    <li>
+                    {/*<li>
                         <a href="/transactions" className="text-white opacity-100 hover:opacity-70 transition">Transactions</a>
-                    </li>
+                    </li>*/}
                     <li>
                         <a href="#" className="text-white opacity-100 hover:opacity-70 transition">Home</a>
                     </li>
-                    <li>
+                    {/*<li>
                         <a href="#" className="text-white opacity-100 hover:opacity-70 transition">Bills</a>
-                    </li>
+                    </li>*/}
                     <li>
                         <a href="#" className="text-white opacity-100 hover:opacity-70 transition">About Us</a>
                     </li>

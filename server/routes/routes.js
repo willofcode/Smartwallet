@@ -201,9 +201,13 @@ router.post('/get_transactions', async (req, res) => {
       hasMore = transactionResponse.data.has_more;
     }
 
-    console.log("Transactions fetched:", allTransactions);
+    const accountsResponse = await plaidClient.accountsGet({ access_token });
+    const accounts = accountsResponse.data.accounts;
 
-    res.send({ transactions: allTransactions });
+    console.log("Transactions fetched:", allTransactions);
+    console.log("Accounts fetched:", accounts);
+
+    res.json({ transactions: allTransactions, accounts });
   } catch (error) {
     console.error('Error fetching transactions:', error.response ? error.response.data : error.message);
     res.status(500).json({ error: "Can't Get Transaction history" });

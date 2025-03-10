@@ -8,12 +8,17 @@ const TransactionsPage = () => {
   const [userId, setUserId] = useState(null);
   const [userName, setUserName] = useState('');
   const [transactions, setTransactions] = useState([]);
+  const [filteredTransactions, setFilteredTransactions] = useState([]);
+  const [accounts, setAccounts] = useState([]);
   const [error, setError] = useState(null);
   const [linkToken, setLinkToken] = useState(null);
   const [isLinkReady, setIsLinkReady] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
   const navigate = useNavigate();
 
+  // UX: Fetch user ID, name, and link token
   useEffect(() => {
     const storedUserId = localStorage.getItem('userId');
     const storedLinkToken = localStorage.getItem('linkToken');
@@ -34,17 +39,10 @@ const TransactionsPage = () => {
   }, [navigate]);
 
   const fetchUserName = async (id) => {
-    console.log("Fetching user name for ID:", id);
     try {
       const response = await axios.get(`${config.API_URL}/getUser/${id}`);
-      console.log("User API Response:", response.data);
-      if (response.data.name) {
-        setUserName(response.data.name);
-      } else {
-        setUserName('User');
-      }
+      setUserName(response.data.name || 'User');
     } catch (err) {
-      console.error('Error fetching user name:', err);
       setUserName('User');
     }
   };
@@ -61,23 +59,27 @@ const TransactionsPage = () => {
         const { access_token } = accessTokenResponse.data;
         if (access_token) {
           const transactionsResponse = await axios.post(`${config.API_URL}/get_transactions`, {
-            access_token: access_token,
+            access_token,
           });
 
-          const { transactions } = transactionsResponse.data;
-          if (transactions) {
-            setTransactions(transactions);
+          const { transactions, accounts } = transactionsResponse.data;
+          if (transactions && accounts) {
+            const sortedTransactions = transactions.sort((a, b) => {
+              const dateA = new Date(a.date);
+              const dateB = new Date(b.date);
+              return dateB - dateA;
+            });
+            setTransactions(sortedTransactions);
+            setAccounts(accounts);
+            setFilteredTransactions(sortedTransactions); 
           } else {
             setError('Failed to fetch transactions.');
-            console.error('No transactions data returned.');
           }
         } else {
           setError('Failed to obtain access token.');
-          console.error('Access token was not obtained.');
         }
       } catch (err) {
-        console.error('Error exchanging public token or fetching transactions:', err);
-        setError('Error exchanging public token or fetching transactions.');
+        setError('Error fetching transactions.');
       } finally {
         setIsLoading(false);
       }
@@ -89,6 +91,27 @@ const TransactionsPage = () => {
     localStorage.removeItem('linkToken');
     setUserId(null);
     navigate('/');
+  };
+
+  const getAccountDetails = (accountId) => {
+    const account = accounts.find(acc => acc.account_id === accountId);
+    return account ? `${account.name}` : 'Unknown Account';
+  };
+
+  const handleDateFilter = () => {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+
+    // Thamida or sajed 
+    // Make sure start date is earlier than end date
+    
+
+    const filtered = transactions.filter((transaction) => {
+      const transactionDate = new Date(transaction.date);
+      return transactionDate >= start && transactionDate <= end;
+    });
+
+    setFilteredTransactions(filtered);
   };
 
   return (
@@ -122,7 +145,28 @@ const TransactionsPage = () => {
       <main className="content flex-grow p-8">
         <header className="summary-header bg-indigo-600 text-white p-6 rounded-lg shadow-lg mb-6 flex justify-between">
           <h1 className="text-4xl font-semibold">Your Transactions</h1>
-          <span className="date-range bg-indigo-700 p-2 rounded-lg">DATE: 01/19/23 - 11/25/2024</span>
+
+              {/* Date Range Filters */}
+              <div className="mb-6">
+                <input
+                  type="date"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  className="mr-4 p-2 border rounded-lg"
+                />
+                <input
+                  type="date"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  className="mr-4 p-2 border rounded-lg"
+                />
+                <button
+                  onClick={handleDateFilter}
+                  className="cursor mr-4 p-2 border bg-indigo-600 text-white py-2 px-4 rounded-lg hover:bg-indigo-700"
+                >
+                  Filter Dates
+                </button>
+              </div>
         </header>
 
         <div className="bg-white p-6 rounded-lg shadow-lg">
@@ -144,26 +188,30 @@ const TransactionsPage = () => {
               )}
 
               <div className="transactions-list mt-8">
-                {transactions.length > 0 ? (
+                {filteredTransactions.length > 0 ? (
                   <div className="overflow-x-auto">
                     <table className="min-w-full bg-white table-auto rounded-lg shadow-sm">
                       <thead className="bg-indigo-600 text-white">
                         <tr>
                           <th className="py-3 px-4 text-left">Merchant</th>
-                          <th className="py-3 px-4 text-left">Account</th>
+                          <th className="py-3 px-4 text-left">Category</th>
                           <th className="py-3 px-4 text-left">Amount</th>
                           <th className="py-3 px-4 text-left">Date</th>
+                          <th className="py-3 px-4 text-left">Account</th>
                         </tr>
                       </thead>
+
+                      {/* Transaction Data Table */}
                       <tbody>
-                        {transactions.map((transaction, index) => (
+                        {filteredTransactions.map((transaction, index) => (
                           <tr key={index} className="border-b hover:bg-gray-50">
-                            <td className="py-3 px-4">{transaction.merchant}</td>
-                            <td className="py-3 px-4">{transaction.account}</td>
+                            <td className="py-3 px-4">{transaction.merchant_name || transaction.name || 'Unknown'}</td>
+                            <td className="py-3 px-4">{transaction.category || 'Unknown'}</td>
                             <td className={`py-3 px-4 ${transaction.amount < 0 ? 'text-red-600' : 'text-green-600'}`}>
                               ${transaction.amount.toFixed(2)}
                             </td>
                             <td className="py-3 px-4">{transaction.date}</td>
+                            <td className="py-3 px-4">{getAccountDetails(transaction.account_id)}</td>
                           </tr>
                         ))}
                       </tbody>
