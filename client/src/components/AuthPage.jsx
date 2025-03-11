@@ -94,7 +94,7 @@ const AuthPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#292d52]"> {/* Keep overall background intact */}
+    <div className="min-h-screen flex items-center justify-center bg-[#292d52]">
       <div className="relative w-[600px] h-[450px] bg-[#1b1d33] shadow-lg rounded-lg overflow-hidden flex">
         <div className="relative flex w-full h-full">
           
