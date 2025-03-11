@@ -9,3 +9,5 @@ const BudgetingPage = () => {
         <h1 className="underline"> Hi budgeting! </h1>
     )
 }
+
+export default BudgetingPage;
