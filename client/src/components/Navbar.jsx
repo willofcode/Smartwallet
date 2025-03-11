@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import config from '../config';
 
-const Navbar = ({ handleLogout }) => {
+const Navbar = () => {
   const [isActive, setIsActive] = useState('Transactions');
   const [userName, setUserName] = useState('');
   const navigate = useNavigate();
@@ -34,10 +34,18 @@ const Navbar = ({ handleLogout }) => {
     if (path.includes('wallet')) setIsActive('Wallet');
   }, [window.location.pathname]);
 
+  const handleLogout = () => {
+    localStorage.removeItem('userId');
+    localStorage.removeItem('linkToken');
+    navigate('/');
+  };
+
   return (
-    <div className="sidebar w-60 bg-indigo-800 text-white p-6">
+    <div className="sidebar w-60 bg-[#2c325c] text-white p-6">
       <div className="top mb-8">
-        <div className="logo text-2xl font-semibold">SmartWallet</div>
+        <div className={`logo text-2xl font-semibold hover:text-[#3a70a2] ${isActive ==='/' ? 'text-white' : ''}`}>
+            <a href="/">SmartWallet</a>
+        </div>
       </div>
 
       <div className="user flex items-center mb-8">
@@ -50,66 +58,66 @@ const Navbar = ({ handleLogout }) => {
 
       <ul className="space-y-4">
         <li>
-          <NavLink
+            <NavLink
             to="/dashboard"
-            className={`hover:text-indigo-400 ${isActive === 'Dashboard' ? 'text-indigo-400' : ''}`}
+            className={`transition-colors duration-300 hover:text-[#3a70a2] ${isActive === 'HomePage' ? 'text-[#3a70a2]' : ''}`}
             onClick={() => setIsActive('Dashboard')}
-          >
+            >
             Dashboard
-          </NavLink>
+            </NavLink>
         </li>
         <li>
-          <NavLink
+            <NavLink
             to="/transactions"
-            className={`hover:text-indigo-400 ${isActive === 'Transactions' ? 'text-indigo-400' : ''}`}
+            className={`transition-colors duration-300 hover:text-[#3a70a2] ${isActive === 'Transactions' ? 'text-[#3a70a2]' : ''}`}
             onClick={() => setIsActive('Transactions')}
-          >
+            >
             Transactions
-          </NavLink>
+            </NavLink>
         </li>
         <li>
-          <NavLink
+            <NavLink
             to="/wallet"
-            className={`hover:text-indigo-400 ${isActive === 'Wallet' ? 'text-indigo-400' : ''}`}
+            className={`transition-colors duration-300 hover:text-[#3a70a2] ${isActive === 'Wallet' ? 'text-[#3a70a2]' : ''}`}
             onClick={() => setIsActive('Wallet')}
-          >
+            >
             Wallet
-          </NavLink>
+            </NavLink>
         </li>
         <li>
-          <NavLink
+            <NavLink
             to="/advisor"
-            className={`hover:text-indigo-400 ${isActive === 'Advisor' ? 'text-indigo-400' : ''}`}
+            className={`transition-colors duration-300 hover:text-[#3a70a2] ${isActive === 'Advisor' ? 'text-[#3a70a2]' : ''}`}
             onClick={() => setIsActive('Advisor')}
-          >
+            >
             Advisor
-          </NavLink>
+            </NavLink>
         </li>
         <li>
-          <NavLink
+            <NavLink
             to="/budgeting"
-            className={`hover:text-indigo-400 ${isActive === 'Budgeting' ? 'text-indigo-400' : ''}`}
+            className={`transition-colors duration-300 hover:text-[#3a70a2] ${isActive === 'Budgeting' ? 'text-[#3a70a2]' : ''}`}
             onClick={() => setIsActive('Budgeting')}
-          >
+            >
             Budgeting
-          </NavLink>
+            </NavLink>
         </li>
         <li>
-          <NavLink
+            <NavLink
             to="/bills"
-            className={`hover:text-indigo-400 ${isActive === 'Bills' ? 'text-indigo-400' : ''}`}
+            className={`transition-colors duration-300 hover:text-[#3a70a2] ${isActive === 'Bills' ? 'text-[#3a70a2]' : ''}`}
             onClick={() => setIsActive('Bills')}
-          >
+            >
             Bills
-          </NavLink>
+            </NavLink>
         </li>
         <li>
-          <button
+            <button
             onClick={handleLogout}
-            className="mr-4 pr-2 border px-4 rounded-xl text-red-500"
-          >
+            className="transition-colors duration-300 hover:text-red-500 text-white"
+            >
             Logout
-          </button>
+            </button>
         </li>
       </ul>
     </div>

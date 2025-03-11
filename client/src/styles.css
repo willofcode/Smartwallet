@@ -26,6 +26,6 @@
       transform: translateX(0);
     }
     100% {
-      transform: translateX(-50%); /* Scroll until half of the total width */
+      transform: translateX(-450%); /* Scroll until half of the total width */
     }
   }  

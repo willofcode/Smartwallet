@@ -94,13 +94,13 @@ const AuthPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="relative w-[600px] h-[450px] bg-white shadow-lg rounded-lg overflow-hidden flex">
+    <div className="min-h-screen flex items-center justify-center bg-[#292d52]"> {/* Keep overall background intact */}
+      <div className="relative w-[600px] h-[450px] bg-[#1b1d33] shadow-lg rounded-lg overflow-hidden flex">
         <div className="relative flex w-full h-full">
           
           {/* Login Form */}
-          <div className="w-1/2 p-6 z-10">
-            <h2 className="text-2xl font-bold text-center mb-6">Log In</h2>
+          <div className="w-1/2 p-6 z-10 bg-white rounded-lg shadow-xl">
+            <h2 className="text-2xl font-bold text-center mb-6 text-gray-900">Log In</h2>
             <form onSubmit={handleLogin} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700">Email:</label>
@@ -133,8 +133,8 @@ const AuthPage = () => {
           </div>
 
           {/* Sign Up Form */}
-          <div className="w-1/2 p-6 z-10">
-            <h2 className="text-2xl font-bold text-center mb-6">Sign Up</h2>
+          <div className="w-1/2 p-6 z-10 bg-white rounded-lg shadow-xl">
+            <h2 className="text-2xl font-bold text-center mb-6 text-gray-900">Sign Up</h2>
             <form onSubmit={handleSignUp} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700">Name:</label>
@@ -192,7 +192,7 @@ const AuthPage = () => {
             </p>
             <button
               onClick={() => setIsLogin(!isLogin)}
-              className="bg-white text-gray-900 px-6 py-2 rounded-md shadow-md hover:bg-gray-300 transition"
+              className="bg-white text-[#292d52] px-6 py-2 rounded-md shadow-md hover:bg-[#555a7c] transition"
             >
               {isLogin ? "Log In" : "Sign Up"}
             </button>

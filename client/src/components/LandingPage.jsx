@@ -54,33 +54,33 @@ const LandingPage = () => {
                 <div className="w-1/2 flex justify-center relative overflow-hidden">
                     <div className="logos-carousel">
                         <div className="logos-wrapper">
-                            <img src="/images/chase-logo.png" alt="Chase Logo" className="logo" />
-                            <img src="/images/bofa-logo.png" alt="Bank of America Logo" className="logo" />
-                            <img src="/images/wellsfargo-logo.png" alt="Wells Fargo Logo" className="logo" />
-                            <img src="/images/capitalone-logo.png" alt="Capital One Logo" className="logo" />
-                            <img src="/images/citibank-logo.png" alt="Citibank Logo" className="logo" />
-                            <img src="/images/tdbank-logo.png" alt="TD Bank Logo" className="logo" />
-                            <img src="/images/m&tbank-logo.png" alt="M&T Bank Logo" className="logo" />
-                            <img src="/images/keybank-logo.png" alt="KeyBank Logo" className="logo" />
-                            <img src="/images/citizens-logo.png" alt="Citizens Logo" className="logo" />
-                            <img src="/images/sofi-logo.png" alt="SoFi Bank Logo" className="logo" />
-                            <img src="/images/charlesschwab-logo.png" alt="Charles Schwab Logo" className="logo" />
-                            <img src="/images/americanexpress-logo.png" alt="American Express Logo" className="logo" />
-                            <img src="/images/discover-logo.png" alt="Discover Logo" className="logo" />
-                            
-                            <img src="/images/chase-logo.png" alt="Chase Logo" className="logo" />
-                            <img src="/images/bofa-logo.png" alt="Bank of America Logo" className="logo" />
-                            <img src="/images/wellsfargo-logo.png" alt="Wells Fargo Logo" className="logo" />
-                            <img src="/images/capitalone-logo.png" alt="Capital One Logo" className="logo" />
-                            <img src="/images/citibank-logo.png" alt="Citibank Logo" className="logo" />
-                            <img src="/images/tdbank-logo.png" alt="TD Bank Logo" className="logo" />
-                            <img src="/images/m&tbank-logo.png" alt="M&T Bank Logo" className="logo" />
-                            <img src="/images/keybank-logo.png" alt="KeyBank Logo" className="logo" />
-                            <img src="/images/citizens-logo.png" alt="Citizens Logo" className="logo" />
-                            <img src="/images/sofi-logo.png" alt="SoFi Bank Logo" className="logo" />
-                            <img src="/images/charlesschwab-logo.png" alt="Charles Schwab Logo" className="logo" />
-                            <img src="/images/americanexpress-logo.png" alt="American Express Logo" className="logo" />
-                            <img src="/images/discover-logo.png" alt="Discover Logo" className="logo" />
+                            <img src="/images/chase-logo-removebg-preview.png" alt="Chase Logo" className="logo" />
+                            <img src="/images/bofa-logo-removebg-preview.png" alt="Bank of America Logo" className="logo" />
+                            <img src="/images/wellsfargo-logo-removebg-preview.png" alt="Wells Fargo Logo" className="logo" />
+                            <img src="/images/capitalone-logo-removebg-preview.png" alt="Capital One Logo" className="logo" />
+                            <img src="/images/citibank-logo-removebg-preview.png" alt="Citibank Logo" className="logo" />
+                            <img src="/images/tdbank-logo-removebg-preview.png" alt="TD Bank Logo" className="logo" />
+                            <img src="/images/m_tbank-logo-removebg-preview.png" alt="M&T Bank Logo" className="logo" />
+                            <img src="/images/keybank-logo-removebg-preview.png" alt="KeyBank Logo" className="logo" />
+                            <img src="/images/citizens-logo-removebg-preview.png" alt="Citizens Logo" className="logo" />
+                            <img src="/images/sofi-logo-removebg-preview.png" alt="SoFi Bank Logo" className="logo" />
+                            <img src="/images/charlesschwab-logo-removebg-preview.png" alt="Charles Schwab Logo" className="logo" />
+                            <img src="/images/americanexpress-logo-removebg-preview.png" alt="American Express Logo" className="logo" />
+                            <img src="/images/discover-logo-removebg-preview.png" alt="Discover Logo" className="logo" />
+                            {/* Duplicating logos for seamless scroll */}
+                            <img src="/images/chase-logo-removebg-preview.png" alt="Chase Logo" className="logo" />
+                            <img src="/images/bofa-logo-removebg-preview.png" alt="Bank of America Logo" className="logo" />
+                            <img src="/images/wellsfargo-logo-removebg-preview.png" alt="Wells Fargo Logo" className="logo" />
+                            <img src="/images/capitalone-logo-removebg-preview.png" alt="Capital One Logo" className="logo" />
+                            <img src="/images/citibank-logo-removebg-preview.png" alt="Citibank Logo" className="logo" />
+                            <img src="/images/tdbank-logo-removebg-preview.png" alt="TD Bank Logo" className="logo" />
+                            <img src="/images/m_tbank-logo-removebg-preview.png" alt="M&T Bank Logo" className="logo" />
+                            <img src="/images/keybank-logo-removebg-preview.png" alt="KeyBank Logo" className="logo" />
+                            <img src="/images/citizens-logo-removebg-preview.png" alt="Citizens Logo" className="logo" />
+                            <img src="/images/sofi-logo-removebg-preview.png" alt="SoFi Bank Logo" className="logo" />
+                            <img src="/images/charlesschwab-logo-removebg-preview.png" alt="Charles Schwab Logo" className="logo" />
+                            <img src="/images/americanexpress-logo-removebg-preview.png" alt="American Express Logo" className="logo" />
+                            <img src="/images/discover-logo-removebg-preview.png" alt="Discover Logo" className="logo" />
                         </div>
                     </div>
                 </div>

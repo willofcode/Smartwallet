@@ -20,7 +20,6 @@ const TransactionsPage = () => {
   const [endDate, setEndDate] = useState('');
   const navigate = useNavigate();
 
-  // Fetch user ID and link token
   useEffect(() => {
     const storedUserId = localStorage.getItem('userId');
     const storedLinkToken = localStorage.getItem('linkToken');
@@ -31,12 +30,34 @@ const TransactionsPage = () => {
         setLinkToken(storedLinkToken);
         setIsLinkReady(true);
       } else {
-        setError('Link token not found. Please try again.');
+        // If there's no link token, create a new one
+        generateLinkToken();
       }
     } else {
       navigate('/');
     }
   }, [navigate]);
+
+  const generateLinkToken = async () => {
+    try {
+      setIsLoading(true);
+      const response = await axios.post(`${config.API_URL}/create_link_token`, {
+        user_id: userId,
+      });
+      const { link_token } = response.data;
+      if (link_token) {
+        setLinkToken(link_token);
+        localStorage.setItem('linkToken', link_token); // Store the link token in localStorage
+        setIsLinkReady(true);
+      } else {
+        setError('Failed to generate link token.');
+      }
+    } catch (err) {
+      setError('Error generating link token.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const { open, ready } = usePlaidLink({
     token: linkToken,
@@ -73,13 +94,6 @@ const TransactionsPage = () => {
     },
   });
 
-  const handleLogout = () => {
-    localStorage.removeItem('userId');
-    localStorage.removeItem('linkToken');
-    setUserId(null);
-    navigate('/');
-  };
-
   const getAccountDetails = (accountId) => {
     const account = accounts.find(acc => acc.account_id === accountId);
     return account ? `${account.name}` : 'Unknown Account';
@@ -98,13 +112,13 @@ const TransactionsPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex bg-gray-100">
+    <div className="min-h-screen flex bg-gray-900">
       <Navbar />
 
       {/* main content */}
       <main className="content flex-grow p-8">
-        <header className="summary-header bg-indigo-600 text-white p-6 rounded-lg shadow-lg mb-6 flex justify-between">
-          <h1 className="text-4xl font-semibold">Your Transactions</h1>
+        <header className="summary-header bg-[#3a3f66] text-white p-6 rounded-lg shadow-lg mb-6 flex justify-between">
+          <h1 className="text-4xl font-semibold">Transactions</h1>
 
           {/* Date Range Filters */}
           <div className="mb-6">
@@ -122,14 +136,14 @@ const TransactionsPage = () => {
             />
             <button
               onClick={handleDateFilter}
-              className="mr-4 p-2 border bg-indigo-600 text-white py-2 px-4 rounded-lg hover:bg-indigo-700"
+              className="mr-4 p-2 border bg-[#3a3f66] text-white py-2 px-4 rounded-lg hover:bg-[#555a7c]"
             >
               Filter Dates
             </button>
           </div>
         </header>
 
-        <div className="bg-white p-6 rounded-lg shadow-lg">
+        <div className="bg-[#292d52] p-6 rounded-lg shadow-lg">
           {userId ? (
             <>
               {error && <div className="text-red-600 mb-4">{error}</div>}
@@ -137,7 +151,7 @@ const TransactionsPage = () => {
                 <button
                   onClick={() => open()}
                   disabled={!ready}
-                  className="w-full bg-indigo-600 text-white py-3 px-4 rounded-lg hover:bg-indigo-700 transition duration-200 mb-6"
+                  className="w-full bg-[#3a3f66] text-white py-3 px-4 rounded-lg hover:bg-[#555a7c] transition duration-200 mb-6"
                 >
                   Link Bank Account
                 </button>
@@ -150,8 +164,8 @@ const TransactionsPage = () => {
               <div className="transactions-list mt-8">
                 {filteredTransactions.length > 0 ? (
                   <div className="overflow-x-auto">
-                    <table className="min-w-full bg-white table-auto rounded-lg shadow-sm">
-                      <thead className="bg-indigo-600 text-white">
+                    <table className="min-w-full bg-[#1b1d33] table-auto rounded-lg shadow-sm">
+                      <thead className="bg-[#3a3f66] text-white">
                         <tr>
                           <th className="py-3 px-4 text-left">Merchant</th>
                           <th className="py-3 px-4 text-left">Category</th>
@@ -164,7 +178,7 @@ const TransactionsPage = () => {
                       {/* Transaction Data Table */}
                       <tbody>
                         {filteredTransactions.map((transaction, index) => (
-                          <tr key={index} className="border-b hover:bg-gray-50">
+                          <tr key={index} className="border-b hover:bg-[#555a7c] text-white">
                             <td className="py-3 px-4">{transaction.merchant_name || transaction.name || 'Unknown'}</td>
                             <td className="py-3 px-4">{transaction.category || 'Unknown'}</td>
                             <td className={`py-3 px-4 ${transaction.amount < 0 ? 'text-red-600' : 'text-green-600'}`}>
