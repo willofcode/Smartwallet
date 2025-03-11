@@ -1,3 +1,5 @@
+/* heavily gpt'ed */
+
 /* Container for the carousel */
 .logos-carousel {
     display: flex;
@@ -26,6 +28,12 @@
       transform: translateX(0);
     }
     100% {
-      transform: translateX(-450%); /* Scroll until half of the total width */
+      transform: translateX(-450%); /* Scroll until half of the total width (how long it'll scroll)
+      
+      
+      Starts @: Chase
+      
+      Ends @: Discover
+      */
     }
   }  

@@ -29,9 +29,11 @@ router.post("/signup", async (req, res) => {
     }*/
   
   //let newUser = new User({ name, email, password });
+
   // (william)
-  //check if the name, email and password were all inputted
-  //send an error if not all inputs were given
+  // check if the name, email and password were all inputted
+  // send an error if not all inputs were given
+  // all inputs Required!
 
     try {
 

@@ -1,3 +1,7 @@
+//sandbox ---> production 
+//prod --> transactions && billing 
+//
+
 'use client';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -7,6 +11,8 @@ import config from '../config';
 const BillsPage = () => {
   const billsData = [
     {
+    /// it'll show upcoming bills 
+
       month: "January",
       bills: [
         { merchant: "Electric Company", account: "987654", amount: "150.00", date: "2024-01-01" },
@@ -27,6 +33,7 @@ const BillsPage = () => {
       ]
     }
   ];
+
 
   return (
     <div className="flex flex-col h-screen bg-gray-900 text-white">

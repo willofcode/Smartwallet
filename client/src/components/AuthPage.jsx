@@ -205,3 +205,17 @@ const AuthPage = () => {
 };
 
 export default AuthPage;
+
+/*
+AFTER 
+CLIENT --- 
+--> google pfp via OAuth
+
+SERVER --- API GOOGLE OAUth
+--> another login / signup option
+
+
+clerk????? (check it out)
+
+
+ */
