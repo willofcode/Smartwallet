@@ -30,7 +30,6 @@ const TransactionsPage = () => {
         setLinkToken(storedLinkToken);
         setIsLinkReady(true);
       } else {
-        // If there's no link token, create a new one
         generateLinkToken();
       }
     } else {
@@ -47,7 +46,7 @@ const TransactionsPage = () => {
       const { link_token } = response.data;
       if (link_token) {
         setLinkToken(link_token);
-        localStorage.setItem('linkToken', link_token); // Store the link token in localStorage
+        localStorage.setItem('linkToken', link_token);
         setIsLinkReady(true);
       } else {
         setError('Failed to generate link token.');
