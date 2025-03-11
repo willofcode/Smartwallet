@@ -35,7 +35,7 @@ router.post("/signup", async (req, res) => {
   // send a status 400 error with a message saying that all inputs required.
   // all inputs Required!
 
-    
+
     try {
 
       // if the user exist --> send message "user already exist"
