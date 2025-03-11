@@ -30,18 +30,19 @@ router.post("/signup", async (req, res) => {
   
   //let newUser = new User({ name, email, password });
 
-  // (william)
-  // check if the name, email and password were all inputted
-  // send an error if not all inputs were given
+  // (WILLIAM) 
+  // check if the name, email and password are not all inputted
+  // send a status 400 error with a message saying that all inputs required.
   // all inputs Required!
 
+    
     try {
 
       // if the user exist --> send message "user already exist"
       const existingUser = await User.findOne({ email });
       if (existingUser) {
         return res.status(400).send({ message: "User exists" });
-      }
+      };
 
       //hashing --> bcrypt 
       const salt = await bcrypt.genSalt(10);

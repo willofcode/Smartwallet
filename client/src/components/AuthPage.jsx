@@ -98,7 +98,7 @@ const AuthPage = () => {
       <div className="relative w-[600px] h-[450px] bg-[#1b1d33] shadow-lg rounded-lg overflow-hidden flex">
         <div className="relative flex w-full h-full">
           
-          {/* Login Form */}
+          {/* section 1 - login */}
           <div className="w-1/2 p-6 z-10 bg-white rounded-lg shadow-xl">
             <h2 className="text-2xl font-bold text-center mb-6 text-gray-900">Log In</h2>
             <form onSubmit={handleLogin} className="space-y-4">
@@ -132,7 +132,7 @@ const AuthPage = () => {
             </form>
           </div>
 
-          {/* Sign Up Form */}
+          {/* section 2 - signup */}
           <div className="w-1/2 p-6 z-10 bg-white rounded-lg shadow-xl">
             <h2 className="text-2xl font-bold text-center mb-6 text-gray-900">Sign Up</h2>
             <form onSubmit={handleSignUp} className="space-y-4">
@@ -176,7 +176,7 @@ const AuthPage = () => {
             </form>
           </div>
 
-          {/* Toggle between Login and Sign Up */}
+          {/* sliding window for login and signup*/}
           <motion.div
             className="absolute top-0 left-0 w-1/2 h-full bg-gray-900 text-white flex flex-col items-center justify-center z-20 rounded-lg"
             animate={{ x: isLogin ? "0%" : "100%" }}

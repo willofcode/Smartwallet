@@ -67,7 +67,7 @@ const LandingPage = () => {
                             <img src="/images/charlesschwab-logo-removebg-preview.png" alt="Charles Schwab Logo" className="logo" />
                             <img src="/images/americanexpress-logo-removebg-preview.png" alt="American Express Logo" className="logo" />
                             <img src="/images/discover-logo-removebg-preview.png" alt="Discover Logo" className="logo" />
-                            
+
                             {/* Duplicating logos for seamless scroll */}
                             <img src="/images/chase-logo-removebg-preview.png" alt="Chase Logo" className="logo" />
                             <img src="/images/bofa-logo-removebg-preview.png" alt="Bank of America Logo" className="logo" />
@@ -82,6 +82,12 @@ const LandingPage = () => {
                             <img src="/images/charlesschwab-logo-removebg-preview.png" alt="Charles Schwab Logo" className="logo" />
                             <img src="/images/americanexpress-logo-removebg-preview.png" alt="American Express Logo" className="logo" />
                             <img src="/images/discover-logo-removebg-preview.png" alt="Discover Logo" className="logo" />
+
+                            <img src="/images/chase-logo-removebg-preview.png" alt="Chase Logo" className="logo" />
+                            <img src="/images/bofa-logo-removebg-preview.png" alt="Bank of America Logo" className="logo" />
+                            <img src="/images/wellsfargo-logo-removebg-preview.png" alt="Wells Fargo Logo" className="logo" />
+                            <img src="/images/capitalone-logo-removebg-preview.png" alt="Capital One Logo" className="logo" />
+                            <img src="/images/citibank-logo-removebg-preview.png" alt="Citibank Logo" className="logo" />
                         </div>
                     </div>
                 </div>

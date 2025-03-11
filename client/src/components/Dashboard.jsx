@@ -24,12 +24,13 @@ const Dashboard = () => {
       </div>
 
       <div className="grid grid-cols-3 gap-8">
-        {/* Left Section */}
+        {/* section 1 --> left */}
         <div className="col-span-2 space-y-8">
           <div className="bg-indigo-900 p-6 rounded-lg shadow-lg">
             <h3 className="text-xl mb-4">My Spending on All Credit Cards for November</h3>
             <div className="flex items-center gap-8">
-              {/* Placeholder for Pie Chart */}
+
+              {/* pie chart */}
               <div className="w-36 h-36 rounded-full bg-gradient-to-r from-purple-500 via-green-500 to-blue-500 flex items-center justify-center text-2xl bg-gray-900">
                 $6,000
               </div>
@@ -66,7 +67,7 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Right Section */}
+        {/* section 2 --> right */}
         <div className="space-y-8">
           <div className="bg-indigo-900 p-6 rounded-lg shadow-lg">
             <h3 className="text-xl mb-4">Upcoming Bills</h3>
