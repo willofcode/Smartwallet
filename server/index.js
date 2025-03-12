@@ -8,7 +8,7 @@ const routes = require('./routes/routes');
 const app = express();
 
 const corsOptions = {
-    origin: "https://sd-2-smartwallet.vercel.app",
+    origin: "https://sd2smartwallet.netlify.app",
     methods: "GET,POST,PUT,DELETE",
     credentials: true
   }
