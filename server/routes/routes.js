@@ -93,6 +93,8 @@ router.post("/login", async (req, res) => {
   }
 });
 
+
+// just testing the deployemnt with this.
 router.get('/', async (req, res) => {
   try{
     await res.send({ message: "hi Test endpoint"})

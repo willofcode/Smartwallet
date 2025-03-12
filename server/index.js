@@ -6,8 +6,16 @@ const bodyparser = require('body-parser');
 const routes = require('./routes/routes');
 
 const app = express();
+
+const corsOptions = {
+    origin: "https://sd-2-smartwallet.vercel.app",
+    methods: "GET,POST,PUT,DELETE",
+    credentials: true
+  };
+
 app.use(express.json());
-app.use(cors());
+//app.use(cors());
+app.use(cors(corsOptions));
 app.use(bodyparser.json());
 
 const APP_PORT = process.env.APP_PORT || 8000;
