@@ -10,10 +10,7 @@ function App() {
     return (
         <Router>
             <div className="flex h-screen bg-[#1B203F] text-white">
-                {/* Sidebar */}
                 <Sidebar />
-
-                {/* Main content area */}
                 <div className="flex-grow overflow-y-auto p-8">
                     <Routes>
                         <Route path="/" element={<LandingPage />} />
