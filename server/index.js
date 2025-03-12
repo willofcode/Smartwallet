@@ -11,7 +11,7 @@ const corsOptions = {
     origin: "https://sd-2-smartwallet.vercel.app",
     methods: "GET,POST,PUT,DELETE",
     credentials: true
-  };
+  }
 
 app.use(express.json());
 //app.use(cors());
