@@ -2,7 +2,7 @@ import { NavLink } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import config from '../config';
+//import config from '../config';
 
 const Navbar = () => {
   const [isActive, setIsActive] = useState('Transactions');
@@ -19,7 +19,7 @@ const Navbar = () => {
 
   const fetchUserName = async (id) => {
     try {
-      const response = await axios.get(`${config.API_URL}/getUser/${id}`);
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/getUser/${id}`);
       setUserName(response.data.name || 'User');
     } catch (err) {
       setUserName('User');

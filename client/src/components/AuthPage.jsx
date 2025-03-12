@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import axios from 'axios';
-import config from '../config';
+//import config from '../config';
 
 const AuthPage = () => {
   const [email, setEmail] = useState('');
@@ -19,7 +19,7 @@ const AuthPage = () => {
     e.preventDefault();
 
     try {
-      const response = await axios.post(`${config.API_URL}/login`, { email, password });
+      const response = await axios.post(`${import.meta.env.VITE_API_URL}/login`, { email, password });
       const data = response.data;
 
       if (response.status === 200) {
@@ -43,7 +43,7 @@ const AuthPage = () => {
     e.preventDefault();
   
     try {
-      const response = await axios.post(`${config.API_URL}/signup`, { email, password, name });
+      const response = await axios.post(`${import.meta.env.VITE_API_URL}/signup`, { email, password, name });
       const data = response.data;
   
       if (response.status === 200) {
@@ -74,7 +74,7 @@ const AuthPage = () => {
       }
   
       const response = await axios.post(
-        `${config.API_URL}/create_link_token`,
+        `${import.meta.env.VITE_API_URL}/create_link_token`,
         { userId },
         { headers: { Authorization: `Bearer ${token}` } }
       );
