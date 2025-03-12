@@ -1,8 +1,12 @@
 import React from 'react';
+import Sidebar from "../components/sideBar"
 
 const Dashboard = () => {
   return (
-    <div className="p-8 bg-[#1B203F] text-white font-[Poppins]">
+    <div className="flex h-screen bg-[#1B203F] text-white">
+      <Sidebar />
+      <div className="flex-grow overflow-y-auto p-8">
+      <div className="p-8 bg-[#1B203F] text-white font-[Poppins]">
       {/* Header */}
       <div className="grid grid-cols-3 gap-2">
         <div className="bg-[#2C325C] p-6 rounded-2xl shadow-md col-span-3 min-h-[150px]">
@@ -79,6 +83,8 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
+    </div>
+    </div>
     </div>
   );
 };

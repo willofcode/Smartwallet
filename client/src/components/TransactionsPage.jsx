@@ -5,6 +5,7 @@ import { usePlaidLink } from 'react-plaid-link';
 import axios from 'axios';
 import config from '../config';
 import { useNavigate } from 'react-router-dom';
+import Sidebar from './sideBar';
 
 const TransactionsPage = () => {
   const [userId, setUserId] = useState(null);
@@ -110,7 +111,10 @@ const TransactionsPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex bg-gray-900">
+    <div className="flex h-screen bg-[#1B203F] text-white">
+      <Sidebar />
+      <div className="flex-grow overflow-y-auto p-8">
+      <div className="min-h-screen flex bg-gray-900">
 
       {/* main content */}
       <main className="content flex-grow p-8">
@@ -200,6 +204,8 @@ const TransactionsPage = () => {
           )}
         </div>
       </main>
+    </div>
+    </div>
     </div>
   );
 };
