@@ -93,7 +93,16 @@ router.post("/login", async (req, res) => {
   }
 });
 
-/// get a user by it's Id I've done this before!!!!!
+router.get('/', async (req, res) => {
+  try{
+    await res.send({ message: "hi Test endpoint"})
+  } catch (error) {
+    res.status(500).json({
+      message: error.message
+  });
+  }
+});
+
 router.get('/getUser/:id',  async (req, res) => {
   //const user = await User.findById(req.params.id);
 

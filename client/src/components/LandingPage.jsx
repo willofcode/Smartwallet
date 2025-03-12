@@ -6,7 +6,6 @@ import axios from 'axios';
 import config from '../config';
 import "../styles.css";
 
-// super basic boiler plate
 const LandingPage = () => {
 
     return (
@@ -68,7 +67,7 @@ const LandingPage = () => {
                             <img src="/images/americanexpress-logo-removebg-preview.png" alt="American Express Logo" className="logo" />
                             <img src="/images/discover-logo-removebg-preview.png" alt="Discover Logo" className="logo" />
 
-                            {/* Duplicating logos for seamless scroll */}
+                            {/* duplicate!!!!! */}
                             <img src="/images/chase-logo-removebg-preview.png" alt="Chase Logo" className="logo" />
                             <img src="/images/bofa-logo-removebg-preview.png" alt="Bank of America Logo" className="logo" />
                             <img src="/images/wellsfargo-logo-removebg-preview.png" alt="Wells Fargo Logo" className="logo" />

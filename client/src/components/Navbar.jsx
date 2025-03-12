@@ -10,7 +10,6 @@ const Navbar = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Get the user ID from localStorage
     const storedUserId = localStorage.getItem('userId');
     
     if (storedUserId) {
