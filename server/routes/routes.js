@@ -17,47 +17,39 @@ const PLAID_COUNTRY_CODES = (process.env.PLAID_COUNTRY_CODES || 'US').split(
 );
 
 //200
-router.post("/signup", async (req, res) => {
+router.post("/signup", signupValidation, async (req, res) => {
   let { name,
         email, 
         password 
       } = req.body;
-
-  /*emailVerifier.verify(email, async (error, response) => {
-    if (error) {
-      return res.status(500).send({ message: "Error verifying email" });
-    }*/
   
-  //let newUser = new User({ name, email, password });
-
-  // (WILLIAM) 
   // check if the name, email and password are not all inputted
-  // send a status 400 error with a message saying that all inputs required.
-  // all inputs Required!
+  if (!name || !email || !password) {
+    return res.status(400).send({ message: "please input all required field" });
+  }
+  
+  try {
 
+    // if the user exist --> send message "user already exist"
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).send({ message: "User exists" });
+    };
 
-    try {
+    //hashing --> bcrypt 
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
 
-      // if the user exist --> send message "user already exist"
-      const existingUser = await User.findOne({ email });
-      if (existingUser) {
-        return res.status(400).send({ message: "User exists" });
-      };
+    let newUser = new User({ name, email, password: hashedPassword });
+    const user = await newUser.save();
 
-      //hashing --> bcrypt 
-      const salt = await bcrypt.genSalt(10);
-      const hashedPassword = await bcrypt.hash(password, salt);
+    const token = jwt.sign({ userId: user.userId }, SECRET_KEY, {expiresIn: "1h" });
 
-      let newUser = new User({ name, email, password: hashedPassword });
-      const user = await newUser.save();
-
-      const token = jwt.sign({ userId: user.userId }, SECRET_KEY, {expiresIn: "1h" });
-
-      console.log("User created with ID:", user.userId);
-      res.status(200).send({ message: `User created with ID: ${user.userId}`, userId: user.userId, token });
-    } catch (error) {
-      res.status(500).send({ message: `Error creating user: ${error.message}` });
-    }
+    console.log("User created with ID:", user.userId);
+    res.status(200).send({ message: `User created with ID: ${user.userId}`, userId: user.userId, token });
+  } catch (error) {
+    res.status(500).send({ message: `Error creating user: ${error.message}` });
+  }
 });
 
 //200  
