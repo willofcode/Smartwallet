@@ -6,6 +6,7 @@ import axios from 'axios';
 import config from '../config';
 import { useNavigate } from 'react-router-dom';
 import Navbar from './Navbar';
+import Sidebar from '../sidebar/sidebar';
 
 const TransactionsPage = () => {
   const [userId, setUserId] = useState(null);
@@ -112,7 +113,7 @@ const TransactionsPage = () => {
 
   return (
     <div className="min-h-screen flex bg-gray-900">
-      <Navbar />
+      <Sidebar />
 
       {/* main content */}
       <main className="content flex-grow p-8">

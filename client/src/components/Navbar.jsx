@@ -6,8 +6,13 @@ import config from '../config';
 
 const Navbar = () => {
   const [isActive, setIsActive] = useState('Transactions');
+  const [closeMenu, setCloseMenu] = useState(false);
   const [userName, setUserName] = useState('');
   const navigate = useNavigate();
+
+  const handleCloseMenu = () => {
+    setCloseMenu(!closeMenu);
+  };
 
   useEffect(() => {
     // Get the user ID from localStorage
