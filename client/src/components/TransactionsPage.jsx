@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { usePlaidLink } from 'react-plaid-link';
 import axios from 'axios';
-import config from '../config';
+//import config from '../config';
 import { useNavigate } from 'react-router-dom';
 import Navbar from './Navbar';
 
