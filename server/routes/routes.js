@@ -17,7 +17,7 @@ const PLAID_COUNTRY_CODES = (process.env.PLAID_COUNTRY_CODES || 'US').split(
 );
 
 //200
-router.post("/signup", signupValidation, async (req, res) => {
+router.post("/signup", async (req, res) => {
   let { name,
         email, 
         password 
@@ -27,7 +27,7 @@ router.post("/signup", signupValidation, async (req, res) => {
   if (!name || !email || !password) {
     return res.status(400).send({ message: "please input all required field" });
   }
-  
+
   try {
 
     // if the user exist --> send message "user already exist"
