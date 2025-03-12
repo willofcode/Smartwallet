@@ -16,6 +16,11 @@ const PLAID_COUNTRY_CODES = (process.env.PLAID_COUNTRY_CODES || 'US').split(
   ',',
 );
 
+// 400 needs to be fixed, authorization token is missing
+router.get('/protected', authMiddleware, (req, res) => {
+  res.json({ message: "You have accessed a protected route!", userId: req.user.id });
+});
+
 //200
 router.post("/signup", async (req, res) => {
   let { name,
@@ -43,7 +48,7 @@ router.post("/signup", async (req, res) => {
     let newUser = new User({ name, email, password: hashedPassword });
     const user = await newUser.save();
 
-    const token = jwt.sign({ userId: user.userId }, SECRET_KEY, {expiresIn: "1h" });
+    const token = jwt.sign({ userId: user.userId }, process.env.JWT_SECRET_KEY, { expiresIn: "1h" });
 
     console.log("User created with ID:", user.userId);
     res.status(200).send({ message: `User created with ID: ${user.userId}`, userId: user.userId, token });
@@ -121,7 +126,7 @@ router.post('/logout',  (req, res) => {
     res.status(500).send ({ message: `Error logging user out: ${error.message}` });
   }*/
 
-//200
+//400 error Authorization token is missing
 router.post("/create_link_token", authMiddleware, async (req, res) => {
   const { uid } = req.body;
 
