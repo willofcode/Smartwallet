@@ -249,7 +249,7 @@ router.post('/get_transactions_recurring', async (req, res) => {
 // Will: I need to test (For testing needs access token, check access token endpoint)
 // implementation to get accounts to be display via client side on wallets
 router.get('/get_account', async (req, res) => {
-  const { access_token } = req.query; // Extract access_token from query params
+  const access_token = req.headers.authorization?.split("Bearer ")[1]; // implementation in authorization header for a secure protocol
 
   if (!access_token) {
     return res.status(400).json({ error: "Access token is required" });
@@ -260,15 +260,13 @@ router.get('/get_account', async (req, res) => {
     const accountsResponse = await plaidClient.accountsGet({ access_token });
     const accounts = accountsResponse.data.accounts;
 
-    // Store accounts in an array
-    const allAccounts = [...accounts];
-
-    console.log("Accounts fetched:", allAccounts);
-    res.json({ accounts: allAccounts });
+    console.log("Accounts fetched:", accounts);
+    res.json({ accounts });
   } catch (error) {
     console.error('Error fetching account information:', error.response ? error.response.data : error.message);
     res.status(500).json({ error: "Can't Get Account Information" });
   }
 });
+
 
 module.exports = router;
