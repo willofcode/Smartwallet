@@ -248,8 +248,8 @@ router.post('/get_transactions_recurring', async (req, res) => {
 
 // Will: I need to test (For testing needs access token, check access token endpoint)
 // implementation to get accounts to be display via client side on wallets
-router.post('/get_account', async (req, res) => {
-  const { access_token } = req.body;
+router.get('/get_account', async (req, res) => {
+  const { access_token } = req.query; // Extract access_token from query params
 
   if (!access_token) {
     return res.status(400).json({ error: "Access token is required" });
@@ -261,8 +261,7 @@ router.post('/get_account', async (req, res) => {
     const accounts = accountsResponse.data.accounts;
 
     // Store accounts in an array
-    let allAccounts = [];
-    allAccounts = allAccounts.concat(accounts);
+    const allAccounts = [...accounts];
 
     console.log("Accounts fetched:", allAccounts);
     res.json({ accounts: allAccounts });
@@ -271,6 +270,5 @@ router.post('/get_account', async (req, res) => {
     res.status(500).json({ error: "Can't Get Account Information" });
   }
 });
-
 
 module.exports = router;
