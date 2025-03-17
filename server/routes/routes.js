@@ -214,36 +214,4 @@ router.post('/get_transactions', async (req, res) => {
   }
 });
 
-// need to test (For testing needs access token, check access token endpoint)
-// implementation for billing page 
-router.post('/get_transactions_recurring', async (req, res) => {
-  const { access_token, frequency_filter } = req.body;
-
-  try {
-    // Fetch recurring transaction streams from Plaid
-    const recurringResponse = await plaidClient.transactionsRecurringGet({
-      access_token
-    });
-
-    const { inflows, outflows } = recurringResponse.data;
-
-    // Filter only outflow streams (expenses)
-    let filteredOutflowStreams = outflows;
-
-    // Optionally filter by frequency if provided
-    if (frequency_filter) {
-      filteredOutflowStreams = outflows.filter(stream =>
-        stream.frequency === frequency_filter
-      );
-    }
-
-    console.log("Recurring outflow streams:", filteredOutflowStreams);
-
-    res.json({ outflows: filteredOutflowStreams });
-  } catch (error) {
-    console.error('Error fetching recurring transactions:', error.response ? error.response.data : error.message);
-    res.status(500).json({ error: "Can't Get Recurring Transaction Streams" });
-  }
-});
-
 module.exports = router;
