@@ -5,6 +5,7 @@ import { usePlaidLink } from 'react-plaid-link';
 import axios from 'axios';
 import config from '../config';
 import { useNavigate } from 'react-router-dom';
+import TransactionChart from './TransacLChart';
 import Navbar from './Navbar';
 import Sidebar from '../sidebar/sidebar';
 
@@ -67,6 +68,7 @@ const TransactionsPage = () => {
         const accessTokenResponse = await axios.post(`${config.API_URL}/get_access_token`, {
           public_token: publicToken,
         });
+        localStorage.setItem('publicToken', publicToken);
 
         const { access_token } = accessTokenResponse.data;
         if (access_token) {
@@ -114,7 +116,6 @@ const TransactionsPage = () => {
   return (
     <div className="min-h-screen flex bg-gray-900">
       <Sidebar />
-
       {/* main content */}
       <main className="content flex-grow p-8">
         <header className="summary-header bg-[#3a3f66] text-white p-6 rounded-lg shadow-lg mb-6 flex justify-between">
@@ -142,7 +143,7 @@ const TransactionsPage = () => {
             </button>
           </div>
         </header>
-
+        <TransactionChart transactions={filteredTransactions}/>
         <div className="bg-[#292d52] p-6 rounded-lg shadow-lg">
           {userId ? (
             <>
