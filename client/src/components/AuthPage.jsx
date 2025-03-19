@@ -5,8 +5,13 @@ import { motion } from 'framer-motion';
 import axios from 'axios';
 
 const AuthPage = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  // login and signup should NOT have shared states...
+  //const [email, setEmail] = useState('');
+  //const [password, setPassword] = useState('');
+  const [loginEmail, setLoginEmail] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
+  const [signupEmail, setSignupEmail] = useState('');
+  const [signupPassword, setSignupPassword] = useState('');
   const [name, setName] = useState('');
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
@@ -108,8 +113,8 @@ const AuthPage = () => {
                 <label className="block text-sm font-medium text-gray-700">Email:</label>
                 <input
                   type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  value={loginEmail}
+                  onChange={(e) => setLoginEmail(e.target.value)}
                   required
                   className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />
@@ -119,8 +124,8 @@ const AuthPage = () => {
                 <label className="block text-sm font-medium text-gray-700">Password:</label>
                 <input
                   type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  value={loginPassword}
+                  onChange={(e) => setLoginPassword(e.target.value)}
                   required
                   className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />
@@ -152,8 +157,8 @@ const AuthPage = () => {
                 <label className="block text-sm font-medium text-gray-700">Email:</label>
                 <input
                   type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  value={signupEmail}
+                  onChange={(e) => setSignupEmail(e.target.value)}
                   required
                   className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />
@@ -163,8 +168,8 @@ const AuthPage = () => {
                 <label className="block text-sm font-medium text-gray-700">Password:</label>
                 <input
                   type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  value={signupPassword}
+                  onChange={(e) => setSignupPassword(e.target.value)}
                   required
                   className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />

@@ -30,11 +30,7 @@ router.post("/signup", async (req, res) => {
   
   //let newUser = new User({ name, email, password });
 
-  // (WILLIAM) 
-  // check if the name, email and password are not all inputted
-  // send a status 400 error with a message saying that all inputs required.
-  // all inputs Required!
-
+  //I just gotta copy and paste whatever wrote...
 
     try {
 
@@ -60,7 +56,7 @@ router.post("/signup", async (req, res) => {
     }
 });
 
-//200  
+//200 (psuedo 400)  
 router.post("/login", async (req, res) => {
   let { 
         email, 
@@ -193,7 +189,7 @@ router.post('/get_access_token', async (req, res) => {
   }
 });
 
-// 200 (For testing needs access token, check access token endpoint)
+// 200 
 // works, client-side
 router.post('/get_transactions', async (req, res) => {
   const { access_token } = req.body;
