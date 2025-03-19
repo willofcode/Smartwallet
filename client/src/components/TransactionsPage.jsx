@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react';
 import { usePlaidLink } from 'react-plaid-link';
 import axios from 'axios';
-import config from '../config';
 import { useNavigate } from 'react-router-dom';
 import Navbar from './Navbar';
 
@@ -40,7 +39,7 @@ const TransactionsPage = () => {
   const generateLinkToken = async () => {
     try {
       setIsLoading(true);
-      const response = await axios.post(`${config.API_URL}/create_link_token`, {
+      const response = await axios.post(`${import.meta.env.VITE_API_URL}/create_link_token`, {
         user_id: userId,
       });
       const { link_token } = response.data;
@@ -63,13 +62,13 @@ const TransactionsPage = () => {
     onSuccess: async (publicToken) => {
       try {
         setIsLoading(true);
-        const accessTokenResponse = await axios.post(`${config.API_URL}/get_access_token`, {
+        const accessTokenResponse = await axios.post(`${import.meta.env.VITE_API_URL}/get_access_token`, {
           public_token: publicToken,
         });
 
         const { access_token } = accessTokenResponse.data;
         if (access_token) {
-          const transactionsResponse = await axios.post(`${config.API_URL}/get_transactions`, {
+          const transactionsResponse = await axios.post(`${import.meta.env.VITE_API_URL}/get_transactions`, {
             access_token,
           });
 
