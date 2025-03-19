@@ -10,6 +10,7 @@ const AuthPage = () => {
   //const [password, setPassword] = useState('');
   const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
+  /// const [loginAccessToken] = useState('');
   const [signupEmail, setSignupEmail] = useState('');
   const [signupPassword, setSignupPassword] = useState('');
   const [name, setName] = useState('');
@@ -25,7 +26,8 @@ const AuthPage = () => {
     try {
       const response = await axios.post(`${import.meta.env.VITE_API_URL}/login`, { 
         email: loginEmail, 
-        password: loginPassword
+        password: loginPassword //, 
+        /// accessToken: loginAccessToken
       });
 
       const data = response.data;

@@ -23,6 +23,11 @@ const userSchema = new mongoose.Schema({
     unique: true, 
     default: uuidv4 },
 
+  plaidAccessToken:
+  { type: String,
+    required: false
+  }
+
 });
 const User = mongoose.model('User', userSchema);
 module.exports = User;
