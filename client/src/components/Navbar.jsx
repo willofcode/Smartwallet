@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 
-
 const Navbar = () => {
   const [isActive, setIsActive] = useState('Transactions');
   const [userName, setUserName] = useState('');

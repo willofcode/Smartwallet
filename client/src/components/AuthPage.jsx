@@ -23,13 +23,17 @@ const AuthPage = () => {
     e.preventDefault();
 
     try {
-      const response = await axios.post(`${import.meta.env.VITE_API_URL}/login`, { email, password });
+      const response = await axios.post(`${import.meta.env.VITE_API_URL}/login`, { 
+        email: loginEmail, 
+        password: loginPassword
+      });
+
       const data = response.data;
 
       if (response.status === 200) {
         setSuccessMessage(data.message);
-        setEmail('');
-        setPassword('');
+        setLoginEmail('');
+        setLoginPassword('');
         localStorage.setItem('token', data.token);
         localStorage.setItem('userId', data.userId);
 
@@ -47,13 +51,18 @@ const AuthPage = () => {
     e.preventDefault();
   
     try {
-      const response = await axios.post(`${import.meta.env.VITE_API_URL}/signup`, { email, password, name });
+      const response = await axios.post(`${import.meta.env.VITE_API_URL}/signup`, { 
+        email: signupEmail, 
+        password: signupPassword, 
+        name 
+      });
+
       const data = response.data;
   
       if (response.status === 200) {
         setSuccessMessage(data.message);
-        setEmail('');
-        setPassword('');
+        setSignupEmail('');
+        setSignupPassword('');
         localStorage.setItem('token', data.token);
         localStorage.setItem('userId', data.userId);
 
@@ -68,9 +77,7 @@ const AuthPage = () => {
       setError('Something went wrong. Please try again.');
     }
   };
-  
 
-  /*
   const createLinkToken = async (userId) => {
     try {
       const token = localStorage.getItem('token');
@@ -98,7 +105,6 @@ const AuthPage = () => {
       console.error(err);
     }
   };
-  */
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#292d52]">
