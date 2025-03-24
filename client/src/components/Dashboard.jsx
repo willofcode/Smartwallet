@@ -5,7 +5,6 @@ import { usePlaidLink } from 'react-plaid-link';
 import axios from 'axios';
 import config from '../config';
 import { useNavigate } from 'react-router-dom';
-import LineChart from './LineChart';
 import PieChart from './PieChart';
 import Navbar from './Navbar';
 import Sidebar from '../sidebar/sidebar';
@@ -138,22 +137,22 @@ const Dashboard = () => {
           <h1 className="text-4xl font-semibold">Dashboard</h1>
           <div className="mb-6 flex items-center space-x-4">
             <button
-              onClick={() => handleDayFilter(14)}
+              onClick={() => handleDayFilter(14)} // filter last 2 weeks
               className="p-2 bg-[#3a3f66] text-white rounded-lg hover:bg-[#555a7c]"
             >
-              Last 2 week
+              2 week
             </button>
             <button
-              onClick={() => handleDayFilter(30)}
+              onClick={() => handleDayFilter(30)} // filter last month
               className="p-2 bg-[#3a3f66] text-white rounded-lg hover:bg-[#555a7c]"
             >
-              Last Month
+              1 Month
             </button>
             <button
-              onClick={() => handleDayFilter(90)}
+              onClick={() => handleDayFilter(90)} // filter last 3 months
               className="p-2 bg-[#3a3f66] text-white rounded-lg hover:bg-[#555a7c]"
             >
-              Last 3 Months
+              3 Months
             </button>
           </div>
         </header>
