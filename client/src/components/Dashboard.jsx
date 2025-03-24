@@ -9,7 +9,7 @@ const Dashboard = () => {
       <div className="p-8 bg-[#1B203F] text-white font-[Poppins]">
       {/* Header */}
       <div className="grid grid-cols-3 gap-2">
-        <div className="bg-[#2C325C] p-6 rounded-2xl shadow-md col-span-3 min-h-[150px]">
+        <div className="bg-[#2C325C] p-6 rounded-2xl shadow-md col-span-3 min-h-[250px]">
           <h2 className="text-2xl mb-4">Your Financial Dashboard</h2>
           <p className="mb-4">Welcome back Daniel</p>
           <div className="flex gap-2">
@@ -21,11 +21,11 @@ const Dashboard = () => {
       </div>
 
       {/* Main Content */}
-      <div className="grid grid-cols-[2fr_1fr] gap-2 mt-4">
+      <div className="grid grid-cols-[20fr_16fr] gap-5 mt-4">
         {/* Left Section */}
-        <div className="flex flex-col gap-8">
+        <div className="flex flex-col gap-4">
           {/* Spending Overview */}
-          <div className="bg-[#2C325C] p-6 rounded-2xl shadow-md">
+          <div className="bg-[#2C325C] p-6 rounded-2xl shadow-md h-100">
             <h3 className="text-lg mb-4">My Spending on All Credit Cards for November</h3>
             <div className="flex items-center gap-8">
               <div className="w-36 h-36 rounded-full flex items-center justify-center text-2xl bg-gradient-to-tr from-[#7c3aed] via-[#10b981] to-[#3b82f6]">
@@ -40,7 +40,7 @@ const Dashboard = () => {
           </div>
 
           {/* Improving Financial Habits */}
-          <div className="bg-[#2C325C] p-6 rounded-2xl shadow-md">
+          <div className="bg-[#2C325C] p-6 rounded-2xl shadow-md h-100">
             <h3 className="text-lg mb-4">Improving Financial Habits</h3>
             <div className="grid grid-cols-2 gap-4">
               {Array(4).fill(0).map((_, index) => (
@@ -53,9 +53,9 @@ const Dashboard = () => {
         </div>
 
         {/* Right Section */}
-        <div className="flex flex-col gap-8">
+        <div className="flex flex-col gap-5">
           {/* Upcoming Bills */}
-          <div className="bg-[#2C325C] p-6 rounded-2xl shadow-md">
+          <div className="bg-[#2C325C] p-6 h-65 rounded-2xl shadow-md">
             <h3 className="text-lg mb-4">Upcoming Bills</h3>
             <div className="mb-4 space-y-2">
               <div>Dec 1 - Rent - $1,111.00</div>
@@ -66,13 +66,13 @@ const Dashboard = () => {
           </div>
 
           {/* My Cards */}
-          <div className="bg-[#2C325C] p-6 rounded-2xl shadow-md">
+          <div className="bg-[#2C325C] p-6 h-70 rounded-2xl shadow-md">
             <h3 className="text-lg mb-4">My Cards</h3>
             <img src="your-chart-placeholder.png" alt="Bar Chart" className="w-full h-auto" />
           </div>
 
           {/* Spending Reduction Goals */}
-          <div className="bg-[#2C325C] p-6 rounded-2xl shadow-md">
+          <div className="bg-[#2C325C] p-6 h-59 rounded-2xl shadow-md">
             <h3 className="text-lg mb-4">Spending Reduction Goals</h3>
             <p className="text-2xl mb-2"><strong>$3,000/$10,000</strong></p>
             <small className="text-gray-300 text-sm">
