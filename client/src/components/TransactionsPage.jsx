@@ -5,7 +5,7 @@ import { usePlaidLink } from 'react-plaid-link';
 import axios from 'axios';
 import config from '../config';
 import { useNavigate } from 'react-router-dom';
-import TransactionChart from './TransacLChart';
+import LineChart from './LineChart';
 import Navbar from './Navbar';
 import Sidebar from '../sidebar/sidebar';
 
@@ -104,6 +104,7 @@ const TransactionsPage = () => {
   const handleDateFilter = () => {
     const start = new Date(startDate);
     const end = new Date(endDate);
+    console.log(start, end);
 
     const filtered = transactions.filter((transaction) => {
       const transactionDate = new Date(transaction.date);
@@ -143,7 +144,7 @@ const TransactionsPage = () => {
             </button>
           </div>
         </header>
-        <TransactionChart transactions={filteredTransactions}/>
+        <LineChart transactions={filteredTransactions}/>
         <div className="bg-[#292d52] p-6 rounded-lg shadow-lg">
           {userId ? (
             <>

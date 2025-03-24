@@ -20,7 +20,7 @@ const formatDate = (dateString) => {
   return new Date(dateString).toLocaleDateString("en-US", options);
 };
 
-const TransactionChart = ({ transactions }) => {
+const LineChart = ({ transactions }) => {
   if (!transactions || transactions.length === 0) return <p>No transactions available.</p>;
 
   const data = {
@@ -59,4 +59,4 @@ const TransactionChart = ({ transactions }) => {
   );
 };
 
-export default TransactionChart;
+export default LineChart;
