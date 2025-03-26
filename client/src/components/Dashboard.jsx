@@ -37,6 +37,8 @@ const Dashboard = () => {
                 <li><span className="inline-block w-2.5 h-2.5 rounded-full bg-[#3b82f6] mr-2"></span>Rent - $2,500/$2,500</li>
               </ul>
             </div>
+            {/* filteredTransaction hook should be imported here */}
+            {/* <PieChart transactions={filteredTransactions} />  */}
           </div>
 
           {/* Improving Financial Habits */}
