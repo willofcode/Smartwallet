@@ -268,5 +268,43 @@ router.get('/get_account', async (req, res) => {
   }
 });
 
+// Endpoint to fetch account balance from Plaid API
+// Will: I need to test (For testing needs access token, check access token endpoint)
+router.get('/get_balance', async (req, res) => {
+  const access_token = req.headers.authorization?.split("Bearer ")[1]; // implementation in authorization header for a secure protocol
+
+  if (!access_token) {
+    return res.status(400).json({ error: "Access token is required" });
+  }
+
+  try {
+    // Fetch balance from Plaid API
+    const balanceResponse = await plaidClient.accountsBalanceGet({ access_token });
+    const accounts = balanceResponse.data.accounts;
+
+    console.log("Balance fetched:", accounts);
+    res.json({ accounts });
+  } catch (error) {
+    console.error('Error fetching account balance:', error.response ? error.response.data : error.message);
+    res.status(500).json({ error: "Can't Get Account Balance" });
+  }
+}
+);
+
+// Endpoint to fetch categories from Plaid API
+// Will: I need to test (For testing needs access token, check access token endpoint)
+router.get('/get_categories', async (req, res) => {
+  try {
+    const response = await plaidClient.categoriesGet();
+    const categories = response.data.categories;
+
+    console.log("Categories fetched:", categories);
+    res.json({ categories });
+  } catch (error) {
+    console.error('Error fetching categories:', error.response ? error.response.data : error.message);
+    res.status(500).json({ error: "Can't Get Categories" });
+  }
+}
+);  
 
 module.exports = router;
