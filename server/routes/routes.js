@@ -214,6 +214,14 @@ router.post('/get_transactions', async (req, res) => {
   }
 });
 
+/* 
+for yared to review - Will
+4 endpoint implementations for the following:
+1. get_transactions_recurring
+2. get_account
+3. get_balance
+4. get_categories
+
 // Will: I need to test (For testing needs access token, check access token endpoint)
 // implementation for billing page for recurring transactions whether its expenses or income
 router.post('/get_transactions_recurring', async (req, res) => {
@@ -306,5 +314,6 @@ router.get('/get_categories', async (req, res) => {
   }
 }
 );  
+*/
 
 module.exports = router;
