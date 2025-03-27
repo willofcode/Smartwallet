@@ -77,7 +77,8 @@ const TransactionsPage = () => {
             const sortedTransactions = transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
             setTransactions(sortedTransactions);
             setAccounts(accounts);
-            setFilteredTransactions(sortedTransactions); 
+            setFilteredTransactions(sortedTransactions);
+            localStorage.setItem('transactions', JSON.stringify(sortedTransactions)); 
           } else {
             setError('Failed to fetch transactions.');
           }

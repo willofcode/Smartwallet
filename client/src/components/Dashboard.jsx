@@ -1,7 +1,35 @@
-import React from 'react';
+'use client';
+
+import React, { useEffect, useState, useMemo } from 'react';
 import Sidebar from "../components/sideBar"
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import PieChart from './PieChart';
+
 
 const Dashboard = () => {
+  const [transactions, setTransactions] = useState([]);
+  const [filteredTransactions, setFilteredTransactions] = useState([]);
+
+  // Work in Progress - Fetch transactions from local storage
+  setTransactions(localStorage.getItem('transactions')); // fetch transactions from local storage 
+
+  // filter by days/weeks/months utilize days for accurate and easy logic 
+
+  const handleDayFilter = (days) => {
+    const now = new Date();
+    const pastDate = new Date();
+    pastDate.setDate(now.getDate() - days); // subtract days from current date
+
+    const filtered = transactions.filter((transaction) => {
+      const transactionDate = new Date(transaction.date);
+      return transactionDate >= pastDate && transactionDate <= now;
+    });
+
+    console.log(`Filtered for last ${days} days:`, filtered);
+    setFilteredTransactions(filtered);
+  };
+
   return (
     <div className="flex h-screen bg-[#1B203F] text-white">
       <Sidebar />
@@ -11,11 +39,27 @@ const Dashboard = () => {
       <div className="grid grid-cols-3 gap-2">
         <div className="bg-[#2C325C] p-6 rounded-2xl shadow-md col-span-3 min-h-[250px]">
           <h2 className="text-2xl mb-4">Your Financial Dashboard</h2>
-          <p className="mb-4">Welcome back Daniel</p>
+          <p className="mb-4">Welcome back Daniel</p> {/* need to fetch account user */}
           <div className="flex gap-2">
-            <button className="bg-[#2C325C] text-white py-2 px-4 rounded-md">12M</button>
-            <button className="bg-white text-[#1B203F] py-2 px-4 rounded-md">1M</button>
-            <button className="bg-[#2C325C] text-white py-2 px-4 rounded-md">1W</button>
+          {/* 12 month logic & 6 month logic may or may not work, so the filter below works */}
+          <button
+              onClick={() => handleDayFilter(14)} // filter last 2 weeks
+              className="p-2 bg-[#3a3f66] text-white rounded-lg hover:bg-[#555a7c]"
+            >
+              2 week
+            </button>
+            <button
+              onClick={() => handleDayFilter(30)} // filter last month
+              className="p-2 bg-[#3a3f66] text-white rounded-lg hover:bg-[#555a7c]"
+            >
+              1 Month
+            </button>
+            <button
+              onClick={() => handleDayFilter(90)} // filter last 3 months
+              className="p-2 bg-[#3a3f66] text-white rounded-lg hover:bg-[#555a7c]"
+            >
+              3 Months
+            </button>
           </div>
         </div>
       </div>
