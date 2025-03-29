@@ -46,7 +46,7 @@ const Sidebar = () => {
       <ul className="flex flex-col space-y-4 w-full">
         <li className="flex items-center space-x-2 p-3 rounded-lg cursor-pointer hover:bg-gray-500 transition-all">
           <i className="bx bxs-dashboard text-white text-2xl"></i>
-          {!closeMenu && <a href="/" className="text-white text-lg">Dashboard</a>}
+          {!closeMenu && <a href="/dashboard" className="text-white text-lg">Dashboard</a>}
         </li>
         <li className="flex items-center space-x-2 p-3 rounded-lg cursor-pointer hover:bg-gray-500 transition-all">
           <i className="bx bx-list-ul text-white text-2xl"></i>
