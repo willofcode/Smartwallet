@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import profilepic from './profilepic.png';
 import { useLocation } from 'react-router-dom';
 
 const Sidebar = () => {
@@ -34,7 +33,7 @@ const Sidebar = () => {
 
       {/* Profile Section */}
       <div className="flex items-center mb-8">
-        <img src={profilepic} alt="profile" className="w-12 h-12 rounded-full object-cover" />
+        <img src={"images/profilepic.png"} alt="profile" className="w-12 h-12 rounded-full object-cover" /> {/* I'll add this to the public folder */}
         {!closeMenu && (
           <div className="ml-4">
             <p className="text-gray-400 font-bold">Hello, Daniel</p>
@@ -52,14 +51,14 @@ const Sidebar = () => {
           <i className="bx bx-list-ul text-white text-2xl"></i>
           {!closeMenu && <a href="/transactions" className="text-white text-lg">Transactions</a>}
         </li>
-        <li className="flex items-center space-x-2 p-3 rounded-lg cursor-pointer hover:bg-gray-500 transition-all">
+        {/*<li className="flex items-center space-x-2 p-3 rounded-lg cursor-pointer hover:bg-gray-500 transition-all">
           <i className="bx bxs-credit-card-alt text-white text-2xl"></i>
           {!closeMenu && <a href="/wallet" className="text-white text-lg">Wallet</a>}
-        </li>
-        <li className="flex items-center space-x-2 p-3 rounded-lg cursor-pointer hover:bg-gray-500 transition-all">
+        </li>*/}
+        {/*<li className="flex items-center space-x-2 p-3 rounded-lg cursor-pointer hover:bg-gray-500 transition-all">
           <i className="bx bxs-face text-white text-2xl"></i>
           {!closeMenu && <a href="/advisor" className="text-white text-lg">Advisor</a>}
-        </li>
+        </li>*/}
         <li className="flex items-center space-x-2 p-3 rounded-lg cursor-pointer hover:bg-gray-500 transition-all">
           <i className="bx bx-money-withdraw text-white text-2xl"></i>
           {!closeMenu && <a href="/budgeting" className="text-white text-lg">Budgeting</a>}
