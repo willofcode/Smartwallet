@@ -67,7 +67,7 @@ const BudgetingPage = () => {
   };
 
   return (
-    <div className="flex h-screen bg-[#1B203F] text-white font-[Poppins]">
+    <div className="flex h-screen bg-[#1B203F] text-white">
       <Sidebar />
 
       {/* Main Content Container */}
