@@ -23,15 +23,6 @@ router.post("/signup", async (req, res) => {
         password 
       } = req.body;
 
-  /*emailVerifier.verify(email, async (error, response) => {
-    if (error) {
-      return res.status(500).send({ message: "Error verifying email" });
-    }*/
-  
-  //let newUser = new User({ name, email, password });
-
-  //I just gotta copy and paste whatever wrote...
-
     try {
 
       // if the user exist --> send message "user already exist"
@@ -102,7 +93,6 @@ router.get('/', async (req, res) => {
 });
 
 router.get('/getUser/:id',  async (req, res) => {
-  //const user = await User.findById(req.params.id);
 
   try{
     const user = await User.findOne({ userId: req.params.id });
@@ -124,17 +114,6 @@ router.get('/getUser/:id',  async (req, res) => {
 router.post('/logout',  (req, res) => {
   res.send({ messeage: "Logout successful" });
 });
-
-// (ISSUE #2: we need a user logout endpoint) the frontend!!!!!! should handle the logout
-  /*try { await req.logout();
-              req.session.destroy();
-              
-    res.redirect('/login');
-    res.send({ id: user.userId });
-
-  } catch(error) {
-    res.status(500).send ({ message: `Error logging user out: ${error.message}` });
-  }*/
 
 //200
 router.post("/create_link_token", authMiddleware, async (req, res) => {
