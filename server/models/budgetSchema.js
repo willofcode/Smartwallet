@@ -4,7 +4,7 @@ const User = require("../models/User");
 const expenseSchema = new mongoose.Schema({ 
     userId:
     { type: String,
-      ref:'User',
+      ref: User,
       required: true
     },
 
@@ -27,7 +27,7 @@ const Expense = mongoose.model('Expense', expenseSchema);
 const budgetCategorySchema = new mongoose.Schema({
     userId:
     { type: String,
-      ref:'User',
+      ref: User,
       required: true
     },
 
@@ -45,7 +45,7 @@ const BudgetCategory = mongoose.model('BudgetCategory', budgetCategorySchema);
 const budgetingSchema = new mongoose.Schema({
     userId:
     { type: String,
-      ref:'User',
+      ref: User,
       required: true
     },
 
