@@ -5,12 +5,8 @@ import { motion } from 'framer-motion';
 import axios from 'axios';
 
 const AuthPage = () => {
-  // login and signup should NOT have shared states...
-  //const [email, setEmail] = useState('');
-  //const [password, setPassword] = useState('');
   const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
-  /// const [loginAccessToken] = useState('');
   const [signupEmail, setSignupEmail] = useState('');
   const [signupPassword, setSignupPassword] = useState('');
   const [name, setName] = useState('');
@@ -26,8 +22,7 @@ const AuthPage = () => {
     try {
       const response = await axios.post(`${import.meta.env.VITE_API_URL}/login`, { 
         email: loginEmail, 
-        password: loginPassword //, 
-        /// accessToken: loginAccessToken
+        password: loginPassword 
       });
 
       const data = response.data;
@@ -38,6 +33,8 @@ const AuthPage = () => {
         setLoginPassword('');
         localStorage.setItem('token', data.token);
         localStorage.setItem('userId', data.userId);
+
+        await createLinkToken(data.userId);
 
         setError('');
         navigate('/transactions');
@@ -83,6 +80,7 @@ const AuthPage = () => {
   const createLinkToken = async (userId) => {
     try {
       const token = localStorage.getItem('token');
+      console.log('Token:', token);
       if (!token) {
         setError('Authentication failed. Please log in again.');
         return;
@@ -90,7 +88,7 @@ const AuthPage = () => {
   
       const response = await axios.post(
         `${import.meta.env.VITE_API_URL}/create_link_token`,
-        { userId },
+        { uid: userId },
         { headers: { Authorization: `Bearer ${token}` } }
       );
   
