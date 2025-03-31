@@ -24,24 +24,6 @@ const expenseSchema = new mongoose.Schema({
 
 const Expense = mongoose.model('Expense', expenseSchema);
 
-const budgetCategorySchema = new mongoose.Schema({
-    userId:
-    { type: String,
-      ref: User,
-      required: true
-    },
-
-    name: 
-    { type: String,
-      required: true },
-
-    budget:
-    { type: Number,
-      required: true }
-});
-
-const BudgetCategory = mongoose.model('BudgetCategory', budgetCategorySchema);
-
 /// this is  the  main schema we'll be CRUDING data from
 const budgetingSchema = new mongoose.Schema({
     userId:
@@ -50,10 +32,16 @@ const budgetingSchema = new mongoose.Schema({
       required: true
     },
 
-    categories: 
-    [{ type: mongoose.Schema.Types.ObjectId,
-       ref: BudgetCategory
-    }],
+    category: 
+    { type: String,
+      required: true
+
+    },
+
+    budget:
+    { type: Number,
+      required: true
+    },
 
     expenses: 
     [{ type: mongoose.Schema.Types.ObjectId,

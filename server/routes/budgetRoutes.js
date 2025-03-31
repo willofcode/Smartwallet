@@ -8,7 +8,11 @@ router.post("/post_budget", authMiddleware, async (req, res) => {
     try {
         console.log("User from middleware:", req.user);
 
-        const { category, budget } = req.body;
+        /// we shouldn't require the uid the user wouldn't know that tbh
+        const { 
+            category, 
+            budget } = req.body;
+
         const newBudget = new Budget({
             userId: req.user.userId,
             category,
@@ -16,7 +20,9 @@ router.post("/post_budget", authMiddleware, async (req, res) => {
         });
 
         await newBudget.save();
+        console.log("Saved Budget:", newBudget);
         res.status(201).json(newBudget);
+
     } catch (error) {
         console.error("Error saving budget:", error);
         res.status(500).json({ message: "Server error", error });
