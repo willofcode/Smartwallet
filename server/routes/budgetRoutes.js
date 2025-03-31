@@ -1,17 +1,29 @@
-const express = require('express');
+const express = require("express");
+const authMiddleware = require("../middleware/authMiddleware");
+const Budget = require("../models/budgetSchema");
+
 const router = express.Router();
-const budget = require("../models/budgetSchema"); 
 
+router.post("/post_budget", authMiddleware, async (req, res) => {
+    try {
+        console.log("User from middleware:", req.user);
 
-/*    ********        BUDGETING PAGE ENDPOINTS       *******       */
+        const { category, budget } = req.body;
+        const newBudget = new Budget({
+            userId: req.user.userId,
+            category,
+            budget,
+        });
 
-router.post('/post_budget', (req, res) => {
-    res.send({ message: "hi post endpoint"});
-
+        await newBudget.save();
+        res.status(201).json(newBudget);
+    } catch (error) {
+        console.error("Error saving budget:", error);
+        res.status(500).json({ message: "Server error", error });
+    }
 });
 
 module.exports = router;
-
 
 /*
 

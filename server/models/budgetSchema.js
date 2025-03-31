@@ -42,6 +42,7 @@ const budgetCategorySchema = new mongoose.Schema({
 
 const BudgetCategory = mongoose.model('BudgetCategory', budgetCategorySchema);
 
+/// this is  the  main schema we'll be CRUDING data from
 const budgetingSchema = new mongoose.Schema({
     userId:
     { type: String,
