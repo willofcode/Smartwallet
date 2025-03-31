@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const bodyparser = require('body-parser');
 const routes = require('./routes/routes');
+const budgetRoutes = require('./routes/budgetRoutes');
 
 const app = express();
 /*
@@ -36,4 +37,5 @@ database.once('connected', () => {
     console.log('Database on!')
 });
 
-app.use('/api', routes);
+app.use('/api', routes,);
+app.use('/api', budgetRoutes);

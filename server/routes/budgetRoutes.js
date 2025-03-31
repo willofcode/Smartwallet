@@ -5,14 +5,15 @@ const budget = require("../models/budgetSchema");
 
 /*    ********        BUDGETING PAGE ENDPOINTS       *******       */
 
-router.post('/postBudget', async(req, res) => {
-    try{
-       await res.send({ message: "hi post endpoint"});
-    } catch(error){
-        console.error(error);
-    }
+router.post('/post_budget', (req, res) => {
+    res.send({ message: "hi post endpoint"});
+
 });
 
+module.exports = router;
+
+
+/*
 
 // this should either get by category or get by name...
 router.get('/getBudget', async(req, res) => {
@@ -40,5 +41,4 @@ router.delete('/deleteBudget', async(req, res) =>{
         console.error(error);
     }
 });
-
-module.exports = budgetRoutes;
+*/
