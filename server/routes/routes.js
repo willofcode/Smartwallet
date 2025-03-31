@@ -18,7 +18,8 @@ const PLAID_COUNTRY_CODES = (process.env.PLAID_COUNTRY_CODES || 'US').split(
 
 //200
 router.post("/signup", async (req, res) => {
-  let { name,
+  let { firstName,
+        lastName,
         email, 
         password 
       } = req.body;
@@ -34,7 +35,7 @@ router.post("/signup", async (req, res) => {
       const salt = await bcrypt.genSalt(10);
       const hashedPassword = await bcrypt.hash(password, salt);
 
-      let newUser = new User({ name, email, password: hashedPassword });
+      let newUser = new User({ firstName, lastName, email, password: hashedPassword });
       const user = await newUser.save();
 
       const token = jwt.sign({ userId: user.userId }, SECRET_KEY, {expiresIn: "1h" });
@@ -101,7 +102,10 @@ router.get('/getUser/:id',  async (req, res) => {
       return res.status(404).send({ message: "user not found" });
     }
 
-    res.json({ name: user.name });
+    res.json({ firstName: user.firstName,
+               lastName: user.lastName,
+               email: user.email
+     });
 
   } catch(error){
       res.status(500).json({

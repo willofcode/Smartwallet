@@ -21,7 +21,7 @@ const Sidebar = () => {
   const fetchUserName = async (id) => {
     try {
       const response = await axios.get(`${import.meta.env.VITE_API_URL}/getUser/${id}`); // <--- how we call server REST api to our webpages
-      setUserName(response.data.name || 'User');
+      setUserName(response.data.firstName || 'User'); /// make this such that it shows first and last name
     } catch (err) {
       setUserName('User');
     }

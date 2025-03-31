@@ -9,7 +9,8 @@ const AuthPage = () => {
   const [loginPassword, setLoginPassword] = useState('');
   const [signupEmail, setSignupEmail] = useState('');
   const [signupPassword, setSignupPassword] = useState('');
-  const [name, setName] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const [isLogin, setIsLogin] = useState(true);
@@ -53,7 +54,8 @@ const AuthPage = () => {
       const response = await axios.post(`${import.meta.env.VITE_API_URL}/signup`, { 
         email: signupEmail, 
         password: signupPassword, 
-        name 
+        firstName,
+        lastName
       });
 
       const data = response.data;
@@ -150,12 +152,24 @@ const AuthPage = () => {
             <h2 className="text-2xl font-bold text-center mb-6 text-gray-900">Sign Up</h2>
             <form onSubmit={handleSignUp} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700">Name:</label>
+                <label className="block text-sm font-medium text-gray-700">First Name:</label>
                 <input
                   type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
                   className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Last Name:</label>
+                <input
+                  type="text"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  required
                 />
               </div>
 
@@ -165,8 +179,8 @@ const AuthPage = () => {
                   type="email"
                   value={signupEmail}
                   onChange={(e) => setSignupEmail(e.target.value)}
-                  required
                   className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  required
                 />
               </div>
 
@@ -176,13 +190,14 @@ const AuthPage = () => {
                   type="password"
                   value={signupPassword}
                   onChange={(e) => setSignupPassword(e.target.value)}
-                  required
                   className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  required
                 />
               </div>
-              <button
+
+              <button 
                 type="submit"
-                className="w-full py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full bg-indigo-600 text-white p-2 rounded-md hover:bg-indigo-700"
               >
                 Sign Up
               </button>
