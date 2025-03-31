@@ -1,5 +1,6 @@
 import React from 'react';
-import Sidebar from "../components/sideBar"
+//import PieChart from '../components/PieChart';
+import Sidebar from "../components/sideBar";
 
 const Dashboard = () => {
   return (
