@@ -16,6 +16,8 @@ const PLAID_COUNTRY_CODES = (process.env.PLAID_COUNTRY_CODES || 'US').split(
   ',',
 );
 
+/*    ********        AUTH ENDPOINTS        *******       */
+
 //200
 router.post("/signup", async (req, res) => {
   let { firstName,
@@ -81,7 +83,7 @@ router.post("/login", async (req, res) => {
 });
 
 
-// just testing the deployemnt with this.
+/// DELETE ONCE POST CI/CD PIPELINE IS BUILT ///
 router.get('/', async (req, res) => {
   try{
     await res.send({ message: "hi Test endpoint"})
@@ -118,6 +120,11 @@ router.post('/logout',  (req, res) => {
   res.send({ messeage: "Logout successful" });
 });
 
+/*    ********        ********        *******       */
+
+
+
+/*    ********        PLAID ENDPOINTS        *******       */
 //200
 router.post("/create_link_token", authMiddleware, async (req, res) => {
   const { uid } = req.body;
@@ -206,4 +213,5 @@ router.post('/get_transactions', async (req, res) => {
   }
 });
 
+/*    ********        ********        *******       */
 module.exports = router;
