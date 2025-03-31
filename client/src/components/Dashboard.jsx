@@ -2,17 +2,33 @@
 
 import React, { useEffect, useState, useMemo } from 'react';
 import Sidebar from "../components/sideBar"
-import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import PieChart from './PieChart';
 
 
 const Dashboard = () => {
-  const [transactions, setTransactions] = useState([]);
   const [filteredTransactions, setFilteredTransactions] = useState([]);
+  const [transactions, setTransactions] = useState([]); 
 
-  // Work in Progress - Fetch transactions from local storage
-  setTransactions(localStorage.getItem('transactions')); // fetch transactions from local storage 
+  // Fetch transactions from the server
+  // utilized session storage to avoid re-fetching
+  // and to avoid using the access token in the URL
+  useEffect(() => {
+    const storedAccessToken = sessionStorage.getItem('accessToken');
+    if (storedAccessToken) {
+      axios.post(`${import.meta.env.VITE_API_URL}/get_transactions`, {
+        access_token: storedAccessToken,
+      })
+      .then((response) => {
+        const { transactions } = response.data;
+        setTransactions(transactions);
+        setFilteredTransactions(transactions);
+      })
+      .catch(() => {
+        console.log('Failed to fetch transactions');
+      });
+    }
+  }, []);
 
   // filter by days/weeks/months utilize days for accurate and easy logic 
 
@@ -65,24 +81,15 @@ const Dashboard = () => {
       </div>
 
       {/* Main Content */}
-      <div className="grid grid-cols-[20fr_16fr] gap-5 mt-4">
+      <div className="grid grid-cols-[20fr_16fr] gap-1 mt-4">
         {/* Left Section */}
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-1">
           {/* Spending Overview */}
           <div className="bg-[#2C325C] p-6 rounded-2xl shadow-md h-100">
-            <h3 className="text-lg mb-4">My Spending on All Credit Cards for November</h3>
-            <div className="flex items-center gap-8">
-              <div className="w-36 h-36 rounded-full flex items-center justify-center text-2xl bg-gradient-to-tr from-[#7c3aed] via-[#10b981] to-[#3b82f6]">
-                $6,000
-              </div>
-              <ul className="space-y-2">
-                <li><span className="inline-block w-2.5 h-2.5 rounded-full bg-[#7c3aed] mr-2"></span>Entertainment - $1,500/$2,000</li>
-                <li><span className="inline-block w-2.5 h-2.5 rounded-full bg-[#10b981] mr-2"></span>Food - $1,000/$1,500</li>
-                <li><span className="inline-block w-2.5 h-2.5 rounded-full bg-[#3b82f6] mr-2"></span>Rent - $2,500/$2,500</li>
-              </ul>
+            <h3 className="text-lg mb-4">My Spending Overview</h3>
+            <div className="flex items-center gap-1">
+              <PieChart transactions={filteredTransactions} /> 
             </div>
-            {/* filteredTransaction hook should be imported here */}
-            {/* <PieChart transactions={filteredTransactions} />  */}
           </div>
 
           {/* Improving Financial Habits */}
