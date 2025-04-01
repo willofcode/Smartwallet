@@ -4,6 +4,7 @@ const Budget = require("../models/budgetSchema");
 
 const router = express.Router();
 
+/// CRUD 
 router.post("/post_budget", authMiddleware, async (req, res) => {
     try {
         console.log("User from middleware:", req.user);
@@ -29,12 +30,8 @@ router.post("/post_budget", authMiddleware, async (req, res) => {
     }
 });
 
-module.exports = router;
-
-/*
-
 // this should either get by category or get by name...
-router.get('/getBudget', async(req, res) => {
+router.get('/get_budget', async(req, res) => {
     try{
         await res.send({ message: "hi get endpoint"});
     } catch(error){
@@ -42,8 +39,7 @@ router.get('/getBudget', async(req, res) => {
     }
 });
 
-
-router.patch('/updateBudget', async(req,res) => {
+router.patch('/update_budget', async(req,res) => {
     try{
         await res.send({ message: "hi update endpoint"});
     } catch(error) {
@@ -52,11 +48,12 @@ router.patch('/updateBudget', async(req,res) => {
 
 });
 
-router.delete('/deleteBudget', async(req, res) =>{
+router.delete('/delete_budget', async(req, res) =>{
     try{
         await res.send({ message: "hi delete endpoint"});
     } catch(error){
         console.error(error);
     }
 });
-*/
+
+module.exports = router;
