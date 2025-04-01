@@ -2,10 +2,7 @@
 
 import React, { useState } from 'react';
 import Sidebar from "../components/sideBar";
-import calculator from './calculator-icon.png';
-import budget from './budget.png';
-import thumbsUp from './thumbsup.png';
-import thumbsDown from './thumbsdown.png';
+///import { axios } from 'axios';
 
 const BudgetingPage = () => {
   const [pageState, setPageState] = useState('overview'); 
@@ -70,7 +67,7 @@ const BudgetingPage = () => {
   };
 
   return (
-    <div className="flex h-screen bg-[#1B203F] text-white font-[Poppins]">
+    <div className="flex h-screen bg-[#1B203F] text-white">
       <Sidebar />
 
       {/* Main Content Container */}
@@ -174,8 +171,8 @@ const BudgetingPage = () => {
                           <span
                             className="inline-block w-4 h-4 bg-current"
                             style={{
-                              maskImage: `url(${thumbsUp})`,
-                              WebkitMaskImage: `url(${thumbsUp})`,
+                              maskImage: `url(${"images/thumbsup.png"})`,
+                              WebkitMaskImage: `url(${"images/thumbsup.png"})`,
                               maskRepeat: 'no-repeat',
                               WebkitMaskRepeat: 'no-repeat',
                               maskSize: 'contain',
@@ -189,8 +186,8 @@ const BudgetingPage = () => {
                           <span
                             className="inline-block w-4 h-4 bg-current"
                             style={{
-                              maskImage: `url(${thumbsDown})`,
-                              WebkitMaskImage: `url(${thumbsDown})`,
+                              maskImage: `url(${"images/thumbsdown.png"})`,
+                              WebkitMaskImage: `url(${"images/thumbsdown.png"})`,
                               maskRepeat: 'no-repeat',
                               WebkitMaskRepeat: 'no-repeat',
                               maskSize: 'contain',
@@ -224,7 +221,7 @@ const BudgetingPage = () => {
 
             <div className="flex items-center justify-center">
               <img
-                src={budget}
+                src={"images/budget.png"}
                 alt="Planning"
                 className="w-95 h-95 object-contain"
               />
@@ -299,7 +296,7 @@ const BudgetingPage = () => {
             <h2 className="text-2xl font-bold mb-4">Set Up A New Plan</h2>
             <div className="flex items-center justify-center mb-6">
               <img
-                src={calculator}
+                src={"images/calculator-icon.png"}
                 alt="Calculator"
                 className="w-90 h-90 object-contain"
               />

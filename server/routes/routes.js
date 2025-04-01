@@ -16,25 +16,18 @@ const PLAID_COUNTRY_CODES = (process.env.PLAID_COUNTRY_CODES || 'US').split(
   ',',
 );
 
+/*    ********        AUTH ENDPOINTS        *******       */
+
 //200
 router.post("/signup", async (req, res) => {
-  let { name,
+  let { firstName,
+        lastName,
         email, 
         password 
       } = req.body;
 
-  /*emailVerifier.verify(email, async (error, response) => {
-    if (error) {
-      return res.status(500).send({ message: "Error verifying email" });
-    }*/
-  
-  //let newUser = new User({ name, email, password });
-
-  //I just gotta copy and paste whatever wrote...
-
     try {
 
-      // if the user exist --> send message "user already exist"
       const existingUser = await User.findOne({ email });
       if (existingUser) {
         return res.status(400).send({ message: "User exists" });
@@ -44,7 +37,7 @@ router.post("/signup", async (req, res) => {
       const salt = await bcrypt.genSalt(10);
       const hashedPassword = await bcrypt.hash(password, salt);
 
-      let newUser = new User({ name, email, password: hashedPassword });
+      let newUser = new User({ firstName, lastName, email, password: hashedPassword });
       const user = await newUser.save();
 
       const token = jwt.sign({ userId: user.userId }, SECRET_KEY, {expiresIn: "1h" });
@@ -90,7 +83,7 @@ router.post("/login", async (req, res) => {
 });
 
 
-// just testing the deployemnt with this.
+/// DELETE ONCE POST CI/CD PIPELINE IS BUILT ///
 router.get('/', async (req, res) => {
   try{
     await res.send({ message: "hi Test endpoint"})
@@ -102,7 +95,6 @@ router.get('/', async (req, res) => {
 });
 
 router.get('/getUser/:id',  async (req, res) => {
-  //const user = await User.findById(req.params.id);
 
   try{
     const user = await User.findOne({ userId: req.params.id });
@@ -112,7 +104,10 @@ router.get('/getUser/:id',  async (req, res) => {
       return res.status(404).send({ message: "user not found" });
     }
 
-    res.json({ name: user.name });
+    res.json({ firstName: user.firstName,
+               lastName: user.lastName,
+               email: user.email
+     });
 
   } catch(error){
       res.status(500).json({
@@ -125,17 +120,11 @@ router.post('/logout',  (req, res) => {
   res.send({ messeage: "Logout successful" });
 });
 
-// (ISSUE #2: we need a user logout endpoint) the frontend!!!!!! should handle the logout
-  /*try { await req.logout();
-              req.session.destroy();
-              
-    res.redirect('/login');
-    res.send({ id: user.userId });
+/*    ********        ********        *******       */
 
-  } catch(error) {
-    res.status(500).send ({ message: `Error logging user out: ${error.message}` });
-  }*/
 
+
+/*    ********        PLAID ENDPOINTS        *******       */
 //200
 router.post("/create_link_token", authMiddleware, async (req, res) => {
   const { uid } = req.body;
@@ -224,4 +213,5 @@ router.post('/get_transactions', async (req, res) => {
   }
 });
 
+/*    ********        ********        *******       */
 module.exports = router;

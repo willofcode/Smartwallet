@@ -17,15 +17,6 @@ const LandingPage = () => {
                     <li>
                         <a href="/authform" className="bg-white text-[#0c064d] px-4 py-2 rounded-2xl font-semibold shadow-lg opacity-100 hover:opacity-70 transition">Get started</a>
                     </li>
-                    {/*<li>
-                        <a href="/transactions" className="text-white opacity-100 hover:opacity-70 transition">Transactions</a>
-                    </li>*/}
-                    <li>
-                        <a href="#" className="text-white opacity-100 hover:opacity-70 transition">Home</a>
-                    </li>
-                    {/*<li>
-                        <a href="#" className="text-white opacity-100 hover:opacity-70 transition">Bills</a>
-                    </li>*/}
                     <li>
                         <a href="#" className="text-white opacity-100 hover:opacity-70 transition">About Us</a>
                     </li>
@@ -43,10 +34,6 @@ const LandingPage = () => {
                     <p className="text-lg md:text-xl opacity-80 mb-6">
                         Better Budgeting / Smarter Saving
                     </p>
-
-                    <button className="bg-white text-[#0c064d] px-6 py-3 rounded-2xl font-semibold shadow-lg opacity-100 hover:opacity-70 transition">
-                        Get Started
-                    </button>
                 </header>
 
                 <div className="w-1/2 flex justify-center relative overflow-hidden">
