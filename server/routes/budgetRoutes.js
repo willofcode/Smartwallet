@@ -4,7 +4,7 @@ const Budget = require("../models/budgetSchema");
 
 const router = express.Router();
 
-/// CRUD 
+/// CRUD endpoints
 router.post("/post_budget", authMiddleware, async (req, res) => {
     try {
         console.log("User from middleware:", req.user);
