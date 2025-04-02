@@ -6,6 +6,7 @@ import TransactionsPage from "./components/TransactionsPage";
 import BillsPage from "./components/BillsPage";
 import Sidebar from "./components/sideBar";
 import BudgetingPage from "./components/BudgetingPage";
+import WalletPage from "./components/WalletPage";
 
 function App() {
     return (
@@ -17,6 +18,7 @@ function App() {
                         <Route path="/transactions" element={<TransactionsPage />} />
                         <Route path="/bills" element={<BillsPage />} />
                         <Route path="/budgeting" element={<BudgetingPage />} />
+                        <Route path="/wallet" element={<WalletPage />} />
 
                         {/* ProtectedRoute example (to be implemented later)
                         <Route 
