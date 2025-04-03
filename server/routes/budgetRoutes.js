@@ -34,7 +34,7 @@ router.post("/post_budget", authMiddleware, async (req, res) => {
 });
 
 // filtering how a user can retrieve their budget plans
-// this should either get by category or get by name... why not both?!
+// this should get name
 router.get('/get_budget/:name', async(req, res) => {
     try{
         const budgetName = req.params.name;
