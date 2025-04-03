@@ -51,8 +51,12 @@ router.get('/get_budget/:name', async(req, res) => {
 router.get('/get_budget/:category', async (req, res) => {
     try{
         const budgetCategory = req.params.category;
-        const budget = await Budget.findOne({ category: budgetCategory});
-        
+        const budget = await Budget.find({ category: new RegExp(`^${budgetCategory}$`, 'i')});
+
+        if (budgets.length === 0) {
+            return res.status(404).json({ message: "No budget plans for this category" });
+        }
+
         res.json(budget);
 
     } catch(error){
