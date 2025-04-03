@@ -11,11 +11,13 @@ router.post("/post_budget", authMiddleware, async (req, res) => {
 
         /// we shouldn't require the uid the user wouldn't know that tbh
         const { 
+            name,
             category, 
             budget } = req.body;
 
         const newBudget = new Budget({
             userId: req.user.userId,
+            name,
             category,
             budget,
         });
@@ -31,7 +33,7 @@ router.post("/post_budget", authMiddleware, async (req, res) => {
 });
 
 // this should either get by category or get by name...
-router.get('/get_budget', async(req, res) => {
+router.get('/get_budget/:category', async(req, res) => {
     try{
         await res.send({ message: "hi get endpoint"});
     } catch(error){

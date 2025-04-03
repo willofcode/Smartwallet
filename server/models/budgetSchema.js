@@ -32,6 +32,11 @@ const budgetingSchema = new mongoose.Schema({
       required: true
     },
 
+    name: {
+      type: String,
+      required: true
+    },
+
     category: 
     { type: String,
       required: true
