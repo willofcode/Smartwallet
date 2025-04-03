@@ -48,9 +48,15 @@ router.get('/get_budget/:name', async(req, res) => {
     }
 });
 
-router.patch('/update_budget', async(req,res) => {
+router.patch('/update_budget/:name', async(req,res) => {
     try{
-        await res.send({ message: "hi update endpoint"});
+
+        const findBudgetName = req.params.name;
+        const updateBudgetData = req.body;
+
+        const updatedBudget =  await res.send('update here..')
+        
+        //await res.send({ message: "hi update endpoint"});
     } catch(error) {
         console.error(error);
     }
