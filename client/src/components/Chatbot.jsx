@@ -1,7 +1,7 @@
 import React from 'react'
 import ChatbotIcon from './ChatbotIcon'
 import './Chatbot.css'
-import ChatForm from './ChatForm'
+import ChatForm from './ChatFr'
 
 const Chatbot = () => {
   return (
