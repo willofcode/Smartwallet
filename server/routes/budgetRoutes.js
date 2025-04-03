@@ -16,16 +16,16 @@ router.post("/post_budget", authMiddleware, async (req, res) => {
             category, 
             budget } = req.body;
 
-        const newBudget = new Budget({
+        const new_budget = new Budget({
             userId: req.user.userId,
             name,
             category,
             budget,
         });
 
-        await newBudget.save();
-        console.log("Saved Budget:", newBudget);
-        res.status(201).json(newBudget);
+        await new_budget.save();
+        console.log("Saved Budget:", new_budget);
+        res.status(201).json(new_budget);
 
     } catch (error) {
         console.error("Error saving budget:", error);
@@ -34,10 +34,14 @@ router.post("/post_budget", authMiddleware, async (req, res) => {
 });
 
 // filtering how a user can retrieve their budget plans
-// this should either get by category or get by name... why not both
+// this should either get by category or get by name... why not both?!
 router.get('/get_budget/:name', async(req, res) => {
     try{
-        await res.send({ message: "hi getbyname endpoint"});
+        const budgetName = req.params.name;
+        const budget = await Budget.findOne({ name: budgetName });
+
+        res.json(budget);
+  
     } catch(error){
         console.error(error);
         res.status(500).json({ message: "Cannot GET by name", error});
@@ -46,7 +50,11 @@ router.get('/get_budget/:name', async(req, res) => {
 
 router.get('/get_budget/:category', async (req, res) => {
     try{
-        await res.send({ message: "hi getbycategory endpoint"});
+        const budgetCategory = req.params.category;
+        const budget = await Budget.findOne({ category: budgetCategory});
+        
+        res.json(budget);
+
     } catch(error){
         console.error(error);
         res.status(500).json({ message: "Cannot GET by category", error});
