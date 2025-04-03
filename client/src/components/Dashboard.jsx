@@ -1,5 +1,6 @@
 import React from 'react';
 import Sidebar from "../components/sideBar"
+import Chatbot from './Chatbot';
 
 const Dashboard = () => {
   return (
@@ -84,6 +85,9 @@ const Dashboard = () => {
         </div>
       </div>
     </div>
+    </div>
+    <div className='fixed bottom-6 right-6 z-50'>
+    <Chatbot/>
     </div>
     </div>
   );
