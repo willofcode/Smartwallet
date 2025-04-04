@@ -6,6 +6,8 @@ const router = express.Router();
 
 /// CRUD endpoints
 
+// these need error handling.. (on try blocks).
+
 router.post("/post_budget", authMiddleware, async (req, res) => {
     try {
         console.log("User from middleware:", req.user);
@@ -48,24 +50,50 @@ router.get('/get_budget/:name', async(req, res) => {
     }
 });
 
+//200!
 router.patch('/update_budget/:name', async(req,res) => {
     try{
 
         const findBudgetName = req.params.name;
         const updateBudgetData = req.body;
 
-        const updatedBudget =  await res.send('update here..')
-        
-        //await res.send({ message: "hi update endpoint"});
+        if(Object.keys(updateBudgetData).length === 0) {
+            return res.status(404).json({ message: "Cannot update, budget not found."});
+        }
+
+        else{
+
+            const updatedBudget =  await Budget.findOneAndUpdate(
+                { name: findBudgetName },
+                { $set: updateBudgetData },
+                { new: true,
+                runValidators: true
+                }
+            );
+
+            res.json(updatedBudget);
+        }
+
     } catch(error) {
         console.error(error);
+        res.status(500).json({ message: "Update Budget", error })
     }
 
 });
 
-router.delete('/delete_budget', async(req, res) =>{
+router.delete('/delete_budget/:name', async(req, res) =>{
     try{
-        await res.send({ message: "hi delete endpoint"});
+        const budgetName = req.params.name;
+        const deletedBudget = await Budget.findOneAndDelete({ name: budgetName });
+
+        if(!deletedBudget){
+            res.status(404).json({ message: "Budget Not Found."});
+        }
+
+        else{
+            res.json({deletedBudget, message:`${budgetName} has been deleted`});
+        }
+        
     } catch(error){
         console.error(error);
     }
