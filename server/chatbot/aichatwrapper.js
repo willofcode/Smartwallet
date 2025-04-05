@@ -7,7 +7,6 @@ const Conversation = require('../models/converse');
 
 class FinancialAdvisorChatbot {
   constructor(modelName = "gpt-3.5-turbo", temperature = 0.7) {
-    // Initialize the OpenAI model
     this.chatModel = new ChatOpenAI({
       modelName: modelName,
       temperature: temperature,
@@ -42,7 +41,6 @@ class FinancialAdvisorChatbot {
       Human: {input}
       AI: `);
 
-    // Create the conversation chain
     this.conversation = new ConversationChain({
       llm: this.chatModel,
       memory: this.memory,
@@ -51,10 +49,8 @@ class FinancialAdvisorChatbot {
     });
   }
 
-  // Method to send a message to the chatbot
   async chat(userInput, userId = 'default') {
     try {
-      // Log the incoming message
       console.log(`User ${userId}: ${userInput}`);
 
       // Load conversation history into memory if available
@@ -83,7 +79,6 @@ class FinancialAdvisorChatbot {
       let conversation = await Conversation.findOne({ userId });
 
       if (!conversation) {
-        // Create a new conversation if none exists
         conversation = await Conversation.create({
           userId,
           messages: [{
@@ -94,7 +89,6 @@ class FinancialAdvisorChatbot {
           createdAt: new Date(),
         });
       } else {
-        // Add the new message to the existing conversation
         conversation.messages.push({
           role,
           message,
@@ -114,7 +108,6 @@ class FinancialAdvisorChatbot {
     try {
       const conversation = await Conversation.findOne({ userId });
       if (conversation) {
-        // Format messages as required by BufferMemory
         this.memory.chat_history = conversation.messages.map((msg) => ({
           role: msg.role === 'user' ? 'Human' : 'AI',
           content: msg.message,
@@ -131,8 +124,7 @@ class FinancialAdvisorChatbot {
     this.memory.clear();
     return "Conversation history has been cleared.";
   }
-
-  // Method to save conversation history to the database
+  // Method to save the conversation history to a file or database
   async saveConversationHistory(userId) {
     try {
       const history = await this.memory.loadMemoryVariables({});
