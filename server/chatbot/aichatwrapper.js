@@ -3,6 +3,7 @@ const { ChatOpenAI } = require('@langchain/openai');
 const { ConversationChain } = require('langchain/chains');
 const { BufferMemory } = require('langchain/memory');
 const { PromptTemplate } = require('@langchain/core/prompts');
+const Conversation = require('../models/converse');
 
 class FinancialAdvisorChatbot {
   constructor(modelName = "gpt-3.5-turbo", temperature = 0.7) {
@@ -14,7 +15,7 @@ class FinancialAdvisorChatbot {
       openAIApiKey: process.env.OPENAI_API_KEY,
     });
 
-    // Create a memory instance with return messages flag
+    // Create a memory instance
     this.memory = new BufferMemory({
       returnMessages: true,
       memoryKey: "chat_history",
@@ -53,18 +54,75 @@ class FinancialAdvisorChatbot {
   // Method to send a message to the chatbot
   async chat(userInput, userId = 'default') {
     try {
-      // Log the incoming message (could be stored in a database in production)
+      // Log the incoming message
       console.log(`User ${userId}: ${userInput}`);
-      
+
+      // Load conversation history into memory if available
+      await this.loadConversationHistory(userId);
+
+      // Call the chatbot to get a response
       const response = await this.conversation.call({ input: userInput });
-      
+
       // Log the outgoing response
       console.log(`FinBot: ${response.response}`);
-      
+
+      // Save both user input and chatbot response to the database
+      await this.saveMessageToDB(userId, 'user', userInput);
+      await this.saveMessageToDB(userId, 'bot', response.response);
+
       return response.response;
     } catch (error) {
       console.error("Chatbot Error:", error);
       return "I apologize, but I'm having trouble processing your request right now. Could you try again in a moment?";
+    }
+  }
+
+  // Save message to the database
+  async saveMessageToDB(userId, role, message) {
+    try {
+      let conversation = await Conversation.findOne({ userId });
+
+      if (!conversation) {
+        // Create a new conversation if none exists
+        conversation = await Conversation.create({
+          userId,
+          messages: [{
+            role,
+            message,
+            timestamp: new Date(),
+          }],
+          createdAt: new Date(),
+        });
+      } else {
+        // Add the new message to the existing conversation
+        conversation.messages.push({
+          role,
+          message,
+          timestamp: new Date(),
+        });
+        await conversation.save();
+      }
+
+      console.log(`Message saved to database for user ${userId}`);
+    } catch (error) {
+      console.error("Error saving message to database:", error);
+    }
+  }
+
+  // Load conversation history from the database into memory
+  async loadConversationHistory(userId) {
+    try {
+      const conversation = await Conversation.findOne({ userId });
+      if (conversation) {
+        // Format messages as required by BufferMemory
+        this.memory.chat_history = conversation.messages.map((msg) => ({
+          role: msg.role === 'user' ? 'Human' : 'AI',
+          content: msg.message,
+        }));
+        console.log(`Loaded conversation history for user ${userId}`);
+      }
+    } catch (error) {
+      console.error("Error loading conversation history:", error);
     }
   }
 
@@ -74,19 +132,15 @@ class FinancialAdvisorChatbot {
     return "Conversation history has been cleared.";
   }
 
-  // Method to save conversation history (for future implementation)
+  // Method to save conversation history to the database
   async saveConversationHistory(userId) {
-    // This would integrate with a database in a production environment
-    const history = await this.memory.loadMemoryVariables({});
-    console.log(`Saving conversation history for user ${userId}`);
-    return history;
-  }
-
-  // Method to load conversation history (for future implementation)
-  async loadConversationHistory(userId, history) {
-    // This would integrate with a database in a production environment
-    console.log(`Loading conversation history for user ${userId}`);
-    // Implementation would depend on the specific database integration
+    try {
+      const history = await this.memory.loadMemoryVariables({});
+      console.log(`Saving conversation history for user ${userId}`);
+      return history;
+    } catch (error) {
+      console.error("Error saving conversation history:", error);
+    }
   }
 }
 

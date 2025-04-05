@@ -19,7 +19,7 @@ const conversationSchema = new mongoose.Schema({
       },
       timestamp: {
         type: Date,
-        default: Date.now,git 
+        default: Date.now,
       },
     },
   ],
