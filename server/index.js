@@ -5,6 +5,7 @@ const cors = require('cors');
 const bodyparser = require('body-parser');
 const routes = require('./routes/routes');
 const aicb = require('./routes/aicbRoutes');
+const budgetRoutes = require('./routes/budgetRoutes');
 
 
 const app = express();
@@ -38,5 +39,8 @@ database.once('connected', () => {
     console.log('Database on!')
 });
 
+
 app.use('/api', routes);
 app.use('/api/chatbot', aicb);
+app.use('/api', budgetRoutes);
+
