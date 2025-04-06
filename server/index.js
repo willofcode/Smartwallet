@@ -41,6 +41,6 @@ database.once('connected', () => {
 
 
 app.use('/api', routes);
-app.use('/api/chatbot', aicb);
+app.use('/api', aicb);
 app.use('/api', budgetRoutes);
 
