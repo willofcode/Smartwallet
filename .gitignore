@@ -1,9 +1,9 @@
-# ignore list
-.gitignore
-node_modules/
-dist/
+# ignore fields
 .env
+node_modules/
 package-lock.json
 package.json
+dist/
+yarn-error.log
 yarn.lock
-```
+.vscode/

@@ -31,7 +31,7 @@ const Sidebar = () => {
   const handleLogout = () => {
     localStorage.removeItem('userId');
     localStorage.removeItem('linkToken');
-    localStorage.removeItem('token')
+    localStorage.removeItem('token');
     navigate('/');
   };
 
