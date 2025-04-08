@@ -12,6 +12,9 @@ const handleFormSubmit = (e) => {
 
     //This will update the chat history with the user's message that was typed
     setChatHistory((history) => [...history, {role: "user", text: userMessage}]);
+
+    //Shows thinking message while chatbot is typing
+    setTimeout(() => setChatHistory((history) => [...history, {role: "mode", text: "Processing..."}]), 600);
 };
 
   return (

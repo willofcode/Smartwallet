@@ -1,4 +1,4 @@
-import React from 'react'
+import React, {useState} from 'react'
 import ChatbotIcon from './ChatbotIcon'
 import './Chatbot.css'
 import ChatForm from './ChatForm'
