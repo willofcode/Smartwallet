@@ -5,6 +5,7 @@ import AuthPage from "./components/AuthPage";
 import TransactionsPage from "./components/TransactionsPage";
 import BillsPage from "./components/BillsPage";
 import Sidebar from "./components/sideBar";
+import BudgetingPage from "./components/BudgetingPage";
 
 function App() {
     return (
@@ -14,6 +15,7 @@ function App() {
                         <Route path="/dashboard" element={<Dashboard />} />
                         <Route path="/authform" element={<AuthPage />} />
                         <Route path="/transactions" element={<TransactionsPage />} />
+                        <Route path="/budgeting" element={<BudgetingPage />} />
                         <Route path="/bills" element={<BillsPage />} />
 
                         {/* ProtectedRoute example (to be implemented later)
