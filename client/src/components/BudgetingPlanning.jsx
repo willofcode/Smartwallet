@@ -1,69 +1,109 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 import { Link } from 'react-router-dom';
 import Sidebar from "./sideBar";
 
 const BudgetingPlanning = () => {
-  // Toggle between "planning" view and "addPlan" view
-  const [viewMode, setViewMode] = useState("planning");
+  // We assume each of these “names” is a separate Budget doc in your DB
+  const categories = ["Housing", "Food", "Transportation"];
 
-  // Default categories
-  const [categories, setCategories] = useState([
-    "Food", 
-    "Housing", 
-    "Transportation",
-    "Entertainment",
-    "Education"
-  ]);
-  
-  // Accordion state for toggling each category's details
-  const [openCategoryIndex, setOpenCategoryIndex] = useState(null);
-  
-  // For adding a new category (plan)
+  // We'll store each fetched doc in an array
+  const [budgets, setBudgets] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  // For toggling accordion
+  const [openIndex, setOpenIndex] = useState(null);
+
+  // Form for creating a new budget doc
   const [newName, setNewName] = useState('');
   const [newCategory, setNewCategory] = useState('');
   const [newBudget, setNewBudget] = useState('');
-  
+
+  // Additional category suggestions
   const categoryOptions = [
-    "Food",
-    "Gas",
     "Housing",
-    "Entertainment",
-    "Utilities",
-    "Healthcare",
+    "Food",
     "Transportation",
+    "Utilities",
+    "Entertainment",
+    "Healthcare",
     "Personal Care",
     "Education",
     "Misc",
   ];
-  
-  // Toggle the expanded category in the accordion
-  const toggleCategory = (idx) => {
-    setOpenCategoryIndex(openCategoryIndex === idx ? null : idx);
+
+  useEffect(() => {
+    fetchBudgets();
+  }, []);
+
+  // For each name in `categories`, call GET /get_budget/:name
+  const fetchBudgets = async () => {
+    setLoading(true);
+    try {
+      const requests = categories.map(cat =>
+        axios.get(`/api/budget/get_budget/${cat}`)
+        .catch(err => {
+          console.error(`No budget found for name "${cat}"`, err);
+          return null;
+        })
+      );
+      const results = await Promise.all(requests);
+
+      const final = results.map(res => (res && res.data ? res.data : null));
+      setBudgets(final);
+    } catch (error) {
+      console.error("Error fetching budgets by name:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  // Handle new category form submission
-  const handleSubmitNewCategory = (e) => {
-    e.preventDefault();
-    if (newCategory.trim()) {
-      setCategories([...categories, newCategory.trim()]);
-    }
-    setNewName('');
-    setNewCategory('');
-    setNewBudget('');
-    setViewMode("planning");
+  const toggleAccordion = (idx) => {
+    setOpenIndex(openIndex === idx ? null : idx);
   };
+
+  // Create a new budget doc (POST /post_budget)
+  const handleSubmitNewCategory = async (e) => {
+    e.preventDefault();
+    if (!newName || !newCategory || !newBudget) {
+      alert("Please fill in name, category, and budget.");
+      return;
+    }
+
+    try {
+      await axios.post('/api/budget/post_budget', {
+        name: newName.trim(),
+        category: newCategory.trim(),
+        budget: Number(newBudget),
+      });
+      // Re-fetch budgets in case newName is one of our known categories
+      await fetchBudgets();
+
+      // Reset form, switch back to "planning" view
+      setNewName('');
+      setNewCategory('');
+      setNewBudget('');
+      setViewMode("planning");
+    } catch (err) {
+      console.error('Error creating new budget:', err);
+      alert('Failed to create budget. Check console for details.');
+    }
+  };
+
+  // Switch between "planning" view (accordion) and "addPlan" view
+  const [viewMode, setViewMode] = useState("planning");
 
   return (
     <div className="flex h-screen bg-[#1B203F] text-white">
       <Sidebar />
-      
+
       <div className="flex-grow overflow-y-auto p-8">
         <div className="bg-[#2C325C] p-6 rounded-2xl shadow-md w-full space-y-6">
           <div className="flex justify-between items-center">
             <h2 className="text-2xl font-bold">Planning</h2>
-            {/* Link back to the overview page */}
+            {/* Link back to overview */}
             <Link to="/budgeting" className="text-sm bg-purple-600 px-3 py-1 rounded-md">
               ← Back to Overview
             </Link>
@@ -71,7 +111,7 @@ const BudgetingPlanning = () => {
 
           {viewMode === "planning" && (
             <>
-              {/* Illustration */}
+              {/* Some illustration */}
               <div className="flex items-center justify-center">
                 <img
                   src="/images/budget.png"
@@ -80,22 +120,36 @@ const BudgetingPlanning = () => {
                 />
               </div>
 
-              {/* Accordion-like list of categories */}
+              {loading && <p className="text-gray-300">Loading budgets...</p>}
+
               <div className="space-y-2">
-                {categories.map((cat, idx) => {
-                  const isOpen = openCategoryIndex === idx;
+                {budgets.map((bgt, idx) => {
+                  const isOpen = openIndex === idx;
+
+                  if (!bgt) {
+                    // Means we didn't find a doc for categories[idx]
+                    return (
+                      <div
+                        key={`missing-${idx}`}
+                        className="bg-[#1B203F] p-4 rounded-md text-red-400"
+                      >
+                        No budget found for "{categories[idx]}".
+                      </div>
+                    );
+                  }
+
                   return (
-                    <div key={idx} className="bg-[#1B203F] rounded-md overflow-hidden">
+                    <div key={bgt._id || idx} className="bg-[#1B203F] rounded-md overflow-hidden">
                       <button
                         className="flex justify-between items-center w-full px-4 py-3"
-                        onClick={() => toggleCategory(idx)}
+                        onClick={() => toggleAccordion(idx)}
                       >
                         <div className="flex items-center gap-2">
                           <div className="w-5 h-5 bg-purple-500 rounded-full" />
-                          <span>{cat}</span>
+                          <span>{bgt.name}</span>
                         </div>
                         <div className="flex items-center gap-2 text-sm text-gray-400">
-                          {isOpen ? "Details" : "Not setup"}
+                          {isOpen ? "Details" : "Not expanded"}
                           <svg
                             className={`h-4 w-4 transform transition-transform ${isOpen ? 'rotate-180' : ''}`}
                             fill="none"
@@ -111,10 +165,14 @@ const BudgetingPlanning = () => {
                       </button>
                       {isOpen && (
                         <div className="px-4 pb-3 text-sm text-gray-300">
-                          {/* Example placeholders */}
-                          <p>Budget: $500</p>
-                          <p>Spent: $200</p>
-                          <p>Leftover: $300</p>
+                          <p>Category: {bgt.category}</p>
+                          <p>Budget: ${bgt.budget}</p>
+                          <p>
+                            Created On:{" "}
+                            {bgt.createdAt
+                              ? new Date(bgt.createdAt).toLocaleDateString()
+                              : "N/A"}
+                          </p>
                         </div>
                       )}
                     </div>
@@ -122,7 +180,6 @@ const BudgetingPlanning = () => {
                 })}
               </div>
 
-              {/* Button to switch to add plan view */}
               <button
                 onClick={() => setViewMode("addPlan")}
                 className="w-full flex items-center justify-center gap-2 bg-[#1B203F] hover:bg-[#3b4470] px-4 py-2 rounded-md mt-2"
@@ -144,16 +201,14 @@ const BudgetingPlanning = () => {
                 />
               </div>
 
-              {/* "Set Up A New Plan" heading */}
               <h2 className="text-2xl font-bold">Set Up A New Plan</h2>
 
-              {/* Form for adding a new category */}
               <form onSubmit={handleSubmitNewCategory} className="space-y-4">
                 <div>
                   <label className="block text-sm mb-1">Name</label>
                   <input
                     type="text"
-                    placeholder="Type Your Name"
+                    placeholder="Unique Budget Name (e.g. Housing)"
                     value={newName}
                     onChange={(e) => setNewName(e.target.value)}
                     className="w-full px-4 py-2 rounded-md bg-[#1B203F] border border-gray-600 focus:outline-none"

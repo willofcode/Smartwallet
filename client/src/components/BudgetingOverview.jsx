@@ -1,24 +1,83 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 import { Link } from 'react-router-dom';
-import Sidebar from "./sideBar";
-
-// Example data for the "Total Planned Expenses" section
-const expenseData = [
-  { category: "Housing", used: 750, budget: 900, dates: "15 Sep - 12 Oct" },
-  { category: "Food", used: 1000, budget: 900, dates: "15 Sep - 12 Oct" },
-  { category: "Transportation", used: 300, budget: 300, dates: "15 Sep - 12 Oct" },
-];
+import Sidebar from './sideBar';
 
 const BudgetingOverview = () => {
+  // Example categories we want to display in the “overview”
+  const categories = ["Housing", "Food", "Transportation"];
+
+  // State for budgets fetched from server
+  const [budgetData, setBudgetData] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  // Example “used/spent” amounts (until you calculate from transactions).
+  // You could also store these in your DB, or derive them from actual spending data.
+  const [usedAmounts, setUsedAmounts] = useState({});
+
+  // On component mount, fetch budget documents for each known category
+  useEffect(() => {
+    fetchBudgets();
+  }, []);
+
+  const fetchBudgets = async () => {
+    try {
+      setLoading(true);
+
+      // We do multiple requests, one per category
+      const requests = categories.map(cat =>
+        axios.get(`/api/budget/get_budget/${cat}`)
+        .catch(err => {
+          // If a particular category doesn't exist, handle gracefully
+          // e.g., return null or a placeholder object
+          console.error(`No budget found for category "${cat}"`, err);
+          return null; // so Promise.all won't reject everything
+        })
+      );
+
+      const results = await Promise.all(requests);
+      // Each `results[i]` is either `axios response` or `null` if not found
+      const finalBudgets = results.map((res, i) => {
+        if (!res || !res.data) return null; // category not found
+        return res.data;
+      });
+
+      setBudgetData(finalBudgets);
+
+      // For demonstration, we’ll generate “used/spent” amounts randomly
+      // or you can store them in your DB or fetch from a transaction API.
+      const usageMap = {};
+      finalBudgets.forEach(b => {
+        if (b && b.budget) {
+          usageMap[b.name] = Math.floor(Math.random() * b.budget);
+        }
+      });
+      setUsedAmounts(usageMap);
+      
+    } catch (error) {
+      console.error("Error fetching budgets by name:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Sum up all planned budgets that were successfully fetched
+  const totalPlanned = budgetData.reduce((acc, b) => {
+    return b && b.budget ? acc + b.budget : acc;
+  }, 0);
+
+  // Example: If your “monthly budget” is $4,000 total, then “left to spend”:
+  const leftToSpend = Math.max(4000 - totalPlanned, 0);
+
   return (
     <div className="flex h-screen bg-[#1B203F] text-white font-[Poppins]">
       <Sidebar />
 
       {/* Main Content Container */}
       <div className="flex-grow overflow-y-auto p-8">
-        {/* -- Card 1: Left to Spend -- */}
+        {/* Card 1: Left to Spend */}
         <div className="bg-[#2C325C] p-6 rounded-2xl shadow-md w-full mb-6">
           <div className="flex items-center gap-2 mb-2">
             <span className="inline-block w-2 h-2 rounded-full bg-purple-500" />
@@ -26,12 +85,14 @@ const BudgetingOverview = () => {
               Left to spend in the next 22 days
             </h2>
           </div>
-          <p className="text-3xl font-bold mb-2">$3,252.33</p>
-          {/* Progress bar */}
+          <p className="text-3xl font-bold mb-2">
+            ${leftToSpend.toFixed(2)}
+          </p>
+          {/* Progress bar (relative to 4000) */}
           <div className="relative w-full bg-gray-600 h-2 rounded-full">
             <div
               className="absolute top-0 left-0 h-2 bg-purple-500 rounded-full"
-              style={{ width: '80%' }}
+              style={{ width: `${(leftToSpend / 4000) * 100}%` }}
             />
           </div>
           <div className="flex justify-between text-xs mt-2">
@@ -40,7 +101,7 @@ const BudgetingOverview = () => {
           </div>
         </div>
 
-        {/* -- Card 2: Total Planned Expenses -- */}
+        {/* Card 2: Total Planned Expenses */}
         <div className="bg-[#2C325C] p-6 rounded-2xl shadow-md w-full">
           <div className="flex items-center justify-between mb-2">
             <h2 className="text-sm md:text-base">Total Planned Expenses</h2>
@@ -75,17 +136,33 @@ const BudgetingOverview = () => {
               </svg>
             </Link>
           </div>
-          <p className="text-3xl font-bold mb-4">$3,634.27</p>
+          <p className="text-3xl font-bold mb-4">
+            ${totalPlanned.toFixed(2)}
+          </p>
 
-          {/* Render expense items */}
-          {expenseData.map(({ category, used, budget, dates }, idx) => {
-            const leftover = budget - used;
-            const usagePercent = Math.min((used / budget) * 100, 100).toFixed(0);
+          {loading && <p className="text-gray-300">Loading budgets...</p>}
+
+          {/* Render the budgets we fetched (one for each known category) */}
+          {budgetData.map((budgetObj, idx) => {
+            if (!budgetObj) {
+              return (
+                <div key={idx} className="mb-4 text-red-400">
+                  No budget found for "{categories[idx]}".
+                </div>
+              );
+            }
+
+            const used = usedAmounts[budgetObj.name] || 0; // Example usage
+            const leftover = budgetObj.budget - used;
+            const usagePercent = Math.min((used / budgetObj.budget) * 100, 100);
             const isUnderBudget = leftover >= 0;
+
             return (
-              <div key={idx} className="mb-4">
-                <h3 className="text-sm font-semibold">{category}</h3>
-                <p className="text-xs text-gray-300">{dates}</p>
+              <div key={budgetObj._id || idx} className="mb-4">
+                <h3 className="text-sm font-semibold">{budgetObj.name}</h3>
+                <p className="text-xs text-gray-300">
+                  Category: {budgetObj.category}
+                </p>
                 <div className="relative w-full bg-gray-600 h-2 rounded-full mt-1">
                   <div
                     className="absolute top-0 left-0 h-2 bg-purple-500 rounded-full"
@@ -94,39 +171,17 @@ const BudgetingOverview = () => {
                 </div>
                 <p className="text-xs mt-1">
                   {leftover >= 0
-                    ? `$${leftover} left of $${budget}`
-                    : `Over by $${Math.abs(leftover)} of $${budget}`
+                    ? `$${leftover} left of $${budgetObj.budget}`
+                    : `Over by $${Math.abs(leftover)} of $${budgetObj.budget}`
                   }
                   {' — '}
                   {isUnderBudget ? (
                     <span className="text-green-400 inline-flex items-center gap-1">
                       You’re doing great!
-                      <span
-                        className="inline-block w-4 h-4 bg-current"
-                        style={{
-                          maskImage: `url(${"images/thumbsup.png"})`,
-                          WebkitMaskImage: `url(${"images/thumbsup.png"})`,
-                          maskRepeat: 'no-repeat',
-                          WebkitMaskRepeat: 'no-repeat',
-                          maskSize: 'contain',
-                          WebkitMaskSize: 'contain'
-                        }}
-                      />
                     </span>
                   ) : (
                     <span className="text-red-400 inline-flex items-center gap-1">
                       Needs work
-                      <span
-                        className="inline-block w-4 h-4 bg-current"
-                        style={{
-                          maskImage: `url(${"images/thumbsdown.png"})`,
-                          WebkitMaskImage: `url(${"images/thumbsdown.png"})`,
-                          maskRepeat: 'no-repeat',
-                          WebkitMaskRepeat: 'no-repeat',
-                          maskSize: 'contain',
-                          WebkitMaskSize: 'contain'
-                        }}
-                      />
                     </span>
                   )}
                 </p>

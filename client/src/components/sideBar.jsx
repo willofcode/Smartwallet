@@ -83,20 +83,12 @@ const Sidebar = () => {
           {!closeMenu && <a href="/wallet" className="text-white text-lg">Wallet</a>}
         </li>
         <li className="flex items-center space-x-2 p-3 rounded-lg cursor-pointer hover:bg-gray-500 transition-all">
-          <i className="bx bxs-face text-white text-2xl"></i>
-          {!closeMenu && <a href="/AiAdvisor" className="text-white text-lg">Advisor</a>}
-        </li>
-        <li className="flex items-center space-x-2 p-3 rounded-lg cursor-pointer hover:bg-gray-500 transition-all">
           <i className="bx bx-money-withdraw text-white text-2xl"></i>
           {!closeMenu && <a href="/budgeting" className="text-white text-lg">Budgeting</a>}
         </li>
         <li className="flex items-center space-x-2 p-3 rounded-lg cursor-pointer hover:bg-gray-500 transition-all">
           <i className="bx bx-detail text-white text-2xl"></i>
           {!closeMenu && <a href="/bills" className="text-white text-lg">Bills</a>}
-        </li>
-        <li className="flex items-center space-x-2 p-3 rounded-lg cursor-pointer hover:bg-gray-500 transition-all">
-          <i className="bx bx-wallet text-white text-2xl"></i>
-          {!closeMenu && <a href="/wallet" className="text-white text-lg">Wallet</a>}
         </li>
         <li className="flex items-center space-x-2 p-3 rounded-lg cursor-pointer hover:bg-gray-500 transition-all">
           <i className="bx bx-log-out text-white text-2xl"></i>
