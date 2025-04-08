@@ -1,4 +1,5 @@
 import React, {useState} from 'react'
+import axios from 'axios';
 import ChatbotIcon from './ChatbotIcon'
 import './Chatbot.css'
 import ChatForm from './ChatForm'
@@ -6,11 +7,33 @@ import ChatbotMessage from './ChatbotMessage'
 
 const Chatbot = () => {
     const [chatHistory, setChatHistory] = useState([]);
+    
+    const creatingAIResponse = async (history) => {
+        const previousMessage = history[history.length - 1].text;
 
-    const creatingAIResponse = (history) => {
-        console.log(history);
+        try{
+            const res = await fetch('/api/chat', {
+                message: previousMessage,
+            });
 
-    }
+            const AIResponse =  res.data.response;
+
+            //Outputs AI response-- replaces my previous processing placeholder message with actual response
+            setChatHistory((previousHistory) => {
+                const newHistory = [...previousHistory];
+                newHistory[newHistory.length-1] = {role: "mode", text: data.response};
+                return newHistory;
+            });
+        } catch(errors) {
+            console.error("Error when fetching AI response: ", errors);
+            setChatHistory((previousHistory) => {
+                const newHistory = [...previousHistory];
+                newHistory[newHistory.length - 1] = {role: "mode", text: "Please try again. An error occurred."};
+                return newHistory;
+            });
+        }
+
+    };
   return (
     <div className='container'>
         <div className='popup'>
