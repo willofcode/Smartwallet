@@ -1,9 +1,11 @@
 import React from 'react'
 import ChatbotIcon from './ChatbotIcon'
 import './Chatbot.css'
-import ChatForm from './ChatFr'
+import ChatForm from './ChatForm'
+import ChatbotMessage from './ChatbotMessage'
 
 const Chatbot = () => {
+    const [chatHistory, setChatHistory] = useState([]);
   return (
     <div className='container'>
         <div className='popup'>
@@ -26,15 +28,16 @@ const Chatbot = () => {
                     Hey, how can I help you today!
                 </p>
             </div>
-            <div className="message user-message">
-            <p className="messagetext">
-                    blah blah
-            </p>
-            </div>
+
+            {/* Chat history dynamically renders here */}
+            {chatHistory.map((chat, index) => (
+                <ChatbotMessage key={index} chat={chat}/>
+            ))}
+            
         </div>
         {/* Chatbot Footer */}
         <div className="footer">
-            <ChatForm />
+            <ChatForm setChatHistory={setChatHistory}/>
         </div>
     </div>
     </div>
