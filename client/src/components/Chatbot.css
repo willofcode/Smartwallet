@@ -1,0 +1,183 @@
+
+/* Google font Inter */
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+.cotainer {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Inter", sans-serif;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+
+}
+.popup {
+    position: relative;
+    width: 450px;
+    overflow: hidden;
+    background: #1b203f;
+    border-radius: 15px;
+    box-shadow: 0 0 128px 0 rgba(0, 0, 0, 0.1),
+        0 32px 64px -48px rgba(0, 0, 0, 0.5);
+}
+
+.popup .header {
+    display: flex;
+    padding: 15px 22px;
+    background: #2C325C;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.header .header-info {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.header-info i{
+    height: 35px;
+    width: 35px;
+    padding: 9.5px;
+    flex-shrink: 0;
+    fill: #2C325C;
+    background: #1b203f;
+    border-radius: 50%;
+}
+
+.header-info .textLogo {
+    color: white;
+    font-size: 1.31rem;
+    font-weight: 600;
+}
+
+.header button {
+    height: 40px;
+    width: 40px;
+    border: none;
+    outline: none;
+    color: black;
+    cursor: pointer;
+    font-size: 1.9rem;
+    padding-top: 2px;
+    border-radius: 50%;
+    margin-right: -10px;
+    background: none;
+    transition: 0.2s ease;
+}
+
+.header button:hover {
+    background: #1b203f;
+}
+
+.body {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    height: 460px;
+    margin-bottom: 82px;
+    overflow-y: auto;
+    padding: 25px 22px;
+}
+
+.body .message {
+    display: flex;
+    gap: 11px;
+    align-items: center;
+}
+
+.body .bot-message i{
+    height: 35px;
+    width: 35px;
+    padding: 9.5px;
+    flex-shrink: 0;
+    fill: white;
+    align-self: flex-end;
+    margin-bottom: 2px;
+    background: #2C325C;
+    border-radius: 50%;
+}
+
+.body .message .messagetext {
+    padding: 12px 16px;
+    max-width: 75%;
+    word-wrap: break-word;
+    white-space: pre-line;
+    font-size: 0.95rem;
+}
+
+.body .bot-message .messagetext{
+    background: white;
+    color: black;
+    border-radius: 13px 13px 13px 3px;
+}
+
+.body .user-message {
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.body .user-message .messagetext{
+    color: black;
+    background: white;
+    border-radius: 13px 13px 3px 13px;
+}
+
+.footer{
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    color: black;
+    background: #2C325C;
+    padding: 15px 22px 20px;
+}
+
+.footer .ChatbotForm {
+    display: flex;
+    align-items: center;
+    background: whitesmoke;
+    border-radius: 32px;
+    outline: 1px solid #cccce5;
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.06);
+}
+
+.footer .ChatbotForm:focus-within{
+    outline: 2px solid #1b203f;
+}
+
+.ChatbotForm .input-messages{
+    border: none;
+    outline: none;
+    width: 100%;
+    background: none;
+    height: 47px;
+    padding: 0 17px;
+    font-size: 0.95rem;
+}
+
+.ChatbotForm button{
+    height: 35px;
+    width: 35px;
+    border: none;
+    display: none;
+    outline: none;
+    cursor: pointer;
+    font-size: 1.15rem;
+    color: whitesmoke;
+    flex-shrink: 0;
+    margin-right: 6px;
+    border-radius: 50%;
+    background: #2C325C;
+    transition: 0.2s ease;
+}
+
+.ChatbotForm button:hover {
+    background: #1b203f;
+}
+
+.ChatbotForm .input-messages:valid~button {
+    display: block;
+}
