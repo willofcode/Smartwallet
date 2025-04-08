@@ -6,6 +6,11 @@ import ChatbotMessage from './ChatbotMessage'
 
 const Chatbot = () => {
     const [chatHistory, setChatHistory] = useState([]);
+
+    const creatingAIResponse = (history) => {
+        console.log(history);
+
+    }
   return (
     <div className='container'>
         <div className='popup'>
@@ -37,7 +42,7 @@ const Chatbot = () => {
         </div>
         {/* Chatbot Footer */}
         <div className="footer">
-            <ChatForm setChatHistory={setChatHistory}/>
+            <ChatForm chatHistory={chatHistory} setChatHistory={setChatHistory} creatingAIResponse={creatingAIResponse}/>
         </div>
     </div>
     </div>

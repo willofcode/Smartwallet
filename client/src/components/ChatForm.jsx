@@ -1,6 +1,6 @@
 import React, {useRef} from 'react'
 
-const ChatForm = ({setChatHistory}) => {
+const ChatForm = ({chatHistory, setChatHistory, creatingAIResponse}) => {
 const referenceInput = useRef();
 
 const handleFormSubmit = (e) => {
@@ -13,8 +13,15 @@ const handleFormSubmit = (e) => {
     //This will update the chat history with the user's message that was typed
     setChatHistory((history) => [...history, {role: "user", text: userMessage}]);
 
-    //Shows thinking message while chatbot is typing
-    setTimeout(() => setChatHistory((history) => [...history, {role: "mode", text: "Processing..."}]), 600);
+    // Delays by 600ms before showing the Processing message and then creates the response
+    setTimeout(() => {
+      //Shows thinking message while chatbot is typing
+      setChatHistory((history) => [...history, {role: "mode", text: "Processing..."}]);
+      
+      //This function call generates the bot's response
+    creatingAIResponse([...chatHistory, {role: "user", text: userMessage}]);
+ },  600);
+
 };
 
   return (
