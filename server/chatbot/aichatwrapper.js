@@ -68,7 +68,8 @@ class FinancialAdvisorChatbot {
 
       return response.response;
     } catch (error) {
-      console.error("Chatbot Error:", error);
+      console.error("Chatbot Error:", error.message);
+      console.error("Full Error:", error.stack);
       return "I apologize, but I'm having trouble processing your request right now. Could you try again in a moment?";
     }
   }

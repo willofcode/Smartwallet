@@ -8,12 +8,16 @@ import ChatbotMessage from './ChatbotMessage'
 const Chatbot = () => {
     const [chatHistory, setChatHistory] = useState([]);
     
+    //should be changed later
+    const userId = 'default';
+    
     const creatingAIResponse = async (history) => {
         const previousMessage = history[history.length - 1].text;
 
         try{
-            const res = await fetch('/api/chat', {
+            const res = await axios.post('http://localhost:5001/api/chat', {
                 message: previousMessage,
+                userId: userId,
             });
 
             const AIResponse =  res.data.response;
@@ -21,18 +25,20 @@ const Chatbot = () => {
             //Outputs AI response-- replaces my previous processing placeholder message with actual response
             setChatHistory((previousHistory) => {
                 const newHistory = [...previousHistory];
-                newHistory[newHistory.length-1] = {role: "mode", text: data.response};
+                newHistory[newHistory.length-1] = {role: "mode", text: AIResponse};
                 return newHistory;
             });
-        } catch(errors) {
-            console.error("Error when fetching AI response: ", errors);
+        } catch(error) {
+            console.error("Error when fetching AI response: ", error);
             setChatHistory((previousHistory) => {
                 const newHistory = [...previousHistory];
-                newHistory[newHistory.length - 1] = {role: "mode", text: "Please try again. An error occurred."};
+                newHistory[newHistory.length - 1] = {
+                    role: "mode", 
+                    text: "Please try again. An error occurred."
+                };
                 return newHistory;
             });
         }
-
     };
   return (
     <div className='container'>
