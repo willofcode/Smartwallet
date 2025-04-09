@@ -3,13 +3,14 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
-import Sidebar from "./sideBar";
+import Sidebar from './sideBar';
+
+
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
 
 const BudgetingPlanning = () => {
-  // We assume each of these “names” is a separate Budget doc in your DB
-  const categories = ["Housing", "Food", "Transportation"];
-
-  // We'll store each fetched doc in an array
+  // Instead of a const array, we keep categories in **state** so we can append new names
+  const [categories, setCategories] = useState(["Housing", "Food", "Transportation"]);
   const [budgets, setBudgets] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -34,20 +35,32 @@ const BudgetingPlanning = () => {
     "Misc",
   ];
 
+  // Switch between "planning" view (accordion) and "addPlan" view
+  const [viewMode, setViewMode] = useState("planning");
+
   useEffect(() => {
     fetchBudgets();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [categories]); 
+  /* 
+     NOTE: We add [categories] as a dependency so that if we append a new category name,
+     it automatically triggers a re-fetch (since we fetch using categories.map(...)).
+  */
 
   // For each name in `categories`, call GET /get_budget/:name
   const fetchBudgets = async () => {
     setLoading(true);
     try {
+      const token = localStorage.getItem("token"); // if your GET also needs auth
       const requests = categories.map(cat =>
-        axios.get(`/api/budget/get_budget/${cat}`)
-        .catch(err => {
-          console.error(`No budget found for name "${cat}"`, err);
-          return null;
-        })
+        axios
+          .get(`${API_BASE_URL}/get_budget/${cat}`, {
+            headers: { Authorization: `Bearer ${token}` }
+          })
+          .catch(err => {
+            console.error(`No budget found for "${cat}"`, err);
+            return null;
+          })
       );
       const results = await Promise.all(requests);
 
@@ -73,27 +86,68 @@ const BudgetingPlanning = () => {
     }
 
     try {
-      await axios.post('/api/budget/post_budget', {
-        name: newName.trim(),
-        category: newCategory.trim(),
-        budget: Number(newBudget),
-      });
-      // Re-fetch budgets in case newName is one of our known categories
-      await fetchBudgets();
+      const token = localStorage.getItem("token"); // assume JWT is stored in localStorage
+      await axios.post(
+        `${API_BASE_URL}/post_budget`,
+        {
+          name: newName.trim(),
+          category: newCategory.trim(),
+          budget: Number(newBudget)
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` }
+        }
+      );
 
-      // Reset form, switch back to "planning" view
+      // 1) Add the newName to the categories array
+      setCategories((prevCategories) => {
+        // Optionally guard against duplicates
+        const trimmedName = newName.trim();
+        if (prevCategories.includes(trimmedName)) {
+          return prevCategories; 
+        }
+        return [...prevCategories, trimmedName];
+      });
+
+      // 2) Reset form, switch back to "planning" view
       setNewName('');
       setNewCategory('');
       setNewBudget('');
       setViewMode("planning");
+
+      // 3) fetchBudgets will auto-run if your categories changed
+      //    (due to the [categories] dependency in useEffect)
+      //    but you can also call it here directly if you prefer:
+      // await fetchBudgets();
+
     } catch (err) {
       console.error('Error creating new budget:', err);
       alert('Failed to create budget. Check console for details.');
     }
   };
 
-  // Switch between "planning" view (accordion) and "addPlan" view
-  const [viewMode, setViewMode] = useState("planning");
+  // Delete a budget doc (DELETE /delete_budget/:name)
+  const handleDelete = async (name) => {
+    try {
+      await axios.delete(`${API_BASE_URL}/delete_budget/${name}`);
+      // If you want to remove name from categories as well, do so here
+      setCategories((prev) => prev.filter(cat => cat !== name));
+      // Re-fetch budgets
+      await fetchBudgets();
+    } catch (error) {
+      console.error("Delete failed:", error);
+    }
+  };
+
+  // Update a budget doc (PATCH /update_budget/:name)
+  const handleUpdate = async (name, dataToUpdate) => {
+    try {
+      await axios.patch(`${API_BASE_URL}/update_budget/${name}`, dataToUpdate);
+      await fetchBudgets();
+    } catch (error) {
+      console.error("Update failed:", error);
+    }
+  };
 
   return (
     <div className="flex h-screen bg-[#1B203F] text-white">
@@ -111,7 +165,7 @@ const BudgetingPlanning = () => {
 
           {viewMode === "planning" && (
             <>
-              {/* Some illustration */}
+              {/* Illustration */}
               <div className="flex items-center justify-center">
                 <img
                   src="/images/budget.png"
@@ -167,12 +221,22 @@ const BudgetingPlanning = () => {
                         <div className="px-4 pb-3 text-sm text-gray-300">
                           <p>Category: {bgt.category}</p>
                           <p>Budget: ${bgt.budget}</p>
-                          <p>
-                            Created On:{" "}
-                            {bgt.createdAt
-                              ? new Date(bgt.createdAt).toLocaleDateString()
-                              : "N/A"}
-                          </p>
+
+                          {/* Example Update/Delete usage */}
+                          <div className="mt-3 flex gap-3">
+                            <button
+                              onClick={() => handleUpdate(bgt.name, { budget: bgt.budget + 50 })}
+                              className="bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded-md text-sm"
+                            >
+                              Increase Budget by $50
+                            </button>
+                            <button
+                              onClick={() => handleDelete(bgt.name)}
+                              className="bg-red-600 hover:bg-red-700 px-3 py-1 rounded-md text-sm"
+                            >
+                              Delete
+                            </button>
+                          </div>
                         </div>
                       )}
                     </div>

@@ -5,6 +5,9 @@ import axios from 'axios';
 import { Link } from 'react-router-dom';
 import Sidebar from './sideBar';
 
+// Configure your base URL for the budget endpoints
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
+
 const BudgetingOverview = () => {
   // Example categories we want to display in the “overview”
   const categories = ["Housing", "Food", "Transportation"];
@@ -20,6 +23,7 @@ const BudgetingOverview = () => {
   // On component mount, fetch budget documents for each known category
   useEffect(() => {
     fetchBudgets();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchBudgets = async () => {
@@ -27,18 +31,18 @@ const BudgetingOverview = () => {
       setLoading(true);
 
       // We do multiple requests, one per category
-      const requests = categories.map(cat =>
-        axios.get(`/api/budget/get_budget/${cat}`)
-        .catch(err => {
-          // If a particular category doesn't exist, handle gracefully
-          // e.g., return null or a placeholder object
-          console.error(`No budget found for category "${cat}"`, err);
-          return null; // so Promise.all won't reject everything
-        })
+      const requests = categories.map(category =>
+        axios
+          .get(`${API_BASE_URL}/get_budget/${category}`)
+          .catch(err => {
+            // If a particular category doesn't exist, handle gracefully
+            console.error(`No budget found for category "${category}"`, err);
+            return null; // so Promise.all won't reject everything
+          })
       );
 
       const results = await Promise.all(requests);
-      // Each `results[i]` is either `axios response` or `null` if not found
+      // Each `results[i]` is either an axios response or null if not found
       const finalBudgets = results.map((res, i) => {
         if (!res || !res.data) return null; // category not found
         return res.data;
@@ -55,7 +59,7 @@ const BudgetingOverview = () => {
         }
       });
       setUsedAmounts(usageMap);
-      
+
     } catch (error) {
       console.error("Error fetching budgets by name:", error);
     } finally {
