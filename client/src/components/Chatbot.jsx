@@ -15,7 +15,7 @@ const Chatbot = () => {
         const previousMessage = history[history.length - 1].text;
 
         try{
-            const res = await axios.post('http://localhost:5001/api/chat', {
+            const res = await axios.post('https://sd2-smartwallet.onrender.com/api/chat', {
                 message: previousMessage,
                 userId: userId,
             });
