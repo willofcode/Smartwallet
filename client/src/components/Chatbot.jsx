@@ -9,16 +9,17 @@ const Chatbot = () => {
     const [chatHistory, setChatHistory] = useState([]);
     
     //should be changed later
-    const userId = 'default';
+    const userId = 'defaultUser';
     
     const creatingAIResponse = async (history) => {
         const previousMessage = history[history.length - 1].text;
 
         try{
-            const res = await axios.post('https://sd2-smartwallet.onrender.com/api/chat', {
+            const res = await axios.post(`${import.meta.env.VITE_API_URL}/chat`, { // https://sd2-smartwallet.onrender.com/api/chat
                 message: previousMessage,
                 userId: userId,
             });
+            
 
             const AIResponse =  res.data.response;
 
@@ -59,7 +60,7 @@ const Chatbot = () => {
             <div className="message bot-message">
                 <ChatbotIcon />
                 <p className="messagetext">
-                    Hey, how can I help you today!
+                    Hello! I'm FinBot, your financial advisor assistant. how can I help you today?
                 </p>
             </div>
 
