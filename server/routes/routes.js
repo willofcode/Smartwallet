@@ -40,7 +40,7 @@ router.post("/signup", async (req, res) => {
       let newUser = new User({ firstName, lastName, email, password: hashedPassword });
       const user = await newUser.save();
 
-      const token = jwt.sign({ userId: user.userId }, SECRET_KEY, {expiresIn: "1h" });
+      const token = jwt.sign({ userId: user.userId }, SECRET_KEY, {expiresIn: "3h" });
 
       console.log("User created with ID:", user.userId);
       res.status(200).send({ message: `User created with ID: ${user.userId}`, userId: user.userId, token });
