@@ -1,4 +1,5 @@
 <h1 align="center"> SMARTWALLET <h1/>
+-------
 
 SCOPE: <br>
 
