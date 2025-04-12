@@ -37,6 +37,23 @@ router.post("/post_budget", authMiddleware, async (req, res) => {
 
 // filtering how a user can retrieve their budget plans
 // this should get name
+
+
+// this should get all budgets for a specific user. this could be based off id (userid)
+router.get('/get_all_budgets', authMiddleware, async(req, res) => {
+    try{
+        //await res.json({ message: "hi get all budgets" });
+        const userId = req.user.userId;
+        const budgets = await Budget.find({ userId });
+
+        res.json(budgets);
+
+    }catch(error){
+        console.error("Error details:", error);
+        res.status(500).json({ message: "Cannot GET all budgets", error: error.message});
+    }
+});
+
 router.get('/get_budget/:name', async(req, res) => {
     try{
         const budgetName = req.params.name;

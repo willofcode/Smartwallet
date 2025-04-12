@@ -65,19 +65,21 @@ const TransactionsPage = () => {
         const accessTokenResponse = await axios.post(`${import.meta.env.VITE_API_URL}/get_access_token`, {
           public_token: publicToken,
         });
-
+  
         const { access_token } = accessTokenResponse.data;
         if (access_token) {
+          sessionStorage.setItem('accessToken', access_token);
+  
           const transactionsResponse = await axios.post(`${import.meta.env.VITE_API_URL}/get_transactions`, {
             access_token,
           });
-
+  
           const { transactions, accounts } = transactionsResponse.data;
           if (transactions && accounts) {
             const sortedTransactions = transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
             setTransactions(sortedTransactions);
             setAccounts(accounts);
-            setFilteredTransactions(sortedTransactions); 
+            setFilteredTransactions(sortedTransactions);
           } else {
             setError('Failed to fetch transactions.');
           }
@@ -91,7 +93,7 @@ const TransactionsPage = () => {
       }
     },
   });
-
+  
   const getAccountDetails = (accountId) => {
     const account = accounts.find(acc => acc.account_id === accountId);
     return account ? `${account.name}` : 'Unknown Account';
@@ -115,12 +117,11 @@ const TransactionsPage = () => {
       <div className="flex-grow overflow-y-auto p-8">
       <div className="min-h-screen flex bg-gray-900">
 
-      {/* main content */}
       <main className="content flex-grow p-8">
         <header className="summary-header bg-[#3a3f66] text-white p-6 rounded-lg shadow-lg mb-6 flex justify-between">
           <h1 className="text-4xl font-semibold">Transactions</h1>
 
-          {/* Date Range Filters */}
+          {/* range filter */}
           <div className="mb-6">
             <input
               type="date"
@@ -175,7 +176,7 @@ const TransactionsPage = () => {
                         </tr>
                       </thead>
 
-                      {/* Transaction Data Table */}
+                      {/* transactions table */}
                       <tbody>
                         {filteredTransactions.map((transaction, index) => (
                           <tr key={index} className="border-b hover:bg-[#555a7c] text-white">
