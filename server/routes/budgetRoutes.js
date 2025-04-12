@@ -38,6 +38,7 @@ router.post("/post_budget", authMiddleware, async (req, res) => {
 // filtering how a user can retrieve their budget plans
 // this should get name
 
+
 // this should get all budgets for a specific user. this could be based off id (userid)
 router.get('/get_all_budgets', authMiddleware, async(req, res) => {
     try{

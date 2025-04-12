@@ -5,7 +5,9 @@ import AuthPage from "./components/AuthPage";
 import TransactionsPage from "./components/TransactionsPage";
 import BillsPage from "./components/BillsPage";
 import Sidebar from "./components/sideBar";
-import BudgetingPage from "./components/BudgetingPage";
+import BudgetingOverview from "./components/BudgetingOverview";
+import BudgetingPlanning from "./components/BudgetingPlanning";
+import WalletPage from "./components/WalletPage";
 
 function App() {
     return (
@@ -16,7 +18,9 @@ function App() {
                         <Route path="/authform" element={<AuthPage />} />
                         <Route path="/transactions" element={<TransactionsPage />} />
                         <Route path="/bills" element={<BillsPage />} />
-                        <Route path="/budgeting" element={<BudgetingPage />} />
+                        <Route path="/budgeting" element={<BudgetingOverview />} />
+                        <Route path="/budgeting/planning" element={<BudgetingPlanning />} />
+                        <Route path="/wallet" element={<WalletPage />} />
 
                         {/* ProtectedRoute example (to be implemented later)
                         <Route 

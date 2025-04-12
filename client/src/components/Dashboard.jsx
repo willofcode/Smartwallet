@@ -1,10 +1,10 @@
-
 'use client';
 
 import React, { useEffect, useState, useMemo } from 'react';
 import Sidebar from "../components/sideBar"
 import axios from 'axios';
 import PieChart from './PieChart';
+import Chatbot from './Chatbot';
 
 
 const Dashboard = () => {
@@ -138,6 +138,9 @@ const Dashboard = () => {
         </div>
       </div>
     </div>
+    </div>
+    <div className='fixed bottom-6 right-6 z-50'>
+    <Chatbot/>
     </div>
     </div>
   );

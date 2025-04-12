@@ -79,6 +79,10 @@ const Sidebar = () => {
           {!closeMenu && <a href="/transactions" className="text-white text-lg">Transactions</a>}
         </li>
         <li className="flex items-center space-x-2 p-3 rounded-lg cursor-pointer hover:bg-gray-500 transition-all">
+          <i className="bx bxs-credit-card-alt text-white text-2xl"></i>
+          {!closeMenu && <a href="/wallet" className="text-white text-lg">Wallet</a>}
+        </li>
+        <li className="flex items-center space-x-2 p-3 rounded-lg cursor-pointer hover:bg-gray-500 transition-all">
           <i className="bx bx-money-withdraw text-white text-2xl"></i>
           {!closeMenu && <a href="/budgeting" className="text-white text-lg">Budgeting</a>}
         </li>
@@ -86,12 +90,9 @@ const Sidebar = () => {
           <i className="bx bx-detail text-white text-2xl"></i>
           {!closeMenu && <a href="/bills" className="text-white text-lg">Bills</a>}
         </li>
-
-        {/* stole this from Navbar will find an icon later */}
-        <li>
-          <button onClick={handleLogout} className="transition-colors duration-300 hover:text-red-500 text-white">
-            Logout
-          </button>
+        <li className="flex items-center space-x-2 p-3 rounded-lg cursor-pointer hover:bg-gray-500 transition-all">
+          <i className="bx bx-log-out text-white text-2xl"></i>
+          {!closeMenu && <button onClick={handleLogout} className="transition-colors duration-300 hover:text-red-500 text-white">Logout</button>}
         </li>
       </ul>
     </div>
