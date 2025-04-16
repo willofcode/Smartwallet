@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom';
 import Sidebar from './sideBar';
 
 // Configure your base URL for the budget endpoints
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL/// my goal here is to fix the whole budget page and make sure my endpoints are working cuz wow...
 
 const BudgetingOverview = () => {
   // Example categories we want to display in the “overview”
