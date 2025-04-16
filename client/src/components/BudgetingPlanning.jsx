@@ -5,9 +5,6 @@ import axios from 'axios';
 import { Link } from 'react-router-dom';
 import Sidebar from './sideBar';
 
-
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
-
 const BudgetingPlanning = () => {
   // Instead of a const array, we keep categories in **state** so we can append new names
   const [categories, setCategories] = useState(["Housing", "Food", "Transportation"]);
@@ -54,7 +51,7 @@ const BudgetingPlanning = () => {
       const token = localStorage.getItem("token"); // if your GET also needs auth
       const requests = categories.map(cat =>
         axios
-          .get(`${API_BASE_URL}/get_budget/${cat}`, {
+          .get(`${import.meta.env.VITE_API_URL}/get_budget/${cat}`, {
             headers: { Authorization: `Bearer ${token}` }
           })
           .catch(err => {
@@ -129,7 +126,7 @@ const BudgetingPlanning = () => {
   // Delete a budget doc (DELETE /delete_budget/:name)
   const handleDelete = async (name) => {
     try {
-      await axios.delete(`${API_BASE_URL}/delete_budget/${name}`);
+      await axios.delete(`${import.meta.env.VITE_API_URL}/delete_budget/${name}`);
       // If you want to remove name from categories as well, do so here
       setCategories((prev) => prev.filter(cat => cat !== name));
       // Re-fetch budgets
@@ -142,7 +139,7 @@ const BudgetingPlanning = () => {
   // Update a budget doc (PATCH /update_budget/:name)
   const handleUpdate = async (name, dataToUpdate) => {
     try {
-      await axios.patch(`${API_BASE_URL}/update_budget/${name}`, dataToUpdate);
+      await axios.patch(`${import.meta.env.VITE_API_URL}/update_budget/${name}`, dataToUpdate);
       await fetchBudgets();
     } catch (error) {
       console.error("Update failed:", error);

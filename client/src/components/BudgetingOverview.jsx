@@ -5,9 +5,6 @@ import axios from 'axios';
 import { Link } from 'react-router-dom';
 import Sidebar from './sideBar';
 
-// Configure your base URL for the budget endpoints
-const API_BASE_URL = import.meta.env.VITE_API_URL/// my goal here is to fix the whole budget page and make sure my endpoints are working cuz wow...
-
 const BudgetingOverview = () => {
   // Example categories we want to display in the “overview”
   const categories = ["Housing", "Food", "Transportation"];
@@ -20,10 +17,8 @@ const BudgetingOverview = () => {
   // You could also store these in your DB, or derive them from actual spending data.
   const [usedAmounts, setUsedAmounts] = useState({});
 
-  // On component mount, fetch budget documents for each known category
   useEffect(() => {
     fetchBudgets();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchBudgets = async () => {
@@ -32,12 +27,10 @@ const BudgetingOverview = () => {
 
       // We do multiple requests, one per category
       const requests = categories.map(category =>
-        axios
-          .get(`${API_BASE_URL}/get_budget/${category}`)
+        axios.get(`${import.meta.env.VITE_API_URL}/get_budget/${category}`)
           .catch(err => {
-            // If a particular category doesn't exist, handle gracefully
             console.error(`No budget found for category "${category}"`, err);
-            return null; // so Promise.all won't reject everything
+            return null; 
           })
       );
 

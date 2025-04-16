@@ -88,8 +88,7 @@ const AuthPage = () => {
         return;
       }
   
-      const response = await axios.post(
-        `${import.meta.env.VITE_API_URL}/create_link_token`,
+      const response = await axios.post(`${import.meta.env.VITE_API_URL}/create_link_token`,
         { uid: userId },
         { headers: { Authorization: `Bearer ${token}` } }
       );
