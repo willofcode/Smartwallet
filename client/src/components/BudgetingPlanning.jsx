@@ -6,18 +6,17 @@ import { Link } from 'react-router-dom';
 import Sidebar from './sideBar';
 
 const BudgetingPlanning = () => {
-  // Instead of a const array, we keep categories in **state** so we can append new names
-  const [categories, setCategories] = useState(["Housing", "Food", "Transportation"]);
+
+  const [categories, setCategories] = useState(
+    ["Housing", "Food", "Transportation"]
+  );
   const [budgets, setBudgets] = useState([]);
   const [loading, setLoading] = useState(false);
-
-  // For toggling accordion
   const [openIndex, setOpenIndex] = useState(null);
-
-  // Form for creating a new budget doc
   const [newName, setNewName] = useState('');
   const [newCategory, setNewCategory] = useState('');
   const [newBudget, setNewBudget] = useState('');
+  const [viewMode, setViewMode] = useState("planning");
 
   // Additional category suggestions
   const categoryOptions = [
@@ -32,30 +31,27 @@ const BudgetingPlanning = () => {
     "Misc",
   ];
 
-  // Switch between "planning" view (accordion) and "addPlan" view
-  const [viewMode, setViewMode] = useState("planning");
-
+  // I might change this later??
+  // my general idea should be that categories are handled
+  // tried on backend for some reason they won't register so
+  // we can handle our category options here
+  // then make it so that we sort by category here via CSS (client side sorting)
+  // I need to understand what happened to this page....
   useEffect(() => {
     fetchBudgets();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [categories]); 
-  /* 
-     NOTE: We add [categories] as a dependency so that if we append a new category name,
-     it automatically triggers a re-fetch (since we fetch using categories.map(...)).
-  */
 
   // For each name in `categories`, call GET /get_budget/:name
   const fetchBudgets = async () => {
     setLoading(true);
     try {
       const token = localStorage.getItem("token"); // if your GET also needs auth
-      const requests = categories.map(cat =>
-        axios
-          .get(`${import.meta.env.VITE_API_URL}/get_budget/${cat}`, {
+      const requests = categories.map(name =>
+        axios.get(`${import.meta.env.VITE_API_URL}/get_budget/${name}`, {
             headers: { Authorization: `Bearer ${token}` }
           })
           .catch(err => {
-            console.error(`No budget found for "${cat}"`, err);
+            console.error(`No budget found for "${name}"`, err);
             return null;
           })
       );
