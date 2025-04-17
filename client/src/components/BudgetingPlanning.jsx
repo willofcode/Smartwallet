@@ -130,7 +130,16 @@ const BudgetingPlanning = () => {
         console.error("Cannot UPDATE budget:", error );
         alert('UPDATE budget failed, check console');
       }
-  }; 
+  };
+
+  /// we could do like, client side filtering group the budgets by 
+  /// the category they are in. (this should be in the overvie side???)
+  const groupedBudgets = budgets.reduce((acc, b) => {
+    if(!acc[b.category]) acc[b.category] = [];
+    acc[b.category].push(b);
+    return acc;
+
+  }, {});
 
 // UI --> user interface
   return (
