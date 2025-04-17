@@ -8,9 +8,6 @@ import Sidebar from './sideBar';
 //UX --> user experience
 const BudgetingPlanning = () => {
 
-  const [categories, setCategories] = useState(
-    ["Housing", "Food", "Transportation"]
-  );
   const [budgets, setBudgets] = useState([]);
   const [loading, setLoading] = useState(false);
   const [openIndex, setOpenIndex] = useState(null);
@@ -19,7 +16,6 @@ const BudgetingPlanning = () => {
   const [newBudget, setNewBudget] = useState('');
   const [viewMode, setViewMode] = useState("planning");
 
-  // Additional category suggestions
   const categoryOptions = [
     "Housing",
     "Food",
@@ -43,35 +39,9 @@ const BudgetingPlanning = () => {
   // DELETE
   // UPDATE
 
-  useEffect(() => {
-    fetchBudgets();
-  }, [categories]); 
-
-  /* no reason for GET here
-  const fetchBudgets = async () => {
-    setLoading(true);
-    try {
-      const token = localStorage.getItem("token");
-      const requests = categories.map(name =>
-        axios.get(`${import.meta.env.VITE_API_URL}/get_budget/${name}`, {
-            headers: { Authorization: `Bearer ${token}` }
-          })
-          .catch(err => {
-            console.error(`No budget found for "${name}"`, err);
-            return null;
-          })
-      );
-      const results = await Promise.all(requests);
-
-      const final = results.map(res => (res && res.data ? res.data : null));
-      setBudgets(final);
-    } catch (error) {
-      console.error("Error fetching budgets by name:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-  */
+  //useEffect(() => {
+  //  fetchBudgets();
+  //}, [categories]); 
 
   const toggleAccordion = (idx) => {
     setOpenIndex(openIndex === idx ? null : idx);
@@ -86,7 +56,7 @@ const BudgetingPlanning = () => {
     }
 
     try {
-      const token = localStorage.getItem("token"); // assume JWT is stored in localStorage
+      const token = localStorage.getItem("token");
       await axios.post(`${import.meta.env.VITE_API_URL}/post_budget`,
         {
           name: newName.trim(),
