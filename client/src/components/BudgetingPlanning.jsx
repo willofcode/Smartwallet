@@ -5,6 +5,7 @@ import axios from 'axios';
 import { Link } from 'react-router-dom';
 import Sidebar from './sideBar';
 
+//UX --> user experience
 const BudgetingPlanning = () => {
 
   const [categories, setCategories] = useState(
@@ -37,15 +38,20 @@ const BudgetingPlanning = () => {
   // we can handle our category options here
   // then make it so that we sort by category here via CSS (client side sorting)
   // I need to understand what happened to this page....
+  // so i know planning should handle
+  // POST
+  // DELETE
+  // UPDATE
+
   useEffect(() => {
     fetchBudgets();
   }, [categories]); 
 
-  // For each name in `categories`, call GET /get_budget/:name
+  /* no reason for GET here
   const fetchBudgets = async () => {
     setLoading(true);
     try {
-      const token = localStorage.getItem("token"); // if your GET also needs auth
+      const token = localStorage.getItem("token");
       const requests = categories.map(name =>
         axios.get(`${import.meta.env.VITE_API_URL}/get_budget/${name}`, {
             headers: { Authorization: `Bearer ${token}` }
@@ -65,6 +71,7 @@ const BudgetingPlanning = () => {
       setLoading(false);
     }
   };
+  */
 
   const toggleAccordion = (idx) => {
     setOpenIndex(openIndex === idx ? null : idx);
@@ -80,8 +87,7 @@ const BudgetingPlanning = () => {
 
     try {
       const token = localStorage.getItem("token"); // assume JWT is stored in localStorage
-      await axios.post(
-        `${API_BASE_URL}/post_budget`,
+      await axios.post(`${import.meta.env.VITE_API_URL}/post_budget`,
         {
           name: newName.trim(),
           category: newCategory.trim(),
@@ -142,6 +148,7 @@ const BudgetingPlanning = () => {
     }
   };
 
+// UI --> user interface
   return (
     <div className="flex h-screen bg-[#1B203F] text-white">
       <Sidebar />
