@@ -5,6 +5,9 @@ const { plaidClient, Products } = require('../config/plaidConfig');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const authMiddleware = require("../middleware/authMiddleware");
+const emailValidator = require('email-validator');
+const nodemailer      = require('nodemailer');
+const crypto          = require('crypto');
 const SECRET_KEY = process.env.JWT_SECRET_KEY
 
 // stole this from plaid quickstart
@@ -16,6 +19,18 @@ const PLAID_COUNTRY_CODES = (process.env.PLAID_COUNTRY_CODES || 'US').split(
   ',',
 );
 
+// nodemailer transporter
+// (SMTP settings)
+const transporter = nodemailer.createTransport({
+  host: process.env.SMTP_HOST,
+  port: +process.env.SMTP_PORT,
+  auth: {
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASS,
+  }
+});
+
+
 /*    ********        AUTH ENDPOINTS        *******       */
 
 //200
@@ -25,9 +40,13 @@ router.post("/signup", async (req, res) => {
         email, 
         password 
       } = req.body;
+    
+  // Validate email
+  if (!emailValidator.validate(email)) {
+    return res.status(400).send({ message: "Invalid email format" });
+  }
 
     try {
-
       const existingUser = await User.findOne({ email });
       if (existingUser) {
         return res.status(400).send({ message: "User exists" });
@@ -37,10 +56,29 @@ router.post("/signup", async (req, res) => {
       const salt = await bcrypt.genSalt(10);
       const hashedPassword = await bcrypt.hash(password, salt);
 
-      let newUser = new User({ firstName, lastName, email, password: hashedPassword });
+      const email_token = crypto.randomBytes(32).toString("hex");
+      const expires = Date.now() + 1000 * 60 * 60 * 24; // 24 hrs
+
+      let newUser = new User({ firstName, lastName, email, password: hashedPassword, emailVerifyToken: email_token,
+        emailVerifyExpires: expires });
       const user = await newUser.save();
 
       const token = jwt.sign({ userId: user.userId }, SECRET_KEY, {expiresIn: "3h" });
+
+      const verifyEmail = `${process.env.BASE_URL}/api/verify-email?token=${email_token}`;
+      // Send verification email
+
+      await transporter.sendMail({
+        from: `"SmartWallet" <${process.env.SMTP_USER}>`,
+        to:   newUser.email,
+        subject: "Verify your email",
+        html: ` 
+          <h1>Welcome to SmartWallet, ${firstName}!</h1>
+          <p>Thank you for signing up. Please verify your email address to complete your registration.</p>
+          <p>If you did not create an account, please ignore this email.</p>
+          <p>Click <a href="${verifyEmail}">here</a> to verify.</p>
+          `,
+      });
 
       console.log("User created with ID:", user.userId);
       res.status(200).send({ message: `User created with ID: ${user.userId}`, userId: user.userId, token });
@@ -81,6 +119,7 @@ router.post("/login", async (req, res) => {
     res.status(500).send({ message: `Error during login: ${error.message}` });
   }
 });
+
 
 
 /// DELETE ONCE POST CI/CD PIPELINE IS BUILT ///
