@@ -1,4 +1,13 @@
+
 'use client';
+/*
+  the main idea here: WHAT SHOULD OVERVIEW DO?
+
+  GET our budgets by name (basically filter by budget name to view a specific budget) <-- medium
+  GET our budgets by category in a group (filter by budget category) <-- hardest cuz it's client side
+  GET all budgets <--- easiest
+
+*/
 
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
@@ -8,7 +17,6 @@ import Sidebar from './sideBar';
 const BudgetingOverview = () => {
   // Example categories we want to display in the “overview”
   const categories = ["Housing", "Food", "Transportation"];
-
   // State for budgets fetched from server
   const [budgetData, setBudgetData] = useState([]);
   const [loading, setLoading] = useState(false);
