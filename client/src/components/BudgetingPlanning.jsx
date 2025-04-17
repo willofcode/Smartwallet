@@ -81,6 +81,8 @@ const BudgetingPlanning = () => {
         return [...prevCategories, trimmedName];
       });
       
+      setBudgets(prev => [...prev, res.data]); /// adding a local state for setting the budget
+
       // this is setting the new body and it's also gonna show our newly made 
       // budget plan, on our planning page via view model, I may remove that
       // it's not the point of the planning page
