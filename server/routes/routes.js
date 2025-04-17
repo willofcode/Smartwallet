@@ -120,7 +120,33 @@ router.post("/login", async (req, res) => {
   }
 });
 
+// email verification endpoint need to test
+router.get("/verify-email", async (req, res) => {
+  const { email_token } = req.query;
+  if (!email_token) return res.status(400).send("Invalid request.");
 
+  try {
+    const user = await User.findOne({
+      emailVerifyToken: email_token,
+      emailVerifyExpires: { $gt: Date.now() }
+    });
+
+    if (!user) {
+      return res.status(400).send("Token invalid or expired.");
+    }
+
+    user.emailVerified = true;
+    user.emailVerifyToken = undefined;
+    user.emailVerifyExpires = undefined;
+    await user.save();
+
+    // can implement React frontend with a success message
+    res.send("Email verified! You can now log in.");
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Server error.");
+  }
+});
 
 /// DELETE ONCE POST CI/CD PIPELINE IS BUILT ///
 router.get('/', async (req, res) => {
