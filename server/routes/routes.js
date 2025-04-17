@@ -94,6 +94,10 @@ router.post("/login", async (req, res) => {
         password 
       } = req.body;
 
+  if (!emailValidator.validate(email)) {
+    return res.status(400).send({ message: "Invalid email format" });
+  }
+
   try {
     const user = await User.findOne({ email });
     console.log('User found:', user);
