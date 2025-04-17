@@ -48,6 +48,8 @@ const BudgetingPlanning = () => {
   };
 
   // a user needs to fill out all fields for a new category 
+  // a part of me is worried this is doing to much
+  // but I'll worry about it later.
   //// CREATE --> POST
   const handleSubmitNewCategory = async (e) => {
     e.preventDefault();
@@ -99,28 +101,36 @@ const BudgetingPlanning = () => {
     }
   };
 
-  /// DELETE
+  /// DELETE 
   const handleDelete = async (name) => {
     try {
-      await axios.delete(`${import.meta.env.VITE_API_URL}/delete_budget/${name}`);
-      setBudgets((prev) => prev.filter(b => b.name !== name));
-      await fetchBudgets();
+      await axios.delete(`${import.meta.env.VITE_API_URL}/delete_budget/${name}`); // calling delete endpoint I amde
+      setBudgets((prev) => prev.filter(b => b.name !== name)); /// deleting by our budget name
+      await fetchBudgets(); ///  then refetch our budgets.. I may remove this, I'm not sure yet
+      /// error handling 
     } catch (error) {
       console.error("Delete failed:", error);
+      alert('DELETE budget failed, check console');
     }
   };
 
  /// UPDATE
- /*
-  const handleUpdate = async (name, dataToUpdate) => {
-    try {
-      await axios.patch(`${import.meta.env.VITE_API_URL}/update_budget/${name}`, dataToUpdate);
-      await fetchBudgets();
-    } catch (error) {
-      console.error("Update failed:", error);
-    }
-  };
-*/
+  const handleUpdate = async(name, new_amount) => {
+      //// we can redo this with just awaiting the actual endpoint
+      //// I'll worry about that later...
+      try {
+        response = await axios.patch(`${import.meta.env.VITE_API_URL}/update_budget/${name}`, {
+          budget: new_amount
+        });
+
+        budgets(prev => 
+          prev.map(b => b.name === name ? response.data : b)
+        );
+      } catch(error){
+        console.error("Cannot UPDATE budget:", error );
+        alert('UPDATE budget failed, check console');
+      }
+  }; 
 
 // UI --> user interface
   return (
