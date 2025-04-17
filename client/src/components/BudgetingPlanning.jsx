@@ -72,7 +72,7 @@ const BudgetingPlanning = () => {
       setViewMode("planning");
 
       // error handling the catch
-    } catch(error) {
+    } catch(error){
       console.error('Cannot POST new budget:', error);
       alert('Failed to POST budget. Check console for details.');
     }
@@ -85,7 +85,7 @@ const BudgetingPlanning = () => {
       setBudgets((prev) => prev.filter(b => b.name !== name)); /// deleting by our budget name
       ///await fetchBudgets(); ///  then refetch our budgets.. I may remove this, I'm not sure yet
       /// error handling 
-    } catch (error) {
+    } catch(error){
       console.error("Delete failed:", error);
       alert('DELETE budget failed, check console');
     }
@@ -120,7 +120,7 @@ const BudgetingPlanning = () => {
 
   }, {});
 
-// UI --> user interface
+/// UI --> user interface
 /// I'm too tired ngl
   return (
     <div className="flex min-h-screen bg-[#1B203F] text-white">
