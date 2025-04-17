@@ -47,55 +47,55 @@ const BudgetingPlanning = () => {
     setOpenIndex(openIndex === idx ? null : idx);
   };
 
-  // Create a new budget doc (POST /post_budget)
+  // a user needs to fill out all fields for a new category 
   const handleSubmitNewCategory = async (e) => {
     e.preventDefault();
+
+    /// this is error handling requiring our user to fill out all fields
     if (!newName || !newCategory || !newBudget) {
       alert("Please fill in name, category, and budget.");
       return;
     }
 
     try {
-      const token = localStorage.getItem("token");
-      await axios.post(`${import.meta.env.VITE_API_URL}/post_budget`,
+      const token = localStorage.getItem("token"); // we're grabbing the JWT token of a user
+      await axios.post(`${import.meta.env.VITE_API_URL}/post_budget`, // calling the post budget endpoint I made
         {
-          name: newName.trim(),
+          /// posting the body data the endpoints accepts to the website
+          name: newName.trim(), 
           category: newCategory.trim(),
           budget: Number(newBudget)
         },
         {
+          // this is auth, verifying the budegt at a certain users JWT
+          // we do this so that a user's budget plan belongs to that user...
           headers: { Authorization: `Bearer ${token}` }
         }
       );
 
-      // 1) Add the newName to the categories array
       setCategories((prevCategories) => {
-        // Optionally guard against duplicates
         const trimmedName = newName.trim();
         if (prevCategories.includes(trimmedName)) {
           return prevCategories; 
         }
         return [...prevCategories, trimmedName];
       });
-
-      // 2) Reset form, switch back to "planning" view
+      
+      // this is setting the new body and it's also gonna show our newly made 
+      // budget plan, on our planning page via view model, I may remove that
+      // it's not the point of the planning page
       setNewName('');
       setNewCategory('');
       setNewBudget('');
       setViewMode("planning");
 
-      // 3) fetchBudgets will auto-run if your categories changed
-      //    (due to the [categories] dependency in useEffect)
-      //    but you can also call it here directly if you prefer:
-      // await fetchBudgets();
-
-    } catch (err) {
-      console.error('Error creating new budget:', err);
-      alert('Failed to create budget. Check console for details.');
+      // error handling the catch
+    } catch(error) {
+      console.error('Cannot POST new budget:', error);
+      alert('Failed to POST budget. Check console for details.');
     }
   };
 
-  // Delete a budget doc (DELETE /delete_budget/:name)
   const handleDelete = async (name) => {
     try {
       await axios.delete(`${import.meta.env.VITE_API_URL}/delete_budget/${name}`);
