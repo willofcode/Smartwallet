@@ -48,6 +48,7 @@ const BudgetingPlanning = () => {
   };
 
   // a user needs to fill out all fields for a new category 
+  //// CREATE --> POST
   const handleSubmitNewCategory = async (e) => {
     e.preventDefault();
 
@@ -98,19 +99,19 @@ const BudgetingPlanning = () => {
     }
   };
 
+  /// DELETE
   const handleDelete = async (name) => {
     try {
       await axios.delete(`${import.meta.env.VITE_API_URL}/delete_budget/${name}`);
-      // If you want to remove name from categories as well, do so here
-      setCategories((prev) => prev.filter(cat => cat !== name));
-      // Re-fetch budgets
+      setBudgets((prev) => prev.filter(b => b.name !== name));
       await fetchBudgets();
     } catch (error) {
       console.error("Delete failed:", error);
     }
   };
 
-  // Update a budget doc (PATCH /update_budget/:name)
+ /// UPDATE
+ /*
   const handleUpdate = async (name, dataToUpdate) => {
     try {
       await axios.patch(`${import.meta.env.VITE_API_URL}/update_budget/${name}`, dataToUpdate);
@@ -119,6 +120,7 @@ const BudgetingPlanning = () => {
       console.error("Update failed:", error);
     }
   };
+*/
 
 // UI --> user interface
   return (
