@@ -22,12 +22,13 @@ const PLAID_COUNTRY_CODES = (process.env.PLAID_COUNTRY_CODES || 'US').split(
 // nodemailer transporter
 // (SMTP settings)
 const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST,
-  port: +process.env.SMTP_PORT,
+  host: "smtp.gmail.com",
+  port: 465,                    // Secure SMTP
+  secure: true,                 // true for port 465, false for 587
   auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
-  }
+    user: process.env.GMAIL_USER,
+    pass: process.env.GMAIL_PASS,
+  },
 });
 
 
@@ -69,8 +70,8 @@ router.post("/signup", async (req, res) => {
       // Send verification email
 
       await transporter.sendMail({
-        from: `"SmartWallet" <${process.env.SMTP_USER}>`,
-        to:   newUser.email,
+        from: `"SmartWallet" <${process.env.GMAIL_USER}>`,
+        to:   user.email,
         subject: "Verify your email",
         html: ` 
           <h1>Welcome to SmartWallet, ${firstName}!</h1>
