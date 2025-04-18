@@ -66,7 +66,7 @@ router.post("/signup", async (req, res) => {
 
       const token = jwt.sign({ userId: user.userId }, SECRET_KEY, {expiresIn: "3h" });
 
-      const verifyEmail = `${process.env.BASE_URL}/api/verify-email?token=${email_token}`;
+      const verifyEmail = `${process.env.BASE_URL}/api/verify-email?email_token=${email_token}`;
       // Send verification email
 
       await transporter.sendMail({
@@ -125,33 +125,33 @@ router.post("/login", async (req, res) => {
   }
 });
 
-// email verification endpoint need to test
+// email verification endpoint tested but its a get method
+// replace email_token with actual token to test
+// CLIENT_URL is set to the front-end URL
 router.get("/verify-email", async (req, res) => {
-  const { email_token } = req.query;
-  if (!email_token) return res.status(400).send("Invalid request.");
-
-  try {
-    const user = await User.findOne({
-      emailVerifyToken: email_token,
-      emailVerifyExpires: { $gt: Date.now() }
-    });
-
-    if (!user) {
-      return res.status(400).send("Token invalid or expired.");
-    }
-
-    user.emailVerified = true;
-    user.emailVerifyToken = undefined;
-    user.emailVerifyExpires = undefined;
-    await user.save();
-
-    // can implement React frontend with a success message
-    res.send("Email verified! You can now log in.");
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("Server error.");
+  const { token } = req.query;
+  if (!token) {
+    return res.status(400).send({ message: "Token is required" });
   }
+
+  const user = await User.findOne({
+    emailVerifyToken: token,
+    emailVerifyExpires: { $gt: Date.now() }
+  });
+
+  if (!user) {
+    return res.status(400).send({ message: "Invalid or expired token" });
+  }
+
+  user.emailVerified = true; // 
+  user.emailVerifyToken = undefined; //
+  user.emailVerifyExpires = undefined;
+  await user.save();
+
+  // on success, redirect to front‑end login
+  return res.status(200).redirect(`${process.env.CLIENT_URL}/authform`);
 });
+
 
 /// DELETE ONCE POST CI/CD PIPELINE IS BUILT ///
 router.get('/', async (req, res) => {
