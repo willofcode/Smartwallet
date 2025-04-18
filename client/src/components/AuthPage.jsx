@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import axios from 'axios';
 
-const AuthPage = () => {
+const AuthPage = () => {``
   const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
   const [signupEmail, setSignupEmail] = useState('');
@@ -43,6 +43,11 @@ const AuthPage = () => {
         setError(data.message);
       }
     } catch (err) {
+      if (err.response?.status === 403) { // 403 Forbidden
+        // Not verified yet
+        setError(err.response.data.message);
+        return navigate('/verify-email');
+      }
       setError('Something went wrong. Please try again.');
     }
   };
@@ -70,7 +75,7 @@ const AuthPage = () => {
         await createLinkToken(data.userId);
   
         setError('');
-        navigate('/transactions'); 
+        navigate('/verify-email'); 
       } else {
         setError(data.message);
       }
