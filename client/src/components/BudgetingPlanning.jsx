@@ -113,6 +113,9 @@ const BudgetingPlanning = () => {
   /// we could do like, client side filtering group the budgets by 
   /// the category they are in. (this should be in the overvie side???)
   /// ok this is close to what we want but I was right i don't need this on the planning page
+
+
+  /// this won't be necessary on this page it will be depreacated soon
   const groupedBudgets = budgets.reduce((acc, b) => {
     if(!acc[b.category]) acc[b.category] = [];
     acc[b.category].push(b);
