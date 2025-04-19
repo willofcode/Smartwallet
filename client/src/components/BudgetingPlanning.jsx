@@ -47,7 +47,7 @@ const BudgetingPlanning = () => {
 
     try {
       const token = localStorage.getItem("token"); // we're grabbing the JWT token of a user
-      const response = await axios.post(`${import.meta.env.VITE_API_URL}/post_budget`, // calling the post budget endpoint I made
+      const res = await axios.post(`${import.meta.env.VITE_API_URL}/post_budget`, // calling the post budget endpoint I made
         {
           /// posting the body data the endpoints accepts to the website
           name: newName.trim(), 
@@ -61,7 +61,7 @@ const BudgetingPlanning = () => {
         }
       );
       
-      setBudgets(prev => [...prev, response.data]); /// adding a local state for setting the budget
+      setBudgets(prev => [...prev, res.data]); /// adding a local state for setting the budget
 
       // this is setting the new body and it's also gonna show our newly made 
       // budget plan, on our planning page via view model, I may remove that
@@ -97,12 +97,12 @@ const BudgetingPlanning = () => {
       //// I'll worry about that later...
       //// change the budget but NOT by 50 by however much a user wants to change it to.
       try {
-        const response = await axios.patch(`${import.meta.env.VITE_API_URL}/update_budget/${name}`, {
+        const res = await axios.patch(`${import.meta.env.VITE_API_URL}/update_budget/${name}`, {
           budget: new_amount
         });
 
         setBudgets(prev => 
-          prev.map(b => b.name === name ? response.data : b)
+          prev.map(b => b.name === name ? res.data : b)
         );
       } catch(error){
         console.error("Cannot UPDATE budget:", error );
