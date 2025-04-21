@@ -37,16 +37,54 @@ const BudgetingOverview = () => {
     fetchBudgets();
   }, []);
 
-
   /// This might need to be redone since we don't want to get by category here since... that
   /// endpoint doesn't exist...
 
-  const fetchBudgetFromName = async () => {
+  /// GET all budgets <--- easiest
+  /// the goal here should be that we're getting budget plans specific to that user 
+  const fetchAllBudgets = async () => {
+    try {
+      setLoading(true);
+
+      const token = localStorage.getItem('token'); // so here we need their token
+      
+      // then I can grab all their budgetplans
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/get_all_budgets`, { 
+        headers: {
+          Authorization: `Bearer ${token}`, // here I'm checking to see the user's JWT token.
+        }
+      });
+
+      setBudgetData(response.data)// then send the budgetplan data to our user
+    }
+    /// from here it's just error hadnling 
+    catch(error){
+      console.error("could not get all budgets: ", error);
+    }
+    /// then we can cut the loading 
+    finally{
+      setLoading(false);
+    }
+
+  };
+
+  // I'll ad the JWT here too since what for they know the name of another budget plan a
+  // user should not be able to see the budget plan of another user.
+  const fetchBudgetFromName = async (name) => {
     try {
       setLoading(true);// we have to actually load in our budgets
-      
-    }
-    // if anything goes wrong we'll throw this error
+
+      const token = localStorage.getItem('token');
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/get_budget/${name}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      // I'll add a log if I'm not able to seethe data properly.
+      setBudgetData(response.data);
+
+      }
+    // if anything goes wrong we'll throw an error
     catch(error){
       console.error("could not fetch by name: ", error);
     }
@@ -56,59 +94,6 @@ const BudgetingOverview = () => {
     }
 
   };
-
-  const fetchAllBudgets = async () => {
-    try {
-      setLoading(true);
-    }
-    catch(error){
-      console.error("could not get all budgets: ", error);
-    }
-    finally{
-      setLoading(false);
-    }
-
-  };
-  
-  /*const fetchBudgets = async () => {
-    try {
-      setLoading(true);
-
-      // We do multiple requests, one per category <-- we don't a endpoint like this
-      const requests = categories.map(name =>
-
-        axios.get(`${import.meta.env.VITE_API_URL}/get_budget/${name}`)
-        .catch(error => {
-            console.error(`No budget found for category "${name}"`, error);
-            return null; 
-          })
-      );
-
-      const results = await Promise.all(requests);
-      // Each `results[i]` is either an axios response or null if not found
-      const finalBudgets = results.map((res, i) => {
-        if (!res || !res.data) return null; // category not found
-        return res.data;
-      });
-
-      setBudgetData(finalBudgets);
-
-      // For demonstration, we’ll generate “used/spent” amounts randomly
-      // or you can store them in your DB or fetch from a transaction API.
-      const usageMap = {};
-      finalBudgets.forEach(b => {
-        if (b && b.budget) {
-          usageMap[b.name] = Math.floor(Math.random() * b.budget);
-        }
-      });
-      setUsedAmounts(usageMap);
-
-    } catch (error) {
-      console.error("Error fetching budgets by name:", error);
-    } finally {
-      setLoading(false);
-    }
-  };*/
 
   // Sum up all planned budgets that were successfully fetched
   const totalPlanned = budgetData.reduce((acc, b) => {
