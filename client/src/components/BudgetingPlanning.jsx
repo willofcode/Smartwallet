@@ -9,7 +9,7 @@ import Sidebar from './sideBar';
 const BudgetingPlanning = () => {
 
   const [budgets, setBudgets] = useState([]);
-  const [loading, setLoading] = useState(false);
+  //const [loading, setLoading] = useState(false);
   const [openIndex, setOpenIndex] = useState(null);
   const [newName, setNewName] = useState('');
   const [newCategory, setNewCategory] = useState('');
@@ -114,15 +114,6 @@ const BudgetingPlanning = () => {
   /// the category they are in. (this should be in the overvie side???)
   /// ok this is close to what we want but I was right i don't need this on the planning page
 
-
-  /// this won't be necessary on this page it will be depreacated soon
-  const groupedBudgets = budgets.reduce((acc, b) => {
-    if(!acc[b.category]) acc[b.category] = [];
-    acc[b.category].push(b);
-    return acc;
-
-  }, {});
-
 /// UI --> user interface
 /// I'm too tired ngl
   return (
@@ -139,46 +130,41 @@ const BudgetingPlanning = () => {
 
           {viewMode === "planning" && (
             <>
-              {Object.entries(groupedBudgets).map(([category, items]) => (
-                <div key={category}>
-                  <h3 className="text-xl font-semibold mt-6 mb-2">{category}</h3>
-                  {items.map((bgt, idx) => {
-                    const isOpen = openIndex === `${category}-${idx}`;
-                    return (
-                      <div key={`${bgt.name}-${idx}`} className="bg-[#1B203F] rounded-md mb-2">
-                        <button
-                          className="flex justify-between items-center w-full px-4 py-3"
-                          onClick={() => toggleAccordion(`${category}-${idx}`)}
-                        >
-                          <div className="flex items-center gap-2">
-                            <div className="w-5 h-5 bg-purple-500 rounded-full" />
-                            <span>{bgt.name}</span>
-                          </div>
-                          <span className="text-gray-400 text-sm">${bgt.budget}</span>
-                        </button>
-                        {isOpen && (
-                          <div className="px-4 pb-4 text-sm text-gray-300">
-                            <div className="flex gap-2 mt-2">
-                              <button
-                                onClick={() => handleUpdate(bgt.name, bgt.budget + 50)}
-                                className="bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded-md text-sm"
-                              >
-                                + $50
-                              </button>
-                              <button
-                                onClick={() => handleDelete(bgt.name)}
-                                className="bg-red-600 hover:bg-red-700 px-3 py-1 rounded-md text-sm"
-                              >
-                                Delete
-                              </button>
-                            </div>
-                          </div>
-                        )}
+              {budgets.map((bgt, idx) => {
+                const isOpen = openIndex === idx;
+                return (
+                  <div key={`${bgt.name}-${idx}`} className="bg-[#1B203F] rounded-md mb-2">
+                    <button
+                      className="flex justify-between items-center w-full px-4 py-3"
+                      onClick={() => toggleAccordion(idx)}
+                    >
+                      <div className="flex items-center gap-2">
+                        <div className="w-5 h-5 bg-purple-500 rounded-full" />
+                        <span>{bgt.name}</span>
                       </div>
-                    );
-                  })}
-                </div>
-              ))}
+                      <span className="text-gray-400 text-sm">${bgt.budget}</span>
+                    </button>
+                    {isOpen && (
+                      <div className="px-4 pb-4 text-sm text-gray-300">
+                        <div className="flex gap-2 mt-2">
+                          <button
+                            onClick={() => handleUpdate(bgt.name, bgt.budget + 50)}
+                            className="bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded-md text-sm"
+                          >
+                            + $50
+                          </button>
+                          <button
+                            onClick={() => handleDelete(bgt.name)}
+                            className="bg-red-600 hover:bg-red-700 px-3 py-1 rounded-md text-sm"
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
 
               <button
                 onClick={() => setViewMode("addPlan")}

@@ -15,29 +15,71 @@ import { Link } from 'react-router-dom';
 import Sidebar from './sideBar';
 
 const BudgetingOverview = () => {
-  // Example categories we want to display in the “overview”
-  const categories = ["Housing", "Food", "Transportation"];
-  // State for budgets fetched from server
+  /// I'm thinking we can have categories here for later so that we're properly grouping by our
+  /// category on the overview.
+  const categories = [
+    "Housing",
+    "Food",
+    "Transportation",
+    "Utilities",
+    "Entertainment",
+    "Healthcare",
+    "Personal Care",
+    "Education",
+    "Misc",
+  ];
   const [budgetData, setBudgetData] = useState([]);
   const [loading, setLoading] = useState(false);
-
-  // Example “used/spent” amounts (until you calculate from transactions).
-  // You could also store these in your DB, or derive them from actual spending data.
   const [usedAmounts, setUsedAmounts] = useState({});
 
+  /// so he's fetching budgets here
   useEffect(() => {
     fetchBudgets();
   }, []);
 
-  const fetchBudgets = async () => {
+
+  /// This might need to be redone since we don't want to get by category here since... that
+  /// endpoint doesn't exist...
+
+  const fetchBudgetFromName = async () => {
+    try {
+      setLoading(true);// we have to actually load in our budgets
+      
+    }
+    // if anything goes wrong we'll throw this error
+    catch(error){
+      console.error("could not fetch by name: ", error);
+    }
+    // then we can cut the loading 
+    finally {
+      setLoading(false);
+    }
+
+  };
+
+  const fetchAllBudgets = async () => {
+    try {
+      setLoading(true);
+    }
+    catch(error){
+      console.error("could not get all budgets: ", error);
+    }
+    finally{
+      setLoading(false);
+    }
+
+  };
+  
+  /*const fetchBudgets = async () => {
     try {
       setLoading(true);
 
-      // We do multiple requests, one per category
-      const requests = categories.map(category =>
-        axios.get(`${import.meta.env.VITE_API_URL}/get_budget/${category}`)
-          .catch(err => {
-            console.error(`No budget found for category "${category}"`, err);
+      // We do multiple requests, one per category <-- we don't a endpoint like this
+      const requests = categories.map(name =>
+
+        axios.get(`${import.meta.env.VITE_API_URL}/get_budget/${name}`)
+        .catch(error => {
+            console.error(`No budget found for category "${name}"`, error);
             return null; 
           })
       );
@@ -66,7 +108,7 @@ const BudgetingOverview = () => {
     } finally {
       setLoading(false);
     }
-  };
+  };*/
 
   // Sum up all planned budgets that were successfully fetched
   const totalPlanned = budgetData.reduce((acc, b) => {
