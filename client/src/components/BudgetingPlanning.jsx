@@ -90,14 +90,13 @@ const BudgetingPlanning = () => {
 
   };
 
-
   //// CREATE --> POST
   const handleSubmitNewCategory = async (e) => {
     e.preventDefault();
 
     /// this is error handling requiring our user to fill out all fields
     if (!newName || !newCategory || !newBudget) {
-      alert("Please fill in name, category, and budget.");
+      alert("Please add name, category and budget.");
       return;
     }
 
@@ -149,9 +148,6 @@ const BudgetingPlanning = () => {
 
  /// UPDATE
   const handleUpdate = async(name, new_amount) => {
-      //// we can redo this with just awaiting the actual endpoint
-      //// I'll worry about that later...
-      //// change the budget but NOT by 50 by however much a user wants to change it to.
       try {
         const res = await axios.patch(`${import.meta.env.VITE_API_URL}/update_budget/${name}`, {
           budget: new_amount
@@ -170,7 +166,9 @@ const BudgetingPlanning = () => {
   const searchBudgets = () => {
     // if our name can't be found in our array of budgets
     // just throw an empty array
-    if (!Array.isArray(budgets)) return [];
+    if (!Array.isArray(budgets)){ 
+      return [];
+    }
 
     else{
       // we're flattening the search words to be lower case so any
@@ -181,12 +179,7 @@ const BudgetingPlanning = () => {
     }
   };
 
-  /// we could do like, client side filtering group the budgets by 
-  /// the category they are in. (this should be in the overvie side???)
-  /// ok this is close to what we want but I was right i don't need this on the planning page
-
 /// UI --> user interface
-/// I'm too tired ngl
   return (
     <div className="flex min-h-screen bg-[#1B203F] text-white">
       <Sidebar />

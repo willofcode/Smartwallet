@@ -1,13 +1,5 @@
 
 'use client';
-/*
-  the main idea here: WHAT SHOULD OVERVIEW DO?
-
-  GET our budgets by name (basically filter by budget name to view a specific budget) <-- medium
-  GET our budgets by category in a group (filter by budget category) <-- hardest cuz it's client side
-  GET all budgets <--- easiest
-
-*/
 
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
@@ -28,18 +20,17 @@ const BudgetingOverview = () => {
     "Education",
     "Misc",
   ];
+
   const [budgetData, setBudgetData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [usedAmounts, setUsedAmounts] = useState({});
+  const [searchTerm, setSearchTerm] = useState('')
 
   /// so he's fetching budgets here
   useEffect(() => {
     fetchAllBudgets();
   }, []);
-
-  /// This might need to be redone since we don't want to get by category here since... that
-  /// endpoint doesn't exist...
-
+  
   /// GET all budgets <--- easiest
   /// the goal here should be that we're getting budget plans specific to that user 
   const fetchAllBudgets = async () => {
@@ -50,13 +41,15 @@ const BudgetingOverview = () => {
       
       // then I can grab all their budgetplans
       const response = await axios.get(`${import.meta.env.VITE_API_URL}/get_all_budgets`, { 
+        
         headers: {
           Authorization: `Bearer ${token}`, // here I'm checking to see the user's JWT token.
         }
       });
 
       console.log("Fetched: ", response.data);
-      setBudgetData(response.data)// then send the budgetplan data to our user
+      //setBudgetData(response.data)// then send the budgetplan data to our user
+      setBudgetData(Array.isArray(response.data) ? response.data : []); // we need to send an empty array otherwise null error
     }
     /// from here it's just error hadnling 
     catch(error){
@@ -69,50 +62,30 @@ const BudgetingOverview = () => {
 
   };
 
-  /// I should be able to search for a budget by name
-  // I'll ad the JWT here too since what for they know the name of another budget plan a
-  // user should not be able to see the budget plan of another user.
-  const fetchBudgetFromName = async (name) => {
-    try {
-      setLoading(true);// we have to actually load in our budgets
-
-      const token = localStorage.getItem('token');
-      const response = await axios.get(`${import.meta.env.VITE_API_URL}/get_budget/${name}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      // I'll add a log if I'm not able to seethe data properly.
-      setBudgetData(response.data);
-
-      }
-    // if anything goes wrong we'll throw an error
-    catch(error){
-      console.error("could not fetch by name: ", error);
+  /// Then I need to search by category 
+  const searchCategory = () => {
+    // idk how i want this to look beyond the base case...
+    if (!Array.isArray(budgetData)){
+      return [];
     }
-    // then we can cut the loading 
-    finally {
-      setLoading(false);
+    if (!searchTerm.trim()){
+      return budgetData;
     }
 
-  };
+    else{
+      return budgetData.filter((bgt) =>
+        bgt.category?.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    };
 
-  // we should also be able to delete a budgets by name
-  // Ig the over page does need that
-
-  // and they should be able to update, I figured we could just do that here
-
-  // or actually that's mad work
-  // let's get on the planning page
-
-  // + we need to sort by category here
-  
-
+  }
 
   // Sum up all planned budgets that were successfully fetched
-  const totalPlanned = budgetData.reduce((acc, b) => {
-    return b && b.budget ? acc + b.budget : acc;
-  }, 0);
+  const totalPlanned = Array.isArray(budgetData)
+  ? budgetData.reduce((acc, b) => {
+      return b && b.budget ? acc + b.budget : acc;
+    }, 0)
+  : 0;
 
   // Example: If your “monthly budget” is $4,000 total, then “left to spend”:
   const leftToSpend = Math.max(4000 - totalPlanned, 0);
@@ -122,7 +95,8 @@ const BudgetingOverview = () => {
       <Sidebar />
   
       <div className="flex-grow overflow-y-auto p-8">
-        {/* Section: Overall Budget Summary */}
+
+        {/* our summary for the budget */}
         <div className="bg-[#2C325C] p-6 rounded-2xl shadow-md w-full mb-6">
           <div className="flex items-center gap-2 mb-2">
             <span className="inline-block w-2 h-2 rounded-full bg-purple-500" />
@@ -145,62 +119,47 @@ const BudgetingOverview = () => {
           </div>
         </div>
   
-        {/* Section: All Budget Plans */}
+        {/* all budget plans  */}
         <div className="bg-[#2C325C] p-6 rounded-2xl shadow-md w-full">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-sm md:text-base text-gray-100 font-semibold">
               Total Planned Expenses
             </h2>
-            <Link to="/budgeting/planning" className="text-gray-300 hover:text-white">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={2}
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M10.325 4.317c.426-1.756 3.01-1.756 3.436 0..."
-                />
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                />
-              </svg>
+            <Link to="/budgeting/planning">
+              <button className="px-4 py-2 text-sm font-medium text-white bg-purple-600 rounded-lg hover:bg-purple-700 transition">
+                Settings
+              </button>
             </Link>
-          </div>
-  
-          {/* 🔘 Fetch Budgets Button */}
-          <div className="flex justify-end mb-4">
-            <button
-              onClick={fetchAllBudgets}
-              disabled={loading}
-              className={`${
-                loading ? "bg-gray-500 cursor-not-allowed" : "bg-purple-600 hover:bg-purple-700"
-              } text-white font-semibold py-2 px-4 rounded-lg transition`}
+        </div>
+
+          {/* category drop down */}
+          <div className="mb-4">
+            <select
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="px-3 py-2 rounded-md bg-[#1B203F] border border-gray-600 w-full sm:w-60"
             >
-              {loading ? "Loading..." : "Fetch All Budgets"}
-            </button>
+              <option value="">All Categories</option>
+              {Array.from(new Set(budgetData.map(bgt => bgt.category))).map((category, idx) => (
+                <option key={idx} value={category}>
+                  {category}
+                </option>
+              ))}
+            </select>
           </div>
-  
+
           <p className="text-3xl font-bold text-white mb-6">
             ${totalPlanned.toFixed(2)}
           </p>
   
           {loading && <p className="text-gray-300">Loading budgets...</p>}
   
-          {!loading && budgetData.length === 0 && (
-            <p className="text-gray-400">
-              You have no planned budgets yet. Start planning to take control of your money!
-            </p>
+          {!loading && searchCategory().length === 0 && (
+            <p className="text-gray-400">No matching categories found.</p>
           )}
   
           {!loading &&
-            budgetData.map((budgetObj, idx) => {
+            searchCategory().map((budgetObj, idx) => {
               if (!budgetObj) return null;
   
               const used = usedAmounts[budgetObj.name] || 0;
@@ -237,7 +196,37 @@ const BudgetingOverview = () => {
         </div>
       </div>
     </div>
-  );  
-};  
+  );
+}  
 
 export default BudgetingOverview;
+
+  /// I should be able to search for a budget by name
+  // I'll ad the JWT here too since what for they know the name of another budget plan a
+  // user should not be able to see the budget plan of another user.
+  /*
+  const fetchBudgetFromName = async (name) => {
+    try {
+      setLoading(true);// we have to actually load in our budgets
+
+      const token = localStorage.getItem('token');
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/get_budget/${name}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      // I'll add a log if I'm not able to seethe data properly.
+      setBudgetData(response.data);
+
+      }
+    // if anything goes wrong we'll throw an error
+    catch(error){
+      console.error("could not fetch by name: ", error);
+    }
+    // then we can cut the loading 
+    finally {
+      setLoading(false);
+    }
+
+  };
+  */
