@@ -166,6 +166,21 @@ const BudgetingPlanning = () => {
       }
   };
 
+  // I'll make a search function for the page + we can port it later to overview
+  const searchBudgets = () => {
+    // if our name can't be found in our array of budgets
+    // just throw an empty array
+    if (!Array.isArray(budgets)) return [];
+
+    else{
+      // we're flattening the search words to be lower case so any
+      // word we're searching for returns the appropriate result
+      return budgets.filter((bgt) =>
+        bgt.name.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+  };
+
   /// we could do like, client side filtering group the budgets by 
   /// the category they are in. (this should be in the overvie side???)
   /// ok this is close to what we want but I was right i don't need this on the planning page
@@ -200,20 +215,7 @@ const BudgetingPlanning = () => {
                 >
                   Search
                 </button>
-                
-                {/*
-                we don't need to worry about this since we're automatically getting everything
-                <button
-                  onClick={() => {
-                    setSearchTerm('');
-                    fetchAllBudgets();
-                  }}
-                  className="bg-purple-600 hover:bg-purple-700 px-3 py-2 rounded-md text-sm"
-                >
-                  Fetch Budgets
-                </button>*/}
 
-                
               </div>
               <Link to="/budgeting" className="text-sm bg-purple-600 hover:bg-purple-700 px-3 py-2 rounded-md text-center">
                 ← Back to Overview
@@ -225,7 +227,7 @@ const BudgetingPlanning = () => {
             <div className="text-center py-8 text-gray-300">Loading budgets...</div>
           ) : viewMode === "planning" ? (
             <>
-              {budgets.map((bgt, idx) => {
+              {searchBudgets().map((bgt, idx) => {
                 const isOpen = openIndex === idx;
                 return (
                   <div key={`${bgt.name}-${idx}`} className="bg-[#1B203F] rounded-md mb-2">
@@ -336,7 +338,7 @@ const BudgetingPlanning = () => {
                   type="number"
                   value={newBudget}
                   onChange={(e) => setNewBudget(e.target.value)}
-                  className="w-full px-4 py-2 rounded-md bg-[#1B203F] border border-gray-600"
+                  className="hide-spinner px-2 py-1 rounded-md bg-[#2C325C] border border-gray-600 w-full sm:w-1/3"
                   placeholder="e.g. 400"
                 />
               </div>
