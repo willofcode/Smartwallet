@@ -35,6 +35,10 @@ const BudgetingPlanning = () => {
   // a user needs to fill out all fields for a new category 
   // a part of me is worried this is doing to much
   // but I'll worry about it later.
+  ///
+  // GET ALL
+
+  // GET BY NAME
   //// CREATE --> POST
   const handleSubmitNewCategory = async (e) => {
     e.preventDefault();

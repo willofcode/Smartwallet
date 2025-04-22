@@ -69,6 +69,7 @@ const BudgetingOverview = () => {
 
   };
 
+  /// I should be able to search for a budget by name
   // I'll ad the JWT here too since what for they know the name of another budget plan a
   // user should not be able to see the budget plan of another user.
   const fetchBudgetFromName = async (name) => {
@@ -95,6 +96,18 @@ const BudgetingOverview = () => {
     }
 
   };
+
+  // we should also be able to delete a budgets by name
+  // Ig the over page does need that
+
+  // and they should be able to update, I figured we could just do that here
+
+  // or actually that's mad work
+  // let's get on the planning page
+
+  // + we need to sort by category here
+  
+
 
   // Sum up all planned budgets that were successfully fetched
   const totalPlanned = budgetData.reduce((acc, b) => {
