@@ -55,7 +55,7 @@ const BudgetingOverview = () => {
         }
       });
 
-      console.log("Fetched budgets: ", response.data);
+      console.log("Fetched: ", response.data);
       setBudgetData(response.data)// then send the budgetplan data to our user
     }
     /// from here it's just error hadnling 

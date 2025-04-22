@@ -9,12 +9,14 @@ import Sidebar from './sideBar';
 const BudgetingPlanning = () => {
 
   const [budgets, setBudgets] = useState([]);
-  //const [loading, setLoading] = useState(false);
   const [openIndex, setOpenIndex] = useState(null);
   const [newName, setNewName] = useState('');
   const [newCategory, setNewCategory] = useState('');
   const [newBudget, setNewBudget] = useState('');
   const [viewMode, setViewMode] = useState("planning");
+  const [loading, setLoading] = useState(false);
+  const [editValues, setEditValues] = useState({});
+  const [searchTerm, setSearchTerm] = useState('');
 
   const categoryOptions = [
     "Housing",
@@ -32,13 +34,63 @@ const BudgetingPlanning = () => {
     setOpenIndex(openIndex === idx ? null : idx);
   };
 
-  // a user needs to fill out all fields for a new category 
-  // a part of me is worried this is doing to much
-  // but I'll worry about it later.
-  ///
-  // GET ALL
+  const fetchAllBudgets = async () => {
+    try {
+      setLoading(true);
 
-  // GET BY NAME
+      const token = localStorage.getItem('token'); // so here we need their token
+
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/get_all_budgets`, { 
+        headers: {
+          Authorization: `Bearer ${token}`, // here I'm checking to see the user's JWT token.
+        }
+      });
+
+      console.log("Fetched: ", response.data);
+      setBudgets(response.data)// then send the budgetplan data to our user
+    }
+    /// from here it's just error hadnling 
+    catch(error){
+      console.error("could not get all budgets: ", error);
+    }
+    /// then we can cut the loading 
+    finally{
+      setLoading(false);
+    }
+
+  };
+
+  useEffect(() => {
+    fetchAllBudgets();
+  }, [])
+
+  // GET BY NAME <-- we can just port them over from the over view page
+  const fetchBudgetFromName = async (name) => {
+    try {
+      setLoading(true);// we have to actually load in our budgets
+
+      const token = localStorage.getItem('token');
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/get_budget/${name}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      // I'll add a log if I'm not able to seethe data properly.
+      setBudgets(response.data);
+
+      }
+    // if anything goes wrong we'll throw an error
+    catch(error){
+      console.error("could not fetch by name: ", error);
+    }
+    // then we can cut the loading 
+    finally {
+      setLoading(false);
+    }
+
+  };
+
+
   //// CREATE --> POST
   const handleSubmitNewCategory = async (e) => {
     e.preventDefault();
@@ -125,14 +177,53 @@ const BudgetingPlanning = () => {
       <Sidebar />
       <div className="flex-grow p-8 overflow-y-auto">
         <div className="bg-[#2C325C] p-6 rounded-2xl shadow-md space-y-6">
-          <div className="flex justify-between items-center">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
             <h2 className="text-2xl font-bold">Planning</h2>
-            <Link to="/budgeting" className="text-sm bg-purple-600 px-3 py-1 rounded-md">
-              ← Back to Overview
-            </Link>
+            <div className="flex flex-col sm:flex-row gap-2 sm:items-center w-full sm:w-auto">
+              <div className="flex gap-2 w-full sm:w-auto">
+                <input
+                  type="text"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="Search by name..."
+                  className="px-3 py-2 rounded-md bg-[#1B203F] border border-gray-600 w-full sm:w-60"
+                />
+                <button
+                  onClick={() => {
+                    if (searchTerm.trim()) {
+                      fetchBudgetFromName(searchTerm);
+                    } else {
+                      alert("Enter a name to search.");
+                    }
+                  }}
+                  className="bg-purple-600 hover:bg-purple-700 px-3 py-2 rounded-md text-sm"
+                >
+                  Search
+                </button>
+                
+                {/*
+                we don't need to worry about this since we're automatically getting everything
+                <button
+                  onClick={() => {
+                    setSearchTerm('');
+                    fetchAllBudgets();
+                  }}
+                  className="bg-purple-600 hover:bg-purple-700 px-3 py-2 rounded-md text-sm"
+                >
+                  Fetch Budgets
+                </button>*/}
+
+                
+              </div>
+              <Link to="/budgeting" className="text-sm bg-purple-600 hover:bg-purple-700 px-3 py-2 rounded-md text-center">
+                ← Back to Overview
+              </Link>
+            </div>
           </div>
 
-          {viewMode === "planning" && (
+          {loading ? (
+            <div className="text-center py-8 text-gray-300">Loading budgets...</div>
+          ) : viewMode === "planning" ? (
             <>
               {budgets.map((bgt, idx) => {
                 const isOpen = openIndex === idx;
@@ -149,22 +240,58 @@ const BudgetingPlanning = () => {
                       <span className="text-gray-400 text-sm">${bgt.budget}</span>
                     </button>
                     {isOpen && (
-                      <div className="px-4 pb-4 text-sm text-gray-300">
-                        <div className="flex gap-2 mt-2">
-                          <button
-                            onClick={() => handleUpdate(bgt.name, bgt.budget + 50)}
-                            className="bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded-md text-sm"
-                          >
-                            + $50
-                          </button>
-                          <button
-                            onClick={() => handleDelete(bgt.name)}
-                            className="bg-red-600 hover:bg-red-700 px-3 py-1 rounded-md text-sm"
-                          >
-                            Delete
-                          </button>
-                        </div>
+                      <div className="px-4 pb-4 text-sm text-gray-300 space-y-2">
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                        <input
+                          type="text"
+                          placeholder="New name"
+                          value={editValues[bgt.name]?.name ?? bgt.name}
+                          onChange={(e) =>
+                            setEditValues((prev) => ({
+                              ...prev,
+                              [bgt.name]: {
+                                ...prev[bgt.name],
+                                name: e.target.value,
+                              },
+                            }))
+                          }
+                          className="px-2 py-1 rounded-md bg-[#2C325C] border border-gray-600 w-full sm:w-1/3"
+                        />
+                        <input
+                          type="number"
+                          placeholder="New amount"
+                          value={editValues[bgt.name]?.budget ?? bgt.budget}
+                          onChange={(e) =>
+                            setEditValues((prev) => ({
+                              ...prev,
+                              [bgt.name]: {
+                                ...prev[bgt.name],
+                                budget: Number(e.target.value),
+                              },
+                            }))
+                          }
+                          className="px-2 py-1 rounded-md bg-[#2C325C] border border-gray-600 w-full sm:w-1/3"
+                        />
+                        <button
+                          onClick={() =>
+                            handleUpdate(
+                              bgt.name,
+                              editValues[bgt.name]?.budget ?? bgt.budget,
+                              editValues[bgt.name]?.name ?? bgt.name
+                            )
+                          }
+                          className="bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded-md text-sm"
+                        >
+                          Save Changes
+                        </button>
+                        <button
+                          onClick={() => handleDelete(bgt.name)}
+                          className="bg-red-600 hover:bg-red-700 px-3 py-1 rounded-md text-sm"
+                        >
+                          Delete
+                        </button>
                       </div>
+                    </div>                    
                     )}
                   </div>
                 );
@@ -178,9 +305,7 @@ const BudgetingPlanning = () => {
                 <span>Add New Plan</span>
               </button>
             </>
-          )}
-
-          {viewMode === "addPlan" && (
+          ) : (
             <form onSubmit={handleSubmitNewCategory} className="space-y-4">
               <h2 className="text-2xl font-bold">New Budget Plan</h2>
               <div>
@@ -233,6 +358,7 @@ const BudgetingPlanning = () => {
       </div>
     </div>
   );
+
 };
 
 export default BudgetingPlanning;
