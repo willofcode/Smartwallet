@@ -65,13 +65,17 @@ const BudgetingOverview = () => {
   /// Then I need to search by category 
   const searchCategory = () => {
     // idk how i want this to look beyond the base case...
+    // scratch that.. trim based on our category options 
     if (!Array.isArray(budgetData)){
       return [];
     }
     if (!searchTerm.trim()){
       return budgetData;
     }
-
+    
+    // otherwise, we'll return all budget data from ouur drop down,
+    // added case sensitivity to flatten the search and make sure
+    // all budget plans relating to a category ar pulled
     else{
       return budgetData.filter((bgt) =>
         bgt.category?.toLowerCase().includes(searchTerm.toLowerCase())
