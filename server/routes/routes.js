@@ -58,8 +58,9 @@ router.post("/signup", async (req, res) => {
       const salt = await bcrypt.genSalt(10);
       const hashedPassword = await bcrypt.hash(password, salt);
 
-      const email_token = crypto.randomBytes(32).toString("hex");
-      const expires = Date.now() + 1000 * 60 * 60 * 24; // 24 hrs
+      const email_token = crypto.randomBytes(32).toString("hex"); // generate a random token
+      // Set expiration time for the token (24 hours)
+      const expires = Date.now() + 1000 * 60 * 60 * 24;
 
       let newUser = new User({ firstName, lastName, email, password: hashedPassword, emailVerifyToken: email_token,
         emailVerifyExpires: expires });
@@ -68,8 +69,8 @@ router.post("/signup", async (req, res) => {
       const token = jwt.sign({ userId: user.userId }, SECRET_KEY, {expiresIn: "3h" });
 
       const verifyEmail = `${process.env.BASE_URL}/api/verify-email?email_token=${email_token}`;
+      
       // Send verification email
-
       await transporter.sendMail({
         from: `"SmartWallet" <${process.env.GMAIL_USER}>`,
         to:   user.email,
@@ -200,6 +201,10 @@ router.get('/getUser/:id',  async (req, res) => {
 router.post('/logout',  (req, res) => {
   res.send({ messeage: "Logout successful" });
 });
+
+/*    ********        ********        *******       */
+
+
 /*    ********        GOOGLE OAUTH ENDPOINTS        *******       */
 
 router.get('/auth/google', 
