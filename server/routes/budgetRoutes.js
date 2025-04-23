@@ -126,9 +126,36 @@ router.post('/add_expense', async (req, res) => {
     try {
         
     } catch(error){
-
+        console.error("can't CREATE expense: ", error);
     }
 });
 
+router.patch('/update_expense', async (req, res) => {
+    try{
+
+    } catch(error){
+        console.error("can't UPDATE expense: ", error);
+    }
+});
+
+// From there all that's left is being able to post the budget the user intends to spend for the month
+// it's also important to save the start and end date of the monthly plan
+
+router.post('/add_monthly_budget', async (req, res) =>{
+    try{
+
+    } catch(error){
+        console.error("can't CREATE monthly budget: ", error);
+    }
+});
+
+// The user should definitely be able to change the budget of the monthly plan
+router.patch('/update_monthly_budget', async (req, res) =>{
+    try{
+
+    } catch(error){
+        console.error("can't UPDATE monthly budget: ", error);
+    }
+});
 
 module.exports = router;

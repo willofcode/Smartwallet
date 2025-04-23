@@ -24,6 +24,35 @@ const expenseSchema = new mongoose.Schema({
 
 const Expense = mongoose.model('Expense', expenseSchema);
 
+
+const monthlyBudgetPlanSchema = new mongoose.Schema({
+    userId:
+    {
+      type: String,
+      ref: User,
+      required: true
+    },
+
+    start:
+    {
+      type: Date,
+      required: true
+    },
+
+    end:
+    {
+      type: Date,
+      required: true
+    },
+
+    monthlyBudget:
+    {
+      type: Number,
+      required: true 
+    }
+});
+ 
+
 /// this is  the  main schema we'll be CRUDING data from
 const budgetingSchema = new mongoose.Schema({
     userId:
