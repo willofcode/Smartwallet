@@ -1,6 +1,6 @@
 'use client';
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import axios from 'axios';
 
@@ -16,6 +16,38 @@ const AuthPage = () => {``
   const [isLogin, setIsLogin] = useState(false);
   const [linkToken, setLinkToken] = useState('');
   const navigate = useNavigate();
+  const { search } = useLocation();
+
+  // Detect Google OAuth login
+  useEffect(() => {
+    const params = new URLSearchParams({ search });
+    const googleToken = params.get('google_token');
+    const googleUser = params.get('userId');
+    if (!googleToken || !googleUser) return;
+    
+    setIsLogin(true);
+    // Successful Google OAuth
+    localStorage.setItem('token', googleToken);
+    localStorage.setItem('userId', googleUser)
+
+    (async () => {
+      try {
+        const resp = await axios.post(
+          `${import.meta.env.VITE_API_URL}/create_link_token`,
+          { uid: googleUser },
+          { headers: { Authorization: `Bearer ${googleToken}` } }
+        );
+        if (resp.data.link_token) {
+          localStorage.setItem('linkToken', resp.data.link_token);
+        }
+      } catch (e) {
+        console.error('Google login Plaid error', e);
+      } finally {
+        navigate('/transactions', { replace: true });
+      }
+    })();
+  }, [search, navigate]);
+  
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -47,7 +79,7 @@ const AuthPage = () => {``
         // Handle email verification required
         // Not verified yet
         setError(err.response.data.message);
-        return navigate('/verify-email');
+        return navigate('/verifyEmail');
       }
       setError('Something went wrong. Please try again.');
     }
@@ -76,7 +108,7 @@ const AuthPage = () => {``
         await createLinkToken(data.userId);
   
         setError('');
-        navigate('/verify-email'); 
+        navigate('/verifyEmail'); 
       } else {
         setError(data.message);
       }
@@ -229,6 +261,14 @@ const AuthPage = () => {``
               className="bg-white text-[#292d52] px-6 py-2 rounded-md shadow-md hover:bg-[#555a7c] transition"
             >
               {isLogin ? "Log In" : "Sign Up"}
+            </button>
+            <button 
+              onClick={() => { 
+                window.location.href = `${import.meta.env.VITE_API_URL}/auth/google`; 
+              }}
+              className="w-fit mt-4 flex items-center justify-center gap-2 bg-white text-[#292d52] px-6 py-2 rounded-md shadow-md hover:bg-[#555a7c] transition"
+            >
+              <span className="font-medium">Sign in with Google</span>
             </button>
           </motion.div>
 
