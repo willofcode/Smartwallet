@@ -13,7 +13,7 @@ const AuthPage = () => {``
   const [lastName, setLastName] = useState('');
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
-  const [isLogin, setIsLogin] = useState(true);
+  const [isLogin, setIsLogin] = useState(false);
   const [linkToken, setLinkToken] = useState('');
   const navigate = useNavigate();
 
@@ -44,6 +44,7 @@ const AuthPage = () => {``
       }
     } catch (err) {
       if (err.response?.status === 403) { // 403 Forbidden
+        // Handle email verification required
         // Not verified yet
         setError(err.response.data.message);
         return navigate('/verify-email');

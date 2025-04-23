@@ -1,63 +1,44 @@
 // Simple verification page for email verification
-// This page will be displayed when the user clicks the verification link in their email
-// modification and updates will be handled by frontend team 
+// awaits for email verification
+// once email verification is done, links to authform 
 
 import { useEffect, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
 
 export default function VerifyEmailPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const [status, setStatus] = useState('waiting');
-  const [message, setMessage] = useState(
-    'Waiting for verification, click the link in your inbox…'
-  );
+  const [message, setMessage] = useState('Verifying your email…');
 
   useEffect(() => {
-    const emailToken = searchParams.get('email_token');
-    if (!emailToken) {
-      setStatus('waiting');
-      return;
+    const status = searchParams.get('status');
+
+    if (status === 'success') {
+      setMessage('Email verified! Redirecting you to login…');
+      return void setTimeout(() => {
+        navigate('/authform', { replace: true });
+      }, 1500);
     }
 
-    setStatus('verifying');
-    setMessage('Verifying your email…');
+    if (status === 'invalid') {
+      setMessage('That verification link is invalid or expired.');
+    }
 
-    axios
-      .get(
-        `${import.meta.env.VITE_API_URL}/verify-email?email_token=${emailToken}`
-      )
-      .then(() => {
-        setStatus('verified');
-        setMessage('Email verified! You can now log in.');
-        navigate('/transactions', { replace: true });
-      })
-      .catch((err) => {
-        setStatus('error');
-        setMessage(
-          err.response?.data || 'Verification failed. That link may have expired.'
-        );
-      });
+    if (status === 'error') {
+      setMessage('Oops—something went wrong verifying your email.');
+    }
   }, [searchParams, navigate]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#292d52]">
       <div className="p-8 bg-white rounded shadow-md max-w-md text-center">
-        {status === 'waiting' && <p>{message}</p>}
-        {status === 'verifying' && <p>{message}</p>}
-        {status === 'error' && (
-          <>
-            <p className="text-red-600">{message}</p>
-            <p className="mt-4 text-sm text-gray-600">
-              If you didn’t get the email, please <a
-                href="/"
-                className="underline text-indigo-600"
-              >
-                sign up again
-              </a>.
-            </p>
-          </>
+        <p>{message}</p>
+        {searchParams.get('status') === 'invalid' && (
+          <p className="mt-4 text-sm">
+            <a href="/authform" className="underline text-indigo-600">
+              Back to sign up
+            </a>
+          </p>
         )}
       </div>
     </div>
