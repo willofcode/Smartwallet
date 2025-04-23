@@ -10,6 +10,7 @@ const session = require('express-session');
 const passport = require('passport');
 
 require('./config/passportConfig');
+
 const app = express();
 /*
 const corsOptions = {
@@ -24,16 +25,8 @@ app.use(cors());
 //app.use(cors(corsOptions));
 app.use(bodyparser.json());
 
-app.use(session({
-    secret: process.env.JWT_SECRET_KEY,
-    resave: false,
-    saveUninitialized: false,
-  }));
+app.use(passport.initialize());
   
-  app.use(passport.initialize());
-  app.use(passport.session());
-  
-
 const APP_PORT = process.env.APP_PORT || 8000;
 
 app.listen(APP_PORT, () => {

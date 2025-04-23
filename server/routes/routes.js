@@ -68,7 +68,7 @@ router.post("/signup", async (req, res) => {
 
       const token = jwt.sign({ userId: user.userId }, SECRET_KEY, {expiresIn: "3h" });
 
-      const verifyEmail = `${process.env.BASE_URL}/api/verify-email?email_token=${email_token}`;
+      const verifyEmail = `${process.env.BASE_URL}/api/verify_email?email_token=${email_token}`;
       
       // Send verification email
       await transporter.sendMail({
@@ -128,12 +128,12 @@ router.post("/login", async (req, res) => {
 });
 
 // email verification endpoint
-router.get("/verify-email", async (req, res) => {
+router.get("/verify_email", async (req, res) => {
   const { email_token } = req.query;
   if (!email_token) {
     return res
       .status(400) // redirect to client URL if token is missing
-      .redirect(`${process.env.CLIENT_URL}/verify-email?status=invalid`);
+      .redirect(`${process.env.CLIENT_URL}/verify_email?status=invalid`);
   }
 
   try {
@@ -145,7 +145,7 @@ router.get("/verify-email", async (req, res) => {
     if (!user) {
       return res // redirect to client URL if token is invalid or expired
         .status(400)
-        .redirect(`${process.env.CLIENT_URL}/verify-email?status=invalid`);
+        .redirect(`${process.env.CLIENT_URL}/verify_email?status=invalid`);
     }
 
     user.emailVerified = true;
@@ -155,12 +155,12 @@ router.get("/verify-email", async (req, res) => {
 
     return res // redirect to client URL on success
       .status(200)
-      .redirect(`${process.env.CLIENT_URL}/verify-email?status=success`); 
+      .redirect(`${process.env.CLIENT_URL}/verify_email?status=success`); 
   } catch (err) {
     console.error(err);
     return res // redirect to client URL on error
       .status(500)
-      .redirect(`${process.env.CLIENT_URL}/verify-email?status=error`);
+      .redirect(`${process.env.CLIENT_URL}/verify_email?status=error`);
   }
 });
 
@@ -207,15 +207,23 @@ router.post('/logout',  (req, res) => {
 
 /*    ********        GOOGLE OAUTH ENDPOINTS        *******       */
 
+// 200 success
 router.get('/auth/google', 
-  passport.authenticate('google', { scope: ['profile','email'] })
+  passport.authenticate('google', { scope: ['profile','email'], session: false })
 );
 
 router.get('/auth/google/callback',
-  passport.authenticate('google', { failureRedirect: '/auth/google/failure' }),
-  (req, res) => {
-    const { token } = req.user;
-    res.redirect(`${process.env.CLIENT_URL}/authform?google_token=${token}`);
+  passport.authenticate('google', { failureRedirect: '/auth/google/failure', session: false }),
+  (req, res) => { const { user, token } = req.user;
+    console.log("Google OAuth successful for user ID:", user.userId);
+    console.log("Google OAuth token:", token);
+    // Redirect back into your React app with both token + userId
+    const redirectUrl = new URL(`${process.env.CLIENT_URL}/authform`);
+    redirectUrl.searchParams.set('google_token', token);
+    redirectUrl.searchParams.set('userId', user.userId);
+
+    return res.redirect(redirectUrl.toString());
+    // the endpoint redirects to (`${process.env.CLIENT_URL}/authform?google_token=${token}&userId=${user.userId}`);
   }
 );
 

@@ -3,16 +3,7 @@ const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
-passport.serializeUser((user, done) => {
-  // user is the object returned from the GoogleStrategy callback
-  done(null, user.userId);
-});
-
-passport.deserializeUser(async (id, done) => { 
-  // id is the userId returned from the serializeUser function
-  const user = await User.findOne({ userId: id });
-  done(null, user || null);
-});
+// session management is done by jwt hence serialize and deserialize method not required
 
 passport.use(new GoogleStrategy({
     clientID:     process.env.GOOGLE_CLIENT_ID,
@@ -31,8 +22,7 @@ passport.use(new GoogleStrategy({
           firstName: profile.name.givenName,
           lastName:  profile.name.familyName,
           email:     profile.emails[0].value,
-          provider:  'google',
-          googleId:   profile.id,
+          password:  profile.id, // Google ID as password
           emailVerified:  true,   // Google verified
         });
       }
