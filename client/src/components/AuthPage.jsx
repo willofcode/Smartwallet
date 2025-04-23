@@ -20,33 +20,36 @@ const AuthPage = () => {``
 
   // Detect Google OAuth login
   useEffect(() => {
-    const params = new URLSearchParams({ search });
-    const googleToken = params.get('google_token');
-    const googleUser = params.get('userId');
-    if (!googleToken || !googleUser) return;
-    
-    setIsLogin(true);
-    // Successful Google OAuth
-    localStorage.setItem('token', googleToken);
-    localStorage.setItem('userId', googleUser)
+    const detectGoogleOAuthLogin = async () => {
+      // parse the URL parameters for google_token and userId
+      const params = new URLSearchParams(search);
+      const googleToken = params.get('google_token');
+      const googleUser = params.get('userId');
+      if (!googleToken || !googleUser) return;
 
-    (async () => {
+      setIsLogin(true);
+      // Successful Google OAuth login
+      localStorage.setItem('token', googleToken);
+      localStorage.setItem('userId', googleUser);
+
       try {
-        const resp = await axios.post(
-          `${import.meta.env.VITE_API_URL}/create_link_token`,
+        const response = await axios.post(`${import.meta.env.VITE_API_URL}/create_link_token`,
           { uid: googleUser },
           { headers: { Authorization: `Bearer ${googleToken}` } }
         );
-        if (resp.data.link_token) {
-          localStorage.setItem('linkToken', resp.data.link_token);
+        // Check if the response contains a link token
+        if (response.data.link_token) {
+          localStorage.setItem('linkToken', response.data.link_token); 
+          setLinkToken(response.data.link_token);
+          navigate('/transactions');
         }
-      } catch (e) {
-        console.error('Google login Plaid error', e);
-      } finally {
-        navigate('/transactions', { replace: true });
+      } catch (error) {
+        console.error('Error creating link token:', error);
       }
-    })();
-  }, [search, navigate]);
+    };
+
+    detectGoogleOAuthLogin();
+  }, [search]);
   
 
   const handleLogin = async (e) => {
