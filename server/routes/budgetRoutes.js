@@ -120,8 +120,6 @@ router.delete('/delete_budget/:name', async(req, res) =>{
 
 // I can try to add a post expense and update expense endpoint
 // this was the user can add how much money they've spent directly.
-// I have no idea how I'd attach it to plaid in order to use it such that we can automatically categorize 
-// data from the API.
 router.post('/add_expense', async (req, res) => {
     try {
         
