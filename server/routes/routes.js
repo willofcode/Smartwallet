@@ -125,31 +125,41 @@ router.post("/login", async (req, res) => {
   }
 });
 
-// email verification endpoint tested but its a get method
-// replace email_token with actual token to test
-// CLIENT_URL is set to the front-end URL
+// email verification endpoint
 router.get("/verify-email", async (req, res) => {
-  const { token } = req.query;
-  if (!token) {
-    return res.status(400).send({ message: "Token is required" });
+  const { email_token } = req.query;
+  if (!email_token) {
+    return res
+      .status(400) // redirect to client URL if token is missing
+      .redirect(`${process.env.CLIENT_URL}/verify-email?status=invalid`);
   }
 
-  const user = await User.findOne({
-    emailVerifyToken: token,
-    emailVerifyExpires: { $gt: Date.now() }
-  });
+  try {
+    const user = await User.findOne({
+      emailVerifyToken:   email_token,
+      emailVerifyExpires: { $gt: Date.now() }
+    });
 
-  if (!user) {
-    return res.status(400).send({ message: "Invalid or expired token" });
+    if (!user) {
+      return res // redirect to client URL if token is invalid or expired
+        .status(400)
+        .redirect(`${process.env.CLIENT_URL}/verify-email?status=invalid`);
+    }
+
+    user.emailVerified = true;
+    user.emailVerifyToken = undefined;
+    user.emailVerifyExpires = undefined;
+    await user.save();
+
+    return res // redirect to client URL on success
+      .status(200)
+      .redirect(`${process.env.CLIENT_URL}/verify-email?status=success`); 
+  } catch (err) {
+    console.error(err);
+    return res // redirect to client URL on error
+      .status(500)
+      .redirect(`${process.env.CLIENT_URL}/verify-email?status=error`);
   }
-
-  user.emailVerified = true; // 
-  user.emailVerifyToken = undefined; //
-  user.emailVerifyExpires = undefined;
-  await user.save();
-
-  // on success, redirect to front‑end login
-  return res.status(200).redirect(`${process.env.CLIENT_URL}/authform`);
 });
 
 
