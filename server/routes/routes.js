@@ -6,8 +6,9 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const authMiddleware = require("../middleware/authMiddleware");
 const emailValidator = require('email-validator');
-const nodemailer      = require('nodemailer');
-const crypto          = require('crypto');
+const nodemailer = require('nodemailer');
+const crypto = require('crypto');
+const passport = require('passport');
 const SECRET_KEY = process.env.JWT_SECRET_KEY
 
 // stole this from plaid quickstart
@@ -198,6 +199,23 @@ router.get('/getUser/:id',  async (req, res) => {
 
 router.post('/logout',  (req, res) => {
   res.send({ messeage: "Logout successful" });
+});
+/*    ********        GOOGLE OAUTH ENDPOINTS        *******       */
+
+router.get('/auth/google', 
+  passport.authenticate('google', { scope: ['profile','email'] })
+);
+
+router.get('/auth/google/callback',
+  passport.authenticate('google', { failureRedirect: '/auth/google/failure' }),
+  (req, res) => {
+    const { token } = req.user;
+    res.redirect(`${process.env.CLIENT_URL}/authform?google_token=${token}`);
+  }
+);
+
+router.get('/auth/google/failure', (req, res) => {
+  res.redirect(`${process.env.CLIENT_URL}/authform?error=google_fail`);
 });
 
 /*    ********        ********        *******       */
