@@ -8,12 +8,14 @@ import Sidebar from "./components/sideBar";
 import BudgetingOverview from "./components/BudgetingOverview";
 import BudgetingPlanning from "./components/BudgetingPlanning";
 import WalletPage from "./components/WalletPage";
+import VerifyEmailPage from "./components/VerifyEmailPage";
 
 function App() {
     return (
         <Router>
                     <Routes>
                         <Route path="/" element={<LandingPage />} />
+                        <Route path="/verifyEmail" element={<VerifyEmailPage />} />
                         <Route path="/dashboard" element={<Dashboard />} />
                         <Route path="/authform" element={<AuthPage />} />
                         <Route path="/transactions" element={<TransactionsPage />} />

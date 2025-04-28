@@ -50,7 +50,7 @@ router.get('/get_all_budgets', authMiddleware, async(req, res) => {
 
     }catch(error){
         console.error("Error details:", error);
-        res.status(500).json({ message: "Cannot GET all budgets", error: error.message});
+        res.status(500).json({ message: "CAN'T GET ALL: ", error: error.message});
     }
 });
 
@@ -63,7 +63,7 @@ router.get('/get_budget/:name', async(req, res) => {
   
     } catch(error){
         console.error(error);
-        res.status(500).json({ message: "Cannot GET by name", error});
+        res.status(500).json({ message: "CAN'T GET/:name :", error});
     }
 });
 
@@ -93,11 +93,12 @@ router.patch('/update_budget/:name', async(req,res) => {
 
     } catch(error) {
         console.error(error);
-        res.status(500).json({ message: "Update Budget", error })
+        res.status(500).json({ message: "CAN'T UPDATE: ", error });
     }
 
 });
 
+//200
 router.delete('/delete_budget/:name', async(req, res) =>{
     try{
         const budgetName = req.params.name;
@@ -113,6 +114,17 @@ router.delete('/delete_budget/:name', async(req, res) =>{
 
     } catch(error){
         console.error(error);
+        res.status(500).json({ message: "CAN'T DELETE: ", error });
+    }
+});
+
+// I can try to add a post expense and update expense endpoint
+// this was the user can add how much money they've spent directly.
+router.post('/add_expense', async (req, res) => {
+    try {
+        
+    } catch(error){
+
     }
 });
 
