@@ -1,10 +1,15 @@
 const express = require('express');
 const router = express.Router();
 const User = require("../models/User"); 
+const Transaction = require('../models/transactionSchema');
 const { plaidClient, Products } = require('../config/plaidConfig');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const authMiddleware = require("../middleware/authMiddleware");
+const emailValidator = require('email-validator');
+const nodemailer = require('nodemailer');
+const crypto = require('crypto');
+const passport = require('passport');
 const SECRET_KEY = process.env.JWT_SECRET_KEY
 
 // stole this from plaid quickstart
@@ -16,6 +21,19 @@ const PLAID_COUNTRY_CODES = (process.env.PLAID_COUNTRY_CODES || 'US').split(
   ',',
 );
 
+// nodemailer transporter
+// (SMTP settings)
+const transporter = nodemailer.createTransport({
+  host: "smtp.gmail.com",
+  port: 465,                    // Secure SMTP
+  secure: true,                 // true for port 465, false for 587
+  auth: {
+    user: process.env.GMAIL_USER,
+    pass: process.env.GMAIL_PASS,
+  },
+});
+
+
 /*    ********        AUTH ENDPOINTS        *******       */
 
 //200
@@ -25,9 +43,13 @@ router.post("/signup", async (req, res) => {
         email, 
         password 
       } = req.body;
+    
+  // Validate email
+  if (!emailValidator.validate(email)) {
+    return res.status(400).send({ message: "Invalid email format" });
+  }
 
     try {
-
       const existingUser = await User.findOne({ email });
       if (existingUser) {
         return res.status(400).send({ message: "User exists" });
@@ -37,10 +59,30 @@ router.post("/signup", async (req, res) => {
       const salt = await bcrypt.genSalt(10);
       const hashedPassword = await bcrypt.hash(password, salt);
 
-      let newUser = new User({ firstName, lastName, email, password: hashedPassword });
+      const email_token = crypto.randomBytes(32).toString("hex"); // generate a random token
+      // Set expiration time for the token (24 hours)
+      const expires = Date.now() + 1000 * 60 * 60 * 24;
+
+      let newUser = new User({ firstName, lastName, email, password: hashedPassword, emailVerifyToken: email_token,
+        emailVerifyExpires: expires });
       const user = await newUser.save();
 
       const token = jwt.sign({ userId: user.userId }, SECRET_KEY, {expiresIn: "3h" });
+
+      const verifyEmail = `${process.env.BASE_URL}/api/verify_email?email_token=${email_token}`;
+      
+      // Send verification email
+      await transporter.sendMail({
+        from: `"SmartWallet" <${process.env.GMAIL_USER}>`,
+        to:   user.email,
+        subject: "Verify your email",
+        html: ` 
+          <h1>Welcome to SmartWallet, ${firstName}!</h1>
+          <p>Thank you for signing up. Please verify your email address to complete your registration.</p>
+          <p>If you did not create an account, please ignore this email.</p>
+          <p>Click <a href="${verifyEmail}">here</a> to verify.</p>
+          `,
+      });
 
       console.log("User created with ID:", user.userId);
       res.status(200).send({ message: `User created with ID: ${user.userId}`, userId: user.userId, token });
@@ -55,6 +97,10 @@ router.post("/login", async (req, res) => {
         email, 
         password 
       } = req.body;
+
+  if (!emailValidator.validate(email)) {
+    return res.status(400).send({ message: "Invalid email format" });
+  }
 
   try {
     const user = await User.findOne({ email });
@@ -79,6 +125,43 @@ router.post("/login", async (req, res) => {
   } catch (error) {
     console.error('Error during login:', error);
     res.status(500).send({ message: `Error during login: ${error.message}` });
+  }
+});
+
+// email verification endpoint
+router.get("/verify_email", async (req, res) => {
+  const { email_token } = req.query;
+  if (!email_token) {
+    return res
+      .status(400) // redirect to client URL if token is missing
+      .redirect(`${process.env.CLIENT_URL}/verify_email?status=invalid`);
+  }
+
+  try {
+    const user = await User.findOne({
+      emailVerifyToken:   email_token,
+      emailVerifyExpires: { $gt: Date.now() }
+    });
+
+    if (!user) {
+      return res // redirect to client URL if token is invalid or expired
+        .status(400)
+        .redirect(`${process.env.CLIENT_URL}/verify_email?status=invalid`);
+    }
+
+    user.emailVerified = true;
+    user.emailVerifyToken = undefined;
+    user.emailVerifyExpires = undefined;
+    await user.save();
+
+    return res // redirect to client URL on success
+      .status(200)
+      .redirect(`${process.env.CLIENT_URL}/verify_email?status=success`); 
+  } catch (err) {
+    console.error(err);
+    return res // redirect to client URL on error
+      .status(500)
+      .redirect(`${process.env.CLIENT_URL}/verify_email?status=error`);
   }
 });
 
@@ -118,6 +201,35 @@ router.get('/getUser/:id',  async (req, res) => {
 
 router.post('/logout',  (req, res) => {
   res.send({ messeage: "Logout successful" });
+});
+
+/*    ********        ********        *******       */
+
+
+/*    ********        GOOGLE OAUTH ENDPOINTS        *******       */
+
+// 200 success
+router.get('/auth/google', 
+  passport.authenticate('google', { scope: ['profile','email'], session: false })
+);
+
+router.get('/auth/google/callback',
+  passport.authenticate('google', { failureRedirect: '/auth/google/failure', session: false }),
+  (req, res) => { const { user, token } = req.user;
+    console.log("Google OAuth successful for user ID:", user.userId);
+    console.log("Google OAuth token:", token);
+    // Redirect back into your React app with both token + userId
+    const redirectUrl = new URL(`${process.env.CLIENT_URL}/authform`);
+    redirectUrl.searchParams.set('google_token', token);
+    redirectUrl.searchParams.set('userId', user.userId);
+
+    return res.redirect(redirectUrl.toString());
+    // the endpoint redirects to (`${process.env.CLIENT_URL}/authform?google_token=${token}&userId=${user.userId}`);
+  }
+);
+
+router.get('/auth/google/failure', (req, res) => {
+  res.redirect(`${process.env.CLIENT_URL}/authform?error=google_fail`);
 });
 
 /*    ********        ********        *******       */
@@ -181,18 +293,20 @@ router.post('/get_access_token', async (req, res) => {
 // 200 
 // works, client-side
 router.post('/get_transactions', async (req, res) => {
-  const { access_token } = req.body;
-
+  // modify this to use the access token from the database
   try {
-    let cursor = null;
-    let hasMore = true;
     let allTransactions = [];
+    let hasMore = true;
+    let cursor = null;
 
     while (hasMore) {
       const transactionResponse = await plaidClient.transactionsSync({
-        access_token,
+        access_token: req.body.access_token,
         cursor,
       });
+
+      // console.log(transactionResponse.data);
+      // console.log(transactionResponse.data.has_more);
 
       const { added, modified, removed, next_cursor } = transactionResponse.data;
       allTransactions = allTransactions.concat(added);
@@ -200,13 +314,31 @@ router.post('/get_transactions', async (req, res) => {
       hasMore = transactionResponse.data.has_more;
     }
 
-    const accountsResponse = await plaidClient.accountsGet({ access_token });
-    const accounts = accountsResponse.data.accounts;
+    // Save transactions to MongoDB
+    const transactionPromises = allTransactions.map(async (transaction) => {
+      // Check if the transaction already exists in the database
+      const newTransaction = new Transaction({
+        transactionId: transaction.transaction_id,
+        accountId: transaction.account_id,
+        amount: transaction.amount,
+        date: transaction.date,
+        description: transaction.name,
+        category: transaction.category,
+        merchantName: transaction.merchant_name,
+        pending: transaction.pending,
+      });
+      // Save the transaction to the database
+      await newTransaction.save().catch((err) => {
+        if (err.code !== 11000) { // Ignore duplicate key errors
+          console.error('Error saving transaction:', err);
+        }
+      });
+    });
 
-    console.log("Transactions fetched:", allTransactions);
-    console.log("Accounts fetched:", accounts);
+    await Promise.all(transactionPromises); // Wait for all transactions to be saved
 
-    res.json({ transactions: allTransactions, accounts });
+    console.log("Transactions fetched and saved:", allTransactions);
+    res.json({ transactions: allTransactions });
   } catch (error) {
     console.error('Error fetching transactions:', error.response ? error.response.data : error.message);
     res.status(500).json({ error: "Can't Get Transaction history" });
