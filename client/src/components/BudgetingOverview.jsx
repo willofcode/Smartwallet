@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useEffect, useState } from 'react';
@@ -101,31 +100,39 @@ const BudgetingOverview = () => {
       <div className="flex-grow overflow-y-auto p-8">
 
         {/* our summary for the budget */}
-        <div className="bg-[#2C325C] p-6 rounded-2xl shadow-md w-full mb-6">
-          <div className="flex items-center gap-2 mb-2">
-            <span className="inline-block w-2 h-2 rounded-full bg-purple-500" />
-            <h2 className="text-sm md:text-base text-gray-200">
+        <div className="bg-[#2C325C] p-8 rounded-2xl shadow-md w-full mb-8">
+          <div className="flex items-center gap-3 mb-4">
+            <span className="inline-block w-3 h-5 rounded-full bg-purple-500" />
+            <h2 className="text-base md:text-lg font-medium text-gray-200">
               Left to spend in the next 22 days
             </h2>
           </div>
-          <p className="text-3xl font-bold text-white">
-            ${leftToSpend.toFixed(2)}
-          </p>
-          <div className="relative w-full bg-gray-600 h-2 rounded-full mt-3">
-            <div
-              className="absolute top-0 left-0 h-2 bg-purple-500 rounded-full"
-              style={{ width: `${(leftToSpend / 4000) * 100}%` }}
-            />
+
+          {/* everything below is indented the same 24 px as the dot+gap */}
+          <div className="pl-6">
+            <p className="text-5xl md:text-6xl font-extrabold text-white mb-6 tracking-tight">
+              ${leftToSpend.toFixed(2)}
+            </p>
           </div>
-          <div className="flex justify-between text-xs text-gray-400 mt-2">
-            <span>$0</span>
-            <span>$4,000</span>
+
+          {/* progress bar & scale aligned under purple dot */}
+          <div>
+            <div className="relative w-full bg-gray-500/60 h-5 rounded-full">
+              <div
+                className="absolute top-0 left-0 h-5 bg-purple-500 rounded-full"
+                style={{ width: `${(leftToSpend / 4000) * 100}%` }}
+              />
+            </div>
+            <div className="flex justify-between text-sm text-gray-400 mt-3">
+              <span>$0</span>
+              <span>$4,000</span>
+            </div>
           </div>
         </div>
   
         {/* all budget plans  */}
         <div className="bg-[#2C325C] p-6 rounded-2xl shadow-md w-full">
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center justify-between mb-6">
             <h2 className="text-sm md:text-base text-gray-100 font-semibold">
               Total Planned Expenses
             </h2>
@@ -137,11 +144,11 @@ const BudgetingOverview = () => {
         </div>
 
           {/* category drop down */}
-          <div className="mb-4">
+          <div className="mb-6">
             <select
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="px-3 py-2 rounded-md bg-[#1B203F] border border-gray-600 w-full sm:w-60"
+              className="px-4 py-3 rounded-md bg-[#1B203F] border border-gray-600 w-full sm:w-60"
             >
               <option value="">All Categories</option>
               {Array.from(new Set(budgetData.map(bgt => bgt.category))).map((category, idx) => (
@@ -152,7 +159,7 @@ const BudgetingOverview = () => {
             </select>
           </div>
 
-          <p className="text-3xl font-bold text-white mb-6">
+          <p className="text-3xl font-bold text-white mb-8">
             ${totalPlanned.toFixed(2)}
           </p>
   
@@ -172,12 +179,12 @@ const BudgetingOverview = () => {
               const isUnderBudget = leftover >= 0;
   
               return (
-                <div key={budgetObj._id || idx} className="mb-6">
+                <div key={budgetObj._id || idx} className="mb-8">
                   <h3 className="text-sm font-semibold text-white">{budgetObj.name}</h3>
                   <p className="text-xs text-gray-400">Category: {budgetObj.category}</p>
-                  <div className="relative w-full bg-gray-600 h-2 rounded-full mt-2">
+                  <div className="relative w-full bg-gray-600 h-5 rounded-full mt-2">
                     <div
-                      className={`absolute top-0 left-0 h-2 ${
+                      className={`absolute top-0 left-0 h-5 ${
                         isUnderBudget ? "bg-purple-500" : "bg-red-500"
                       } rounded-full`}
                       style={{ width: `${usagePercent}%` }}

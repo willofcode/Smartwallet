@@ -48,16 +48,13 @@ const WalletPage = () => {
     },
   ]);
 
-  // State for the selected card (index in the full array)
   const [selectedCardIndex, setSelectedCardIndex] = useState(0);
-  // State for carousel: the index of the first card in the visible slide (2 at a time)
   const [currentSlide, setCurrentSlide] = useState(0);
-  // Whether we are in manage mode (list view) or normal (carousel) mode
+
   const [isManaging, setIsManaging] = useState(false);
-  // Whether we are adding a new card in manage mode
   const [isAddingCard, setIsAddingCard] = useState(false);
 
-  // New card details state
+  // New-card form state
   const [newCardName, setNewCardName] = useState('');
   const [newCardType, setNewCardType] = useState('');
   const [newCardBalance, setNewCardBalance] = useState('');
@@ -66,53 +63,35 @@ const WalletPage = () => {
   const [newCardValidUntil, setNewCardValidUntil] = useState('');
   const [newCardBgColor, setNewCardBgColor] = useState('bg-yellow-600');
 
-  // Handle card selection in normal (carousel) mode
-  const handleSelectCard = (index) => {
-    setSelectedCardIndex(index);
-  };
-
-  // Carousel navigation
+  /* ---------- carousel helpers ---------- */
   const handleNextSlide = () => {
-    if (currentSlide + 2 < cards.length) {
-      setCurrentSlide(currentSlide + 2);
-    }
+    if (currentSlide + 2 < cards.length) setCurrentSlide(currentSlide + 2);
   };
-
   const handlePrevSlide = () => {
-    if (currentSlide - 2 >= 0) {
-      setCurrentSlide(currentSlide - 2);
-    }
+    if (currentSlide - 2 >= 0) setCurrentSlide(currentSlide - 2);
   };
-
-  // Get the 2 cards that should be visible in the carousel
   const visibleCards = cards.slice(currentSlide, currentSlide + 2);
 
-  // Manage Mode: Remove a card
+  /* ---------- manage helpers ---------- */
   const handleRemoveCard = (id) => {
-    setCards(cards.filter((card) => card.id !== id));
-    // Adjust selected card if needed
-    if (selectedCardIndex >= cards.length - 1) {
-      setSelectedCardIndex(0);
-    }
+    const updated = cards.filter((c) => c.id !== id);
+    setCards(updated);
+    if (selectedCardIndex >= updated.length) setSelectedCardIndex(0);
   };
-
-  // Manage Mode: Submit new card form
   const handleSubmitNewCard = (e) => {
     e.preventDefault();
-    const newId = Date.now(); // using timestamp as unique ID
     const newCard = {
-      id: newId,
+      id: Date.now(),
       type: newCardType || 'Visa',
       balance: parseFloat(newCardBalance) || 0,
       last4: newCardLast4 || '0000',
       validUntil: newCardValidUntil || '12/30',
       cardName: newCardName || 'New Card',
-      // Always store the CVV as entered, but display as "***"
       cvv: newCardCVV || '***',
       bgColor: newCardBgColor,
     };
     setCards([...cards, newCard]);
-    // Clear the form fields and exit add card mode
+    setIsAddingCard(false);
     setNewCardName('');
     setNewCardType('');
     setNewCardBalance('');
@@ -120,23 +99,21 @@ const WalletPage = () => {
     setNewCardCVV('');
     setNewCardValidUntil('');
     setNewCardBgColor('bg-yellow-600');
-    setIsAddingCard(false);
   };
 
   return (
     <div className="flex h-screen bg-[#1B203F] text-white font-[Poppins]">
-      {/* Sidebar */}
       <Sidebar />
 
-      {/* Main Content */}
-      <div className="flex-grow overflow-y-auto p-8">
-        {/* Header Row */}
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-bold">Your Cards</h1>
+      {/* main column */}
+      <div className="flex-grow overflow-y-auto p-8 flex flex-col">
+        {/* header row */}
+        <div className="flex items-center justify-between mb-8">
+          <h1 className="text-3xl font-bold">Your Cards</h1>
           {!isManaging ? (
             <button
               onClick={() => setIsManaging(true)}
-              className="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded-md"
+              className="bg-purple-600 hover:bg-purple-700 px-5 py-2 rounded-md"
             >
               Manage Cards
             </button>
@@ -146,84 +123,98 @@ const WalletPage = () => {
                 setIsManaging(false);
                 setIsAddingCard(false);
               }}
-              className="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded-md"
+              className="bg-purple-600 hover:bg-purple-700 px-5 py-2 rounded-md"
             >
               Back
             </button>
           )}
         </div>
 
-        {/* NORMAL (CAROUSEL) MODE */}
+        {/* ---------- NORMAL (CAROUSEL) MODE ---------- */}
         {!isManaging && (
           <>
-            {/* Carousel Navigation */}
-            <div className="flex justify-between items-center mb-4">
+            <div className="flex justify-between items-center mb-6">
               <button
                 onClick={handlePrevSlide}
                 disabled={currentSlide === 0}
-                className="bg-gray-700 hover:bg-gray-600 px-3 py-2 rounded-md disabled:opacity-50"
+                className="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded-md disabled:opacity-40"
               >
                 &lt; Prev
               </button>
               <button
                 onClick={handleNextSlide}
                 disabled={currentSlide + 2 >= cards.length}
-                className="bg-gray-700 hover:bg-gray-600 px-3 py-2 rounded-md disabled:opacity-50"
+                className="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded-md disabled:opacity-40"
               >
                 Next &gt;
               </button>
             </div>
 
-            {/* Cards Carousel */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-              {visibleCards.map((card, idx) => {
-                const originalIndex = currentSlide + idx;
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+              {visibleCards.map((card, i) => {
+                const originalIndex = currentSlide + i;
                 return (
                   <div
                     key={card.id}
-                    onClick={() => handleSelectCard(originalIndex)}
-                    className={`cursor-pointer p-6 rounded-2xl shadow-md relative text-white ${card.bgColor} ${
+                    onClick={() => setSelectedCardIndex(originalIndex)}
+                    className={`cursor-pointer p-8 rounded-3xl shadow-lg text-white transition-transform min-h-[300px] flex flex-col justify-between ${card.bgColor} ${
                       originalIndex === selectedCardIndex
-                        ? 'border-4 border-white'
+                        ? 'outline outline-4 outline-white scale-[1.02]'
                         : ''
                     }`}
                   >
-                    <h2 className="text-lg font-semibold">Card Balance</h2>
-                    <p className="text-3xl font-bold mt-2">
-                      ${card.balance.toLocaleString()}
-                    </p>
-                    <p className="mt-4 text-sm">{card.type}</p>
-                    <p className="text-sm">**** {card.last4}</p>
-                    <p className="text-sm mt-2">Valid until {card.validUntil}</p>
+                    <div>
+                      <h2 className="text-2xl font-medium">Card Balance</h2>
+                      <p className="text-5xl font-extrabold mt-4">
+                        ${card.balance.toLocaleString()}
+                      </p>
+                    </div>
+
+                    <div className="flex justify-between items-end text-lg font-semibold tracking-widest mt-6">
+                      <div>
+                        <p className="text-sm opacity-80">{card.type}</p>
+                        <p>**** {card.last4}</p>
+                      </div>
+                      <p className="text-sm opacity-90">{card.validUntil}</p>
+                    </div>
                   </div>
                 );
               })}
             </div>
 
-            {/* Card Information Section */}
+            {/* ---------- CARD INFORMATION (fills remaining) ---------- */}
             {cards[selectedCardIndex] && (
-              <div className="bg-[#2C325C] p-6 rounded-2xl shadow-md">
-                <h3 className="text-xl font-semibold mb-4">Card Information</h3>
-                <div className="grid grid-cols-2 gap-8">
-                  <div>
-                    <p className="text-gray-300 text-sm">Card Name</p>
-                    <p className="text-xl font-semibold">
+              <div className="bg-[#2C325C] p-12 rounded-3xl shadow-md flex-1 min-h-[340px]">
+                <h3 className="text-4xl font-bold mb-12">Card Information</h3>
+
+                {/* 2 × 2 grid pinned to corners */}
+                <div className="grid grid-rows-2 grid-cols-2 h-full gap-y-16">
+                  {/* top-left */}
+                  <div className="flex flex-col">
+                    <p className="text-gray-300 text-xl">Card Name</p>
+                    <p className="text-2xl font-bold">
                       {cards[selectedCardIndex].cardName}
                     </p>
                   </div>
-                  <div>
-                    <p className="text-gray-300 text-sm">Card No</p>
-                    <p className="text-xl font-semibold">
+
+                  {/* top-right */}
+                  <div className="flex flex-col items-end text-right">
+                    <p className="text-gray-300 text-xl">Card No.</p>
+                    <p className="text-2xl font-bold">
                       **** {cards[selectedCardIndex].last4}
                     </p>
                   </div>
-                  <div>
-                    <p className="text-gray-300 text-sm">CVV</p>
-                    <p className="text-xl font-semibold">***</p>
+
+                  {/* bottom-left */}
+                  <div className="flex flex-col">
+                    <p className="text-gray-300 text-xl">CVV</p>
+                    <p className="text-2xl font-bold">***</p>
                   </div>
-                  <div>
-                    <p className="text-gray-300 text-sm">Valid until</p>
-                    <p className="text-xl font-semibold">
+
+                  {/* bottom-right */}
+                  <div className="flex flex-col items-end text-right">
+                    <p className="text-gray-300 text-xl">Valid until</p>
+                    <p className="text-2xl font-bold">
                       {cards[selectedCardIndex].validUntil}
                     </p>
                   </div>
@@ -233,20 +224,20 @@ const WalletPage = () => {
           </>
         )}
 
-        {/* MANAGE MODE */}
+        {/* ---------- MANAGE MODE ---------- */}
         {isManaging && (
           <div className="bg-[#2C325C] p-6 rounded-2xl shadow-md">
-            <h3 className="text-xl font-semibold mb-4">Manage Cards</h3>
-            <ul className="space-y-3">
+            <h3 className="text-2xl font-semibold mb-6">Manage Cards</h3>
+            <ul className="space-y-4">
               {cards.map((card) => (
                 <li
                   key={card.id}
-                  className="flex justify-between items-center bg-[#1B203F] px-4 py-3 rounded-md"
+                  className="flex justify-between items-center bg-[#1B203F] px-6 py-4 rounded-md"
                 >
                   <span>{card.cardName}</span>
                   <button
                     onClick={() => handleRemoveCard(card.id)}
-                    className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-md"
+                    className="bg-red-600 hover:bg-red-700 px-4 py-1 rounded-md"
                   >
                     Remove
                   </button>
@@ -254,76 +245,59 @@ const WalletPage = () => {
               ))}
             </ul>
 
-            {/* New Card Form */}
             {isAddingCard ? (
-              <div className="bg-[#1B203F] p-4 rounded-md mt-6">
-                <h4 className="text-lg font-semibold mb-2">Add New Card</h4>
-                <form onSubmit={handleSubmitNewCard} className="space-y-3">
-                  <div>
-                    <label className="block text-sm mb-1">Card Name</label>
-                    <input
-                      type="text"
-                      value={newCardName}
-                      onChange={(e) => setNewCardName(e.target.value)}
-                      className="w-full px-3 py-2 rounded-md bg-[#2C325C] border border-gray-600"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm mb-1">Card Type</label>
-                    <input
-                      type="text"
-                      value={newCardType}
-                      onChange={(e) => setNewCardType(e.target.value)}
-                      className="w-full px-3 py-2 rounded-md bg-[#2C325C] border border-gray-600"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm mb-1">Balance</label>
-                    <input
-                      type="number"
-                      value={newCardBalance}
-                      onChange={(e) => setNewCardBalance(e.target.value)}
-                      className="w-full px-3 py-2 rounded-md bg-[#2C325C] border border-gray-600"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm mb-1">Last 4 Digits</label>
-                    <input
-                      type="text"
-                      value={newCardLast4}
-                      onChange={(e) => setNewCardLast4(e.target.value)}
-                      className="w-full px-3 py-2 rounded-md bg-[#2C325C] border border-gray-600"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm mb-1">CVV</label>
-                    <input
-                      type="text"
-                      value={newCardCVV}
-                      onChange={(e) => setNewCardCVV(e.target.value)}
-                      className="w-full px-3 py-2 rounded-md bg-[#2C325C] border border-gray-600"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm mb-1">Valid Until</label>
-                    <input
-                      type="text"
-                      value={newCardValidUntil}
-                      onChange={(e) => setNewCardValidUntil(e.target.value)}
-                      className="w-full px-3 py-2 rounded-md bg-[#2C325C] border border-gray-600"
-                    />
-                  </div>
-                  <div className="flex gap-4">
+              <div className="bg-[#1B203F] p-6 rounded-md mt-8">
+                <h4 className="text-xl font-semibold mb-4">Add New Card</h4>
+                <form onSubmit={handleSubmitNewCard} className="grid sm:grid-cols-2 gap-4">
+                  <input
+                    placeholder="Card Name"
+                    value={newCardName}
+                    onChange={(e) => setNewCardName(e.target.value)}
+                    className="px-3 py-2 rounded-md bg-[#2C325C] border border-gray-600"
+                  />
+                  <input
+                    placeholder="Card Type"
+                    value={newCardType}
+                    onChange={(e) => setNewCardType(e.target.value)}
+                    className="px-3 py-2 rounded-md bg-[#2C325C] border border-gray-600"
+                  />
+                  <input
+                    type="number"
+                    placeholder="Balance"
+                    value={newCardBalance}
+                    onChange={(e) => setNewCardBalance(e.target.value)}
+                    className="px-3 py-2 rounded-md bg-[#2C325C] border border-gray-600"
+                  />
+                  <input
+                    placeholder="Last 4 Digits"
+                    value={newCardLast4}
+                    onChange={(e) => setNewCardLast4(e.target.value)}
+                    className="px-3 py-2 rounded-md bg-[#2C325C] border border-gray-600"
+                  />
+                  <input
+                    placeholder="CVV"
+                    value={newCardCVV}
+                    onChange={(e) => setNewCardCVV(e.target.value)}
+                    className="px-3 py-2 rounded-md bg-[#2C325C] border border-gray-600"
+                  />
+                  <input
+                    placeholder="Valid Until"
+                    value={newCardValidUntil}
+                    onChange={(e) => setNewCardValidUntil(e.target.value)}
+                    className="px-3 py-2 rounded-md bg-[#2C325C] border border-gray-600"
+                  />
+
+                  <div className="sm:col-span-2 flex gap-4 mt-4">
                     <button
                       type="submit"
-                      className="bg-green-600 hover:bg-green-700 px-4 py-2 rounded-md"
+                      className="bg-green-600 hover:bg-green-700 px-6 py-2 rounded-md"
                     >
-                      Save Card
+                      Save
                     </button>
                     <button
                       type="button"
                       onClick={() => setIsAddingCard(false)}
-                      className="bg-gray-600 hover:bg-gray-700 px-4 py-2 rounded-md"
+                      className="bg-gray-600 hover:bg-gray-700 px-6 py-2 rounded-md"
                     >
                       Cancel
                     </button>
@@ -333,7 +307,7 @@ const WalletPage = () => {
             ) : (
               <button
                 onClick={() => setIsAddingCard(true)}
-                className="mt-6 bg-green-600 hover:bg-green-700 px-4 py-2 rounded-md"
+                className="mt-8 bg-green-600 hover:bg-green-700 px-6 py-2 rounded-md"
               >
                 Add Card
               </button>
