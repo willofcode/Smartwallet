@@ -324,7 +324,7 @@ router.post('/get_transactions', async (req, res) => {
   }
 });
 
-// test endpoint
+// client side endpoint works
 router.post("/get_recurring_transactions", authMiddleware, async (req, res) => {
     const { access_token } = req.body;
 
@@ -350,32 +350,67 @@ router.post("/get_recurring_transactions", authMiddleware, async (req, res) => {
         hasMore = has_more;
       }
 
-      const groups = allTransactions.reduce((map, txn) => {
-        const merchant = txn.merchant_name || txn.name || "UNKNOWN";
-        const key = `${merchant}::${txn.amount.toFixed(2)}`;
+      const validTransaction = allTransactions.filter(
+        (transaction) =>
+          typeof transaction.amount === "number" &&
+          transaction.merchant_name &&
+          transaction.merchant_name.trim() !== ""
+      );
+
+      const groups = validTransaction.reduce((map, transaction) => {
+        const normMerchant = transaction.merchant_name.trim().toLowerCase();
+        const key = `${normMerchant}::${transaction.amount.toFixed(2)}`;
         if (!map[key]) map[key] = [];
-        map[key].push(txn);
+        map[key].push(transaction);
         return map;
       }, {});
 
-      // Filter transactions logic to only those with recurring transact→ recurring candidates
-      const recurring = Object.values(groups)
-        .filter(batch => batch.length > 1)
-        .map(batch => ({
-          merchant_name: batch[0].merchant_name || batch[0].name,
+      const recurring = Object.values(groups).filter((batch) => {
+        if (batch.length < 3) return false;
+
+        const dates = batch
+          .map((t) => new Date(t.date))
+          .sort((a, b) => a - b);
+
+        for (let i = 1; i < dates.length; i++) {
+          const prev = dates[i - 1], curr = dates[i];
+          const monthDiff =
+            (curr.getFullYear() - prev.getFullYear()) * 12 +
+            (curr.getMonth()    - prev.getMonth());
+          if (monthDiff !== 1) return false;
+        }
+        return true;
+      })
+      .map((batch) => {
+        // Build sorted dates desc
+        const dates = batch
+          .map((t) => t.date)
+          .sort(
+            (a, b) => new Date(b) - new Date(a)
+          );
+
+        return {
+          icon: batch[0].personal_finance_category_icon_url,
+          merchant_name: batch[0].merchant_name,
+          account_id: batch[0].account_id,
           amount: batch[0].amount,
           occurrences: batch.length,
-          dates: batch.map(t => t.date),
-        }));
+          last_date: dates[0],
+          dates,
+        };
+      });
 
-      return res.json({ recurring });
-    } catch (error) {
-      console.error("Error in fetching recurring transactions", error.response ? error.response.data : error.message);
-      return res
-        .status(500)
-        .json({ error: "Unable to fetch recurring transactions" });
-    }
+    return res.json({ recurring });
+  } catch (err) {
+    console.error(
+      "Error in /get_recurring_transactions:",
+      err.response?.data || err.message
+    );
+    return res
+      .status(500)
+      .json({ error: "Unable to fetch recurring transactions" });
   }
+}
 );
 
 /*    ********        ********        *******       */
