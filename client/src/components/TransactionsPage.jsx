@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { usePlaidLink } from 'react-plaid-link';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
@@ -19,78 +19,73 @@ const TransactionsPage = () => {
   const [endDate, setEndDate] = useState('');
   const navigate = useNavigate();
 
+  // check if user is logged in
   useEffect(() => {
-    const storedUserId = localStorage.getItem('userId');
-    const storedLinkToken = localStorage.getItem('linkToken');
-
-    if (storedUserId) {
-      setUserId(storedUserId);
-      if (storedLinkToken) {
-        setLinkToken(storedLinkToken);
-        setIsLinkReady(true);
-      } else {
-        generateLinkToken();
-      }
-    } else {
-      navigate('/');
-    }
+    const stored = localStorage.getItem('userId');
+    if (!stored) return navigate('/');
+    setUserId(stored);
+    // immediately fetch a fresh link token…
+    generateLinkToken(stored);
   }, [navigate]);
 
-  const generateLinkToken = async () => {
+  // check if link token is ready
+  const generateLinkToken = useCallback(async (uid) => {
+    setIsLoading(true);
     try {
-      setIsLoading(true);
-      const response = await axios.post(`${import.meta.env.VITE_API_URL}/create_link_token`, {
-        user_id: userId,
-      });
-      const { link_token } = response.data;
-      if (link_token) {
-        setLinkToken(link_token);
-        localStorage.setItem('linkToken', link_token);
-        setIsLinkReady(true);
-      } else {
-        setError('Failed to generate link token.');
-      }
+      const { data } = await axios.post(`${import.meta.env.VITE_API_URL}/create_link_token`,
+        { uid },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`
+          }
+        }                
+      );
+      setLinkToken(data.link_token);
+      setIsLinkReady(true);
     } catch (err) {
-      setError('Error generating link token.');
+      console.error('Failed to generate link token', err);
+      setError('Unable to initialize Plaid Link.');
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
+
+  // check if user is logged in
+  const onSuccess = useCallback(async (public_token) => {
+    setIsLoading(true);
+    try {
+      // exchange for an access token
+      const accessTokenResponse = await axios.post(`${import.meta.env.VITE_API_URL}/get_access_token`,
+        { public_token }
+      );
+      const accessToken = accessTokenResponse.data.access_token;
+      sessionStorage.setItem('accessToken', accessToken);
+
+      // fetch all transactions + accounts
+      const transactionsResponse  = await axios.post(`${import.meta.env.VITE_API_URL}/get_transactions`,
+        { access_token: accessToken }
+      );
+      
+      const { transactions, accounts } = transactionsResponse.data;
+      if (transactions && accounts) { 
+        const sortedTransactions = transactionsResponse .data.transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
+        setTransactions(sortedTransactions);
+        setAccounts(transactionsResponse .data.accounts);
+        setFiltered(sortedTransactions);
+      }
+    } catch {
+      setError('Error fetching transactions.');
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
 
   const { open, ready } = usePlaidLink({
     token: linkToken,
-    onSuccess: async (publicToken) => {
-      try {
-        setIsLoading(true);
-        const accessTokenResponse = await axios.post(`${import.meta.env.VITE_API_URL}/get_access_token`, {
-          public_token: publicToken,
-        });
-  
-        const { access_token } = accessTokenResponse.data;
-        if (access_token) {
-          sessionStorage.setItem('accessToken', access_token);
-  
-          const transactionsResponse = await axios.post(`${import.meta.env.VITE_API_URL}/get_transactions`, {
-            access_token,
-          });
-  
-          const { transactions, accounts } = transactionsResponse.data;
-          if (transactions && accounts) {
-            const sortedTransactions = transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
-            setTransactions(sortedTransactions);
-            setAccounts(accounts);
-            setFilteredTransactions(sortedTransactions);
-          } else {
-            setError('Failed to fetch transactions.');
-          }
-        } else {
-          setError('Failed to obtain access token.');
-        }
-      } catch (err) {
-        setError('Error fetching transactions.');
-      } finally {
-        setIsLoading(false);
-      }
+    onSuccess,
+    onError: (err) => {
+      console.error('Plaid Link error:', err);
+      setError('Plaid Link failed to open.');
     },
   });
   

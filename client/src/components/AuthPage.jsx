@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import axios from 'axios';
@@ -18,6 +18,12 @@ const AuthPage = () => {``
   const navigate = useNavigate();
   const { search } = useLocation();
 
+  // Set the default authorization header for axios
+  const setAuthHeader = useCallback((token) => {
+    axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+  }, []);
+
+
   // Detect Google OAuth login
   useEffect(() => {
     const detectGoogleOAuthLogin = async () => {
@@ -31,7 +37,7 @@ const AuthPage = () => {``
       // Successful Google OAuth login
       localStorage.setItem('token', googleToken);
       localStorage.setItem('userId', googleUser);
-
+      setAuthHeader(googleToken);
       try {
         const response = await axios.post(`${import.meta.env.VITE_API_URL}/create_link_token`,
           { uid: googleUser },
@@ -69,7 +75,7 @@ const AuthPage = () => {``
         setLoginPassword('');
         localStorage.setItem('token', data.token);
         localStorage.setItem('userId', data.userId);
-
+        setAuthHeader(data.token);
         await createLinkToken(data.userId);
 
         setError('');
@@ -82,7 +88,7 @@ const AuthPage = () => {``
         // Handle email verification required
         // Not verified yet
         setError(err.response.data.message);
-        return navigate('/verifyEmail');
+        return navigate('/verify-email');
       }
       setError('Something went wrong. Please try again.');
     }
@@ -107,11 +113,11 @@ const AuthPage = () => {``
         setSignupPassword('');
         localStorage.setItem('token', data.token);
         localStorage.setItem('userId', data.userId);
-
+        setAuthHeader(data.token);
         await createLinkToken(data.userId);
   
         setError('');
-        navigate('/verifyEmail'); 
+        navigate('/verify-email'); 
       } else {
         setError(data.message);
       }
