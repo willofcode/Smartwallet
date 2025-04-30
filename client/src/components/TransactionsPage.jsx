@@ -75,10 +75,15 @@ const TransactionsPage = () => {
           });
   
           const { transactions, accounts } = transactionsResponse.data;
+          /// I'm adding the logs for the api response, 
+          /// fetched transactions
+          /// and fetched accounts 
+          //. to see if we have no data on production
+          console.log(' raw api Response:', transactionsResponse.data);
           if (transactions && accounts) {
             const sortedTransactions = transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
-            console.log('Fetched transactions:', transactions);
-            console.log('Fetched accounts:', accounts);  
+            console.log('fetched transactions:', transactions);
+            console.log('fetched accounts:', accounts);  
             setTransactions(sortedTransactions);
             setAccounts(accounts);
             setFilteredTransactions(sortedTransactions);
@@ -163,8 +168,7 @@ const TransactionsPage = () => {
                   ) : (
                     <div className="mt-4 text-center text-red-600">Error creating link token. Please try again later.</div>
                   )}
-
-                  {/* transactions table */}
+  
                   <div className="transactions-list mt-8">
                     {filteredTransactions.length > 0 ? (
                       <div className="overflow-x-auto">
@@ -209,7 +213,7 @@ const TransactionsPage = () => {
         </div>
       </div>
     </div>
-  );
+  );  
 }  
 
 export default TransactionsPage;
