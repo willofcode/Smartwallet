@@ -17,7 +17,7 @@ function App() {
         <Router>
                     <Routes>
                         <Route path="/" element={<LandingPage />} />
-                        <Route path="/verifyEmail" element={<VerifyEmailPage />} />
+                        <Route path="/verify-email" element={<VerifyEmailPage />} />
                         <Route path="/dashboard" element={<Dashboard />} />
                         <Route path="/authform" element={<AuthPage />} />
                         <Route path="/transactions" element={<TransactionsPage />} />
