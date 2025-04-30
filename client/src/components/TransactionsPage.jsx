@@ -19,16 +19,14 @@ const TransactionsPage = () => {
   const [endDate, setEndDate] = useState('');
   const navigate = useNavigate();
 
-  // check if user is logged in
   useEffect(() => {
     const stored = localStorage.getItem('userId');
     if (!stored) return navigate('/');
     setUserId(stored);
-    // immediately fetch a fresh link token…
+    // immediately fetch a fresh link token
     generateLinkToken(stored);
   }, [navigate]);
 
-  // check if link token is ready
   const generateLinkToken = useCallback(async (uid) => {
     setIsLoading(true);
     try {
@@ -50,18 +48,16 @@ const TransactionsPage = () => {
     }
   }, []);
 
-  // check if user is logged in
+
   const onSuccess = useCallback(async (public_token) => {
     setIsLoading(true);
     try {
-      // exchange for an access token
       const accessTokenResponse = await axios.post(`${import.meta.env.VITE_API_URL}/get_access_token`,
         { public_token }
       );
       const accessToken = accessTokenResponse.data.access_token;
       sessionStorage.setItem('accessToken', accessToken);
 
-      // fetch all transactions + accounts
       const transactionsResponse  = await axios.post(`${import.meta.env.VITE_API_URL}/get_transactions`,
         { access_token: accessToken }
       );
