@@ -126,7 +126,7 @@ const BudgetingPlanning = () => {
       setNewBudget('');
       setViewMode("planning");
 
-      // error handling the catch
+      // error handling (the catch)
     } catch(error){
       console.error('Cannot POST new budget:', error);
       alert('Failed to POST budget. Check console for details.');
