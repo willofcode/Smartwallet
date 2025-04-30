@@ -118,7 +118,7 @@ const WalletPage = () => {
                     onClick={() => setSelectedCardIndex(originalIndex)}
                     className={`cursor-pointer p-8 rounded-3xl shadow-lg text-white transition-transform min-h-[300px] flex flex-col justify-between ${card.bgColor} ${
                       originalIndex === selectedCardIndex
-                        ? 'outline outline-4 outline-white scale-[1.02]'
+                        ? 'outline-4 outline-white scale-[1.02]'
                         : ''
                     }`}
                   >

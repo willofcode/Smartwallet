@@ -324,5 +324,59 @@ router.post('/get_transactions', async (req, res) => {
   }
 });
 
+// // test endpoint
+// router.post("/transactions/recurring/get", authMiddleware, async (req, res) => {
+//     const { access_token } = req.body;
+
+//     if (!access_token) {
+//       return res
+//         .status(400)
+//         .json({ error: "access_token is required in request body" });
+//     }
+
+//     try {
+//       let allTransactions = [];
+//       let hasMore = true;
+//       let cursor = null;
+
+//       while (hasMore) {
+//         const resp = await plaidClient.transactionsSync({
+//           access_token,
+//           cursor,
+//         });
+//         const { added, next_cursor, has_more } = resp.data;
+//         allTransactions = allTransactions.concat(added);
+//         cursor = next_cursor;
+//         hasMore = has_more;
+//       }
+
+//       const groups = allTransactions.reduce((map, txn) => {
+//         const merchant = txn.merchant_name || txn.name || "UNKNOWN";
+//         const key = `${merchant}::${txn.amount.toFixed(2)}`;
+//         if (!map[key]) map[key] = [];
+//         map[key].push(txn);
+//         return map;
+//       }, {});
+
+//       // Filter transactions logic to only those with recurring transact→ recurring candidates
+//       const recurring = Object.values(groups)
+//         .filter(batch => batch.length > 1)
+//         .map(batch => ({
+//           merchant_name: batch[0].merchant_name || batch[0].name,
+//           amount: batch[0].amount,
+//           occurrences: batch.length,
+//           dates: batch.map(t => t.date),
+//         }));
+
+//       return res.json({ recurring });
+//     } catch (err) {
+//       console.error("Error in /transactions/recurring/get", err);
+//       return res
+//         .status(500)
+//         .json({ error: "Unable to fetch recurring transactions" });
+//     }
+//   }
+// );
+
 /*    ********        ********        *******       */
 module.exports = router;
