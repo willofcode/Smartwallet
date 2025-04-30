@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const User = require("../models/User"); 
-const Transaction = require('../models/transactionSchema');
+// const Transaction = require("../models/transactionsSchema");
 const { plaidClient, Products } = require('../config/plaidConfig');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
@@ -69,7 +69,7 @@ router.post("/signup", async (req, res) => {
 
       const token = jwt.sign({ userId: user.userId }, SECRET_KEY, {expiresIn: "3h" });
 
-      const verifyEmail = `${process.env.BASE_URL}/api/verify_email?email_token=${email_token}`;
+      const verifyEmail = `${process.env.BASE_URL}/api/verify-email?email_token=${email_token}`;
       
       // Send verification email
       await transporter.sendMail({
@@ -129,12 +129,12 @@ router.post("/login", async (req, res) => {
 });
 
 // email verification endpoint
-router.get("/verify_email", async (req, res) => {
+router.get("/verify-email", async (req, res) => {
   const { email_token } = req.query;
   if (!email_token) {
     return res
       .status(400) // redirect to client URL if token is missing
-      .redirect(`${process.env.CLIENT_URL}/verify_email?status=invalid`);
+      .redirect(`${process.env.CLIENT_URL}/verify-email?status=invalid`);
   }
 
   try {
@@ -146,7 +146,7 @@ router.get("/verify_email", async (req, res) => {
     if (!user) {
       return res // redirect to client URL if token is invalid or expired
         .status(400)
-        .redirect(`${process.env.CLIENT_URL}/verify_email?status=invalid`);
+        .redirect(`${process.env.CLIENT_URL}/verify-email?status=invalid`);
     }
 
     user.emailVerified = true;
@@ -156,12 +156,12 @@ router.get("/verify_email", async (req, res) => {
 
     return res // redirect to client URL on success
       .status(200)
-      .redirect(`${process.env.CLIENT_URL}/verify_email?status=success`); 
+      .redirect(`${process.env.CLIENT_URL}/verify-email?status=success`); 
   } catch (err) {
     console.error(err);
     return res // redirect to client URL on error
       .status(500)
-      .redirect(`${process.env.CLIENT_URL}/verify_email?status=error`);
+      .redirect(`${process.env.CLIENT_URL}/verify-email?status=error`);
   }
 });
 
@@ -240,16 +240,13 @@ router.get('/auth/google/failure', (req, res) => {
 //200
 router.post("/create_link_token", authMiddleware, async (req, res) => {
   const { uid } = req.body;
-
-  if (!uid && !req.user?.userId) {
+  if (!uid && !req.user.userId) {
     return res.status(400).json({ error: "User ID is required" });
   }
-
+  const userId = uid || req.user.userId;
+  console.log("Received UID:", userId);
+  // Check if the user exists in the database
   try {
-    const userId = req.user?.userId || uid;
-
-    console.log("Received UID:", userId);
-
     const response = await plaidClient.linkTokenCreate({
       client_id: process.env.PLAID_CLIENT_ID,
       secret: process.env.PLAID_SECRET,
@@ -293,20 +290,18 @@ router.post('/get_access_token', async (req, res) => {
 // 200 
 // works, client-side
 router.post('/get_transactions', async (req, res) => {
-  // modify this to use the access token from the database
+  const { access_token } = req.body;
+
   try {
-    let allTransactions = [];
-    let hasMore = true;
     let cursor = null;
+    let hasMore = true;
+    let allTransactions = [];
 
     while (hasMore) {
       const transactionResponse = await plaidClient.transactionsSync({
-        access_token: req.body.access_token,
+        access_token,
         cursor,
       });
-
-      // console.log(transactionResponse.data);
-      // console.log(transactionResponse.data.has_more);
 
       const { added, modified, removed, next_cursor } = transactionResponse.data;
       allTransactions = allTransactions.concat(added);
@@ -314,36 +309,19 @@ router.post('/get_transactions', async (req, res) => {
       hasMore = transactionResponse.data.has_more;
     }
 
-    // Save transactions to MongoDB
-    const transactionPromises = allTransactions.map(async (transaction) => {
-      // Check if the transaction already exists in the database
-      const newTransaction = new Transaction({
-        transactionId: transaction.transaction_id,
-        accountId: transaction.account_id,
-        amount: transaction.amount,
-        date: transaction.date,
-        description: transaction.name,
-        category: transaction.category,
-        merchantName: transaction.merchant_name,
-        pending: transaction.pending,
-      });
-      // Save the transaction to the database
-      await newTransaction.save().catch((err) => {
-        if (err.code !== 11000) { // Ignore duplicate key errors
-          console.error('Error saving transaction:', err);
-        }
-      });
-    });
+    const accountsResponse = await plaidClient.accountsGet({ access_token });
+    const accounts = accountsResponse.data.accounts;
 
-    await Promise.all(transactionPromises); // Wait for all transactions to be saved
+    console.log("Transactions fetched:", allTransactions);
+    console.log("Accounts fetched:", accounts);
 
-    console.log("Transactions fetched and saved:", allTransactions);
-    res.json({ transactions: allTransactions });
+    res.json({ transactions: allTransactions, accounts });
   } catch (error) {
     console.error('Error fetching transactions:', error.response ? error.response.data : error.message);
     res.status(500).json({ error: "Can't Get Transaction history" });
   }
 });
+
 
 /*    ********        ********        *******       */
 module.exports = router;
