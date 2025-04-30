@@ -33,6 +33,25 @@ const Dashboard = () => {
   const totalUpcoming = upcomingBills.reduce((sum, bill) => sum + parseFloat(bill.amount), 0);
   
 
+//For budgetting plans:
+  const [budgetPlan, setBudgetPlan] = useState([]);
+
+  useEffect(() => {
+    const fetchBudgets = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/get_all_budgets`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          }
+        });
+        setBudgetPlan(Array.isArray(response.data) ? response.data : []);
+      } catch (error) {
+        console.error("Couldn't fetch the budget plans:", error);
+      }
+    };
+    fetchBudgets();
+  }, []);
   // Fetch transactions from the server
   // utilized session storage to avoid re-fetching
   // and to avoid using the access token in the URL
@@ -116,16 +135,25 @@ const Dashboard = () => {
           </div>
 
           {/* Improving Financial Habits */}
+          {/*Dynamically fetches the budget plans to show up*/}
           <div className="bg-[#2C325C] p-6 rounded-2xl shadow-md h-100">
             <h3 className="text-lg mb-4">Improving Financial Habits</h3>
-            <div className="grid grid-cols-2 gap-4">
-              {Array(4).fill(0).map((_, index) => (
-                <div key={index} className="bg-white text-[#1B203F] p-4 rounded-md text-center">
-                  Food<br />$100/200<br /><small className="text-sm">15 days left</small>
-                </div>
-              ))}
+            <div className='grid grid-cols-2 gap-4'>
+              {budgetPlan.slice(0,4).map((plan, index) => {
+                const DateEnd = new Date(plan.end_date);
+                const today = new Date();
+                const daysLeft = Math.max(0, Math.ceil((DateEnd - today) / (1000 * 60 * 60 * 24)));
+
+                return(
+                  <div key={index} className='bg-white text-[#1B203F] p-4 rounded-md text-center'>
+                    {plan.category}<br />
+                    ${plan.used || 0}/{plan.budget}<br />
+                    <small className="text-sm">{daysLeft} days left</small>
+                    </div>
+                )
+              })}
             </div>
-          </div>
+            </div>
         </div>
 
         {/* Right Section */}
