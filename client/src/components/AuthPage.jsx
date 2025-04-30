@@ -82,7 +82,7 @@ const AuthPage = () => {``
         // Handle email verification required
         // Not verified yet
         setError(err.response.data.message);
-        return navigate('/verifyEmail');
+        return navigate('/verify-email');
       }
       setError('Something went wrong. Please try again.');
     }
@@ -111,7 +111,7 @@ const AuthPage = () => {``
         await createLinkToken(data.userId);
   
         setError('');
-        navigate('/verifyEmail'); 
+        navigate('/verify-email'); 
       } else {
         setError(data.message);
       }
