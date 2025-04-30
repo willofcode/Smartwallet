@@ -213,18 +213,11 @@ const TransactionsPage = () => {
           </main>
         </div>
       </div>
-    </div>
-<<<<<<< HEAD
-    <div className='fixed bottom-6 right-6 z-50'>
-          <Chatbot/>
-    </div>
-    </div>
-    </div>
-  );
-};
-=======
+      <div className="fixed bottom-6 right-6 z-50">
+        <Chatbot />
+      </div>
+  </div>
   );  
 }  
->>>>>>> 711135e3d2a75f3e1773824ff659995a9d8d4858
 
 export default TransactionsPage;
