@@ -78,7 +78,7 @@ const TransactionsPage = () => {
           /// I'm adding the logs for the api response, 
           /// fetched transactions
           /// and fetched accounts 
-          //. to see if we have no data on production
+          //. to see if we have no data on production (I'm currently on prod environment)
           console.log(' raw api Response:', transactionsResponse.data);
           if (transactions && accounts) {
             const sortedTransactions = transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
