@@ -89,8 +89,15 @@ const BudgetingOverview = () => {
       return b && b.budget ? acc + b.budget : acc;
     }, 0)
   : 0;
+  
+
+  // I'm guessing we need a calendar on this page where the user can set the MONTH DAY and YEAR for their start 
+  // and their end would be exactly 1 month from that day. (since the idea is the user can track their budgets for that month)
+
+
 
   // Example: If your “monthly budget” is $4,000 total, then “left to spend”:
+  // I'll make it so that a user can set their own monthly budget (how much they wish to spend)
   const leftToSpend = Math.max(4000 - totalPlanned, 0);
 
   return (

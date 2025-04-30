@@ -75,8 +75,15 @@ const TransactionsPage = () => {
           });
   
           const { transactions, accounts } = transactionsResponse.data;
+          /// I'm adding the logs for the api response, 
+          /// fetched transactions
+          /// and fetched accounts 
+          //. to see if we have no data on production (I'm currently on prod environment)
+          console.log(' raw api Response:', transactionsResponse.data);
           if (transactions && accounts) {
             const sortedTransactions = transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
+            console.log('fetched transactions:', transactions);
+            console.log('fetched accounts:', accounts);  
             setTransactions(sortedTransactions);
             setAccounts(accounts);
             setFilteredTransactions(sortedTransactions);
@@ -115,99 +122,98 @@ const TransactionsPage = () => {
     <div className="flex h-screen bg-[#1B203F] text-white">
       <Sidebar />
       <div className="flex-grow overflow-y-auto p-8">
-      <div className="min-h-screen flex bg-gray-900">
-
-      <main className="content flex-grow p-8">
-        <header className="summary-header bg-[#3a3f66] text-white p-6 rounded-lg shadow-lg mb-6 flex justify-between">
-          <h1 className="text-4xl font-semibold">Transactions</h1>
-
-          {/* range filter */}
-          <div className="mb-6">
-            <input
-              type="date"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-              className="mr-4 p-2 border rounded-lg"
-            />
-            <input
-              type="date"
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-              className="mr-4 p-2 border rounded-lg"
-            />
-            <button
-              onClick={handleDateFilter}
-              className="mr-4 p-2 border bg-[#3a3f66] text-white py-2 px-4 rounded-lg hover:bg-[#555a7c]"
-            >
-              Filter Dates
-            </button>
-          </div>
-        </header>
-
-        <div className="bg-[#292d52] p-6 rounded-lg shadow-lg">
-          {userId ? (
-            <>
-              {error && <div className="text-red-600 mb-4">{error}</div>}
-              {isLinkReady ? (
+        <div className="min-h-screen flex bg-gray-900">
+  
+          <main className="content flex-grow p-8">
+            <header className="summary-header bg-[#3a3f66] text-white p-6 rounded-lg shadow-lg mb-6 flex justify-between">
+              <h1 className="text-4xl font-semibold">Transactions</h1>
+  
+              {/* range filter */}
+              <div className="mb-6">
+                <input
+                  type="date"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  className="mr-4 p-2 border rounded-lg"
+                />
+                <input
+                  type="date"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  className="mr-4 p-2 border rounded-lg"
+                />
                 <button
-                  onClick={() => open()}
-                  disabled={!ready}
-                  className="w-full bg-[#3a3f66] text-white py-3 px-4 rounded-lg hover:bg-[#555a7c] transition duration-200 mb-6"
+                  onClick={handleDateFilter}
+                  className="mr-4 p-2 border bg-[#3a3f66] text-white py-2 px-4 rounded-lg hover:bg-[#555a7c]"
                 >
-                  Link Bank Account
+                  Filter Dates
                 </button>
-              ) : isLoading ? (
-                <div className="mt-4 text-center text-gray-600">Generating Plaid Link...</div>
-              ) : (
-                <div className="mt-4 text-center text-red-600">Error creating link token. Please try again later.</div>
-              )}
-
-              <div className="transactions-list mt-8">
-                {filteredTransactions.length > 0 ? (
-                  <div className="overflow-x-auto">
-                    <table className="min-w-full bg-[#1b1d33] table-auto rounded-lg shadow-sm">
-                      <thead className="bg-[#3a3f66] text-white">
-                        <tr>
-                          <th className="py-3 px-4 text-left">Merchant</th>
-                          <th className="py-3 px-4 text-left">Category</th>
-                          <th className="py-3 px-4 text-left">Amount</th>
-                          <th className="py-3 px-4 text-left">Date</th>
-                          <th className="py-3 px-4 text-left">Account</th>
-                        </tr>
-                      </thead>
-
-                      {/* transactions table */}
-                      <tbody>
-                        {filteredTransactions.map((transaction, index) => (
-                          <tr key={index} className="border-b hover:bg-[#555a7c] text-white">
-                            <td className="py-3 px-4">{transaction.merchant_name || transaction.name || 'Unknown'}</td>
-                            <td className="py-3 px-4">{transaction.category || 'Unknown'}</td>
-                            <td className={`py-3 px-4 ${transaction.amount < 0 ? 'text-red-600' : 'text-green-600'}`}>
-                              ${transaction.amount.toFixed(2)}
-                            </td>
-                            <td className="py-3 px-4">{transaction.date}</td>
-                            <td className="py-3 px-4">{getAccountDetails(transaction.account_id)}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                ) : isLoading ? (
-                  <div className="text-center text-gray-600">Fetching transactions...</div>
-                ) : (
-                  <div className="text-center text-gray-600">No transactions to display.</div>
-                )}
               </div>
-            </>
-          ) : (
-            <div className="text-center text-gray-600">You are not logged in. Please log in to view your transactions.</div>
-          )}
+            </header>
+  
+            <div className="bg-[#292d52] p-6 rounded-lg shadow-lg">
+              {userId ? (
+                <>
+                  {error && <div className="text-red-600 mb-4">{error}</div>}
+                  {isLinkReady ? (
+                    <button
+                      onClick={() => open()}
+                      disabled={!ready}
+                      className="w-full bg-[#3a3f66] text-white py-3 px-4 rounded-lg hover:bg-[#555a7c] transition duration-200 mb-6"
+                    >
+                      Link Bank Account
+                    </button>
+                  ) : isLoading ? (
+                    <div className="mt-4 text-center text-gray-600">Generating Plaid Link...</div>
+                  ) : (
+                    <div className="mt-4 text-center text-red-600">Error creating link token. Please try again later.</div>
+                  )}
+  
+                  <div className="transactions-list mt-8">
+                    {filteredTransactions.length > 0 ? (
+                      <div className="overflow-x-auto">
+                        <table className="min-w-full bg-[#1b1d33] table-auto rounded-lg shadow-sm">
+                          <thead className="bg-[#3a3f66] text-white">
+                            <tr>
+                              <th className="py-3 px-4 text-left">Merchant</th>
+                              <th className="py-3 px-4 text-left">Category</th>
+                              <th className="py-3 px-4 text-left">Amount</th>
+                              <th className="py-3 px-4 text-left">Date</th>
+                              <th className="py-3 px-4 text-left">Account</th>
+                            </tr>
+                          </thead>
+  
+                          <tbody>
+                            {filteredTransactions.map((transaction, index) => (
+                              <tr key={index} className="border-b hover:bg-[#555a7c] text-white">
+                                <td className="py-3 px-4">{transaction.merchant_name || transaction.name || 'Unknown'}</td>
+                                <td className="py-3 px-4">{transaction.category || 'Unknown'}</td>
+                                <td className={`py-3 px-4 ${transaction.amount < 0 ? 'text-red-600' : 'text-green-600'}`}>
+                                  ${transaction.amount.toFixed(2)}
+                                </td>
+                                <td className="py-3 px-4">{transaction.date}</td>
+                                <td className="py-3 px-4">{getAccountDetails(transaction.account_id)}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    ) : isLoading ? (
+                      <div className="text-center text-gray-600">Fetching transactions...</div>
+                    ) : (
+                      <div className="text-center text-gray-600">No transactions to display.</div>
+                    )}
+                  </div>
+                </>
+              ) : (
+                <div className="text-center text-gray-600">You are not logged in. Please log in to view your transactions.</div>
+              )}
+            </div>
+          </main>
         </div>
-      </main>
+      </div>
     </div>
-    </div>
-    </div>
-  );
-};
+  );  
+}  
 
 export default TransactionsPage;
