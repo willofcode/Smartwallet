@@ -1,10 +1,10 @@
 'use client';
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import axios from 'axios';
 
-const AuthPage = () => {
+const AuthPage = () => {``
   const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
   const [signupEmail, setSignupEmail] = useState('');
@@ -13,9 +13,44 @@ const AuthPage = () => {
   const [lastName, setLastName] = useState('');
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
-  const [isLogin, setIsLogin] = useState(true);
+  const [isLogin, setIsLogin] = useState(false);
   const [linkToken, setLinkToken] = useState('');
   const navigate = useNavigate();
+  const { search } = useLocation();
+
+  // Detect Google OAuth login
+  useEffect(() => {
+    const detectGoogleOAuthLogin = async () => {
+      // parse the URL parameters for google_token and userId
+      const params = new URLSearchParams(search);
+      const googleToken = params.get('google_token');
+      const googleUser = params.get('userId');
+      if (!googleToken || !googleUser) return;
+
+      setIsLogin(true);
+      // Successful Google OAuth login
+      localStorage.setItem('token', googleToken);
+      localStorage.setItem('userId', googleUser);
+
+      try {
+        const response = await axios.post(`${import.meta.env.VITE_API_URL}/create_link_token`,
+          { uid: googleUser },
+          { headers: { Authorization: `Bearer ${googleToken}` } }
+        );
+        // Check if the response contains a link token
+        if (response.data.link_token) {
+          localStorage.setItem('linkToken', response.data.link_token); 
+          setLinkToken(response.data.link_token);
+          navigate('/transactions');
+        }
+      } catch (error) {
+        console.error('Error creating link token:', error);
+      }
+    };
+
+    detectGoogleOAuthLogin();
+  }, [search]);
+  
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -43,6 +78,12 @@ const AuthPage = () => {
         setError(data.message);
       }
     } catch (err) {
+      if (err.response?.status === 403) { // 403 Forbidden
+        // Handle email verification required
+        // Not verified yet
+        setError(err.response.data.message);
+        return navigate('/verifyEmail');
+      }
       setError('Something went wrong. Please try again.');
     }
   };
@@ -70,7 +111,7 @@ const AuthPage = () => {
         await createLinkToken(data.userId);
   
         setError('');
-        navigate('/transactions'); 
+        navigate('/verifyEmail'); 
       } else {
         setError(data.message);
       }
@@ -222,6 +263,14 @@ const AuthPage = () => {
               className="bg-white text-[#292d52] px-6 py-2 rounded-md shadow-md hover:bg-[#555a7c] transition"
             >
               {isLogin ? "Log In" : "Sign Up"}
+            </button>
+            <button 
+              onClick={() => { 
+                window.location.href = `${import.meta.env.VITE_API_URL}/auth/google`; 
+              }}
+              className="w-fit mt-4 flex items-center justify-center gap-2 bg-white text-[#292d52] px-6 py-2 rounded-md shadow-md hover:bg-[#555a7c] transition"
+            >
+              <span className="font-medium">Sign in with Google</span>
             </button>
           </motion.div>
 

@@ -6,7 +6,10 @@ const bodyparser = require('body-parser');
 const routes = require('./routes/routes');
 const aicb = require('./routes/aicbRoutes');
 const budgetRoutes = require('./routes/budgetRoutes');
+const session = require('express-session');
+const passport = require('passport');
 
+require('./config/passportConfig');
 
 const app = express();
 /*
@@ -22,6 +25,8 @@ app.use(cors());
 //app.use(cors(corsOptions));
 app.use(bodyparser.json());
 
+app.use(passport.initialize());
+  
 const APP_PORT = process.env.APP_PORT || 8000;
 
 app.listen(APP_PORT, () => {

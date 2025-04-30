@@ -7,6 +7,7 @@ import ChatbotMessage from './ChatbotMessage'
 
 const Chatbot = () => {
     const [chatHistory, setChatHistory] = useState([]);
+    const [showChat, setShowChat] = useState(false);
     
     //should be changed later
     const userId = 'defaultUser';
@@ -42,7 +43,13 @@ const Chatbot = () => {
         }
     };
   return (
-    <div className='container'>
+    <div className={`container ${showChat ? "show-chat" : ""}`}>
+        {/*Toggles the showChat value when button is clicked*/}
+        <button onClick={() => setShowChat(prev => !prev)}
+        id = "toggle">
+            <span className='bx bxs-face text-3xl mr-.5'></span>
+            <span className='bx bx-x  text-4xl mr-.5'></span>
+        </button>
         <div className='popup'>
             {/*Header of Chatbot*/}
             <div className='header'>
