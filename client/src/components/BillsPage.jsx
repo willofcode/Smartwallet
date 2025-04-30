@@ -8,32 +8,10 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import React from 'react';
 import Sidebar from "../components/sideBar";
+import Chatbot from './Chatbot';
+import { billsData } from './TempDataFiles/BillsData';
 
 const BillsPage = () => {
-  // Sample bills data
-  const billsData = [
-    {
-      month: "January",
-      bills: [
-        { merchant: "Electric Company", account: "987654", amount: "150.00", date: "2024-01-01" },
-        { merchant: "Internet Provider", account: "123456", amount: "80.00", date: "2024-01-05" },
-        { merchant: "Health Insurance", account: "334455", amount: "120.00", date: "2024-01-05" },
-        { merchant: "Gym Membership", account: "789012", amount: "50.00", date: "2024-01-06" },
-        { merchant: "Spotify", account: "998877", amount: "10.00", date: "2024-01-06" }
-      ]
-    },
-    {
-      month: "February",
-      bills: [
-        { merchant: "Electric Company", account: "987654", amount: "150.00", date: "2024-02-01" },
-        { merchant: "Internet Provider", account: "123456", amount: "80.00", date: "2024-02-05" },
-        { merchant: "Health Insurance", account: "334455", amount: "120.00", date: "2024-02-05" },
-        { merchant: "Gym Membership", account: "789012", amount: "70.00", date: "2024-02-06" },
-        { merchant: "Spotify", account: "998877", amount: "10.00", date: "2024-02-06" }
-      ]
-    }
-  ];
-
   // A helper to decide color for amounts (red if negative, green otherwise)
   const getAmountColor = (amount) => {
     // If your amounts are never negative, you can simply use a single color
@@ -90,7 +68,9 @@ const BillsPage = () => {
             </div>
           ))}
         </div>
-
+        <div className='fixed bottom-6 right-6 z-50'>
+          <Chatbot/>
+        </div>
       </div>
     </div>
   );

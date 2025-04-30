@@ -9,9 +9,11 @@ import BudgetingOverview from "./components/BudgetingOverview";
 import BudgetingPlanning from "./components/BudgetingPlanning";
 import WalletPage from "./components/WalletPage";
 import VerifyEmailPage from "./components/VerifyEmailPage";
+import { CardProvider } from "./components/TempDataFiles/CardInfo";
 
 function App() {
     return (
+        <CardProvider>
         <Router>
                     <Routes>
                         <Route path="/" element={<LandingPage />} />
@@ -36,6 +38,7 @@ function App() {
                         */}
                     </Routes>
         </Router>
+        </CardProvider>
     );
 }
 

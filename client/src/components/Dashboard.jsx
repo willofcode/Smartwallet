@@ -5,11 +5,33 @@ import Sidebar from "../components/sideBar"
 import axios from 'axios';
 import PieChart from './PieChart';
 import Chatbot from './Chatbot';
-
+import {useCard} from './TempDataFiles/CardInfo'
+import { billsData } from './TempDataFiles/BillsData';
 
 const Dashboard = () => {
   const [filteredTransactions, setFilteredTransactions] = useState([]);
   const [transactions, setTransactions] = useState([]); 
+  
+  const {cards} = useCard();
+  
+  //shows 3 upcoming bills
+  const getUpcomingBills = () => {
+    const today = new Date();
+    const next30 = new Date();
+    next30.setDate(today.getDate() + 30);
+
+    const allBills = billsData.flatMap(month => month.bills);
+    
+    const upcoming = allBills
+      .map(b => ({ ...b, date: new Date(b.date) }))
+      .filter(b => b.date >= today && b.date <= next30)
+      .sort((a, b) => a.date - b.date);
+      
+        return upcoming.slice(0, 3); 
+      };
+  const upcomingBills = getUpcomingBills();
+  const totalUpcoming = upcomingBills.reduce((sum, bill) => sum + parseFloat(bill.amount), 0);
+  
 
   // Fetch transactions from the server
   // utilized session storage to avoid re-fetching
@@ -109,20 +131,43 @@ const Dashboard = () => {
         {/* Right Section */}
         <div className="flex flex-col gap-5">
           {/* Upcoming Bills */}
-          <div className="bg-[#2C325C] p-6 h-65 rounded-2xl shadow-md">
-            <h3 className="text-lg mb-4">Upcoming Bills</h3>
-            <div className="mb-4 space-y-2">
-              <div>Dec 1 - Rent - $1,111.00</div>
-              <div>Jan 18 - Insurance - $1,111.00</div>
-              <div>Jun 1 - Water - $1,111.00</div>
+          <div className="bg-[#2C325C] p-6 rounded-2xl shadow-md">
+              <h3 className="text-xl font-semibold mb-2">Upcoming Bills</h3>
+              <p className="mb-4 text-sm text-gray-300">
+                Total Bills Due in Next 30 Days: <span className="text-white font-bold">${totalUpcoming.toFixed(2)}</span>
+              </p>
+              <div className="divide-y divide-white/30 text-sm">
+                {upcomingBills.map((bill, index) => (
+                  <div key={index} className="py-2 flex justify-between items-center">
+                    <div>
+                      <span className="font-semibold mr-4">{bill.date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</span>
+                      {bill.merchant}
+                    </div>
+                    <div>${parseFloat(bill.amount).toLocaleString()}</div>
+                  </div>
+                ))}
+              </div>
             </div>
-            <p>Total Bills Due in Next 30 Days: <strong>$1,980.55</strong></p>
-          </div>
 
           {/* My Cards */}
           <div className="bg-[#2C325C] p-6 h-70 rounded-2xl shadow-md">
             <h3 className="text-lg mb-4">My Cards</h3>
-            <img src="your-chart-placeholder.png" alt="Bar Chart" className="w-full h-auto" />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {cards.slice(0, 2).map((card) => (
+              <div
+                key={card.id}
+                className={`p-4 rounded-xl text-white ${card.bgColor} shadow-md`}
+              >
+                <div className="text-sm opacity-80 mb-1">{card.cardName}</div>
+                <div className="text-3xl font-bold mb-2">${card.balance.toLocaleString()}</div>
+                <div className="text-xs flex justify-between text-white/90 tracking-wide">
+                  <span>**** {card.last4}</span>
+                  <span>{card.validUntil}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+
           </div>
 
           {/* Spending Reduction Goals */}

@@ -2,52 +2,11 @@
 
 import React, { useState } from 'react';
 import Sidebar from '../components/sideBar';
+import {useCard} from './TempDataFiles/CardInfo'
 
 const WalletPage = () => {
   // All card data (initially 4 cards)
-  const [cards, setCards] = useState([
-    {
-      id: 1,
-      type: 'Visa',
-      balance: 3690.0,
-      last4: '1890',
-      validUntil: '5/26',
-      cardName: 'Bank of America',
-      cvv: '***',
-      bgColor: 'bg-purple-600',
-    },
-    {
-      id: 2,
-      type: 'Visa',
-      balance: 2000.0,
-      last4: '3287',
-      validUntil: '6/27',
-      cardName: 'Chase Bank',
-      cvv: '***',
-      bgColor: 'bg-green-600',
-    },
-    {
-      id: 3,
-      type: 'MasterCard',
-      balance: 4500.0,
-      last4: '1122',
-      validUntil: '7/28',
-      cardName: 'TD Bank',
-      cvv: '***',
-      bgColor: 'bg-blue-600',
-    },
-    {
-      id: 4,
-      type: 'MasterCard',
-      balance: 3200.0,
-      last4: '3344',
-      validUntil: '8/29',
-      cardName: 'M&T Bank',
-      cvv: '***',
-      bgColor: 'bg-red-600',
-    },
-  ]);
-
+  const {cards, setCards} = useCard();
   const [selectedCardIndex, setSelectedCardIndex] = useState(0);
   const [currentSlide, setCurrentSlide] = useState(0);
 

@@ -5,6 +5,7 @@ import { usePlaidLink } from 'react-plaid-link';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import Sidebar from './sideBar';
+import Chatbot from './Chatbot';
 
 const TransactionsPage = () => {
   const [userId, setUserId] = useState(null);
@@ -204,6 +205,9 @@ const TransactionsPage = () => {
           )}
         </div>
       </main>
+    </div>
+    <div className='fixed bottom-6 right-6 z-50'>
+          <Chatbot/>
     </div>
     </div>
     </div>
