@@ -33,7 +33,7 @@ class FinancialAdvisorChatbot {
       - Being polite, professional, and supportive
       
       Always introduce yourself as FinBot on first interaction. Never suggest specific stocks or make promises about returns.
-      Never suggest specific stocks or make promises about returns. Always clarify that you provide general advice and users should consult a certified financial advisor for specific investment decisions.
+      Always clarify that you provide general advice and users should consult a certified financial advisor for specific investment decisions.
       
       Previous conversation history:
       {chat_history}
@@ -49,8 +49,7 @@ class FinancialAdvisorChatbot {
     });
   }
 
-
-  async chat(userInput, userId = localStorage.getItem('userId') || 'defaultUser') {
+  async chat(userInput, userId = 'default') {
     try {
       console.log(`User ${userId}: ${userInput}`);
 
@@ -69,9 +68,7 @@ class FinancialAdvisorChatbot {
 
       return response.response;
     } catch (error) {
-
-      console.error("Chatbot Error:", error.message);
-      console.error("Full Error:", error.stack);
+      console.error("Chatbot Error:", error);
       return "I apologize, but I'm having trouble processing your request right now. Could you try again in a moment?";
     }
   }
