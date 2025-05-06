@@ -98,7 +98,13 @@ const BudgetingOverview = () => {
 
   // Example: If your “monthly budget” is $4,000 total, then “left to spend”:
   // I'll make it so that a user can set their own monthly budget (how much they wish to spend)
-  const leftToSpend = Math.max(4000 - totalPlanned, 0);
+  // *** changed: the “monthly budget” now equals totalPlanned, so the bar + number always
+  //     reflect the total of the budgets you’ve set below ***
+  const monthlyBudget = totalPlanned;
+  const leftToSpend  = monthlyBudget;   // we simply display the same total on top
+
+  // current month name (e.g., "April")
+  const currentMonthName = new Date().toLocaleString('default', { month: 'long' });
 
   return (
     <div className="flex h-screen bg-[#1B203F] text-white">
@@ -111,11 +117,11 @@ const BudgetingOverview = () => {
           <div className="flex items-center gap-3 mb-4">
             <span className="inline-block w-3 h-5 rounded-full bg-purple-500" />
             <h2 className="text-base md:text-lg font-medium text-gray-200">
-              Left to spend in the next 22 days
+              Left to spend for {currentMonthName}
             </h2>
           </div>
 
-          {/* everything below is indented the same 24 px as the dot+gap */}
+          {/* everything below is indented the same 24 px as the dot+gap */}
           <div className="pl-6">
             <p className="text-5xl md:text-6xl font-extrabold text-white mb-6 tracking-tight">
               ${leftToSpend.toFixed(2)}
@@ -127,12 +133,12 @@ const BudgetingOverview = () => {
             <div className="relative w-full bg-gray-500/60 h-5 rounded-full">
               <div
                 className="absolute top-0 left-0 h-5 bg-purple-500 rounded-full"
-                style={{ width: `${(leftToSpend / 4000) * 100}%` }}
+                style={{ width: `${monthlyBudget === 0 ? 0 : 100}%` }}
               />
             </div>
             <div className="flex justify-between text-sm text-gray-400 mt-3">
               <span>$0</span>
-              <span>$4,000</span>
+              <span>${monthlyBudget.toFixed(0)}</span>
             </div>
           </div>
         </div>
