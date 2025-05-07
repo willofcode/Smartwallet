@@ -6,6 +6,7 @@ const bodyparser = require('body-parser');
 const routes = require('./routes/routes');
 const aicb = require('./routes/aicbRoutes');
 const budgetRoutes = require('./routes/budgetRoutes');
+const billsRoutes = require('./routes/billsRoutes');
 const session = require('express-session');
 const passport = require('passport');
 
@@ -48,4 +49,4 @@ database.once('connected', () => {
 app.use('/api', routes);
 app.use('/api', aicb);
 app.use('/api', budgetRoutes);
-
+app.use('/api', billsRoutes);

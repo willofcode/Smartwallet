@@ -116,33 +116,32 @@ router.delete('/delete_budget/:name', async(req, res) =>{
     }
 });
 
+
 router.get('/update_budget', async (req, res) => {
-  const { accessToken, userId } = req.query;
-
-  if (!accessToken || !userId) {
-    return res.status(400).json({ error: 'Access token and user ID are required' });
-  }
-
-  try {
-    const response = await plaidClient.transactionsGet({
-        // this will be changed later (for development purposes I needed to see if with the access token a user could update their expenses)
-        // it seems that's not currently possible with plaid. 
-      access_token: 'access-production-6882cda7-cca3-430f-b038-14849cd5208f', 
-      start_date: '2025-01-01',  
-      end_date: '2025-12-31',    
-    });
-
-    const transactions = response.data.transactions;
-
-    const updatedBudget = await updateUserBudgetWithPlaidCategories(transactions, userId);
-
-    await updateUserBudgetInDB(userId, updatedBudget);
-
-    res.json({ message: 'User budget updated successfully' });
-  } catch (error) {
-    console.error('Error:', error);
-    res.status(500).json({ error: 'An error occurred while processing transactions' });
-  }
-});
-
+    const { accessToken, userId } = req.query;
+  
+    if (!accessToken || !userId) {
+      return res.status(400).json({ error: 'Access token and user ID are required' });
+    }
+  
+    try {
+      const response = await plaidClient.transactionsGet({
+          // this will be changed later (for development purposes I needed to see if with the access token a user could update their expenses)
+          // it seems that's not currently possible with plaid. 
+        access_token: 'access-production-6882cda7-cca3-430f-b038-14849cd5208f', 
+        start_date: '2025-01-01',  
+        end_date: '2025-12-31',    
+      });
+  
+      const transactions = response.data.transactions;
+      const updatedBudget = await updateUserBudgetWithPlaidCategories(transactions, userId);
+      await updateUserBudgetInDB(userId, updatedBudget);
+  
+      res.json({ message: 'User budget updated successfully' });
+    } catch (error) {
+      console.error('Error:', error);
+      res.status(500).json({ error: 'An error occurred while processing transactions' });
+    }
+  });
+  
 module.exports = router;

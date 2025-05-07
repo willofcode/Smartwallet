@@ -5,13 +5,32 @@ import Sidebar from '../components/sideBar';
 import axios from 'axios';
 import PieChart from './PieChart';
 import Chatbot from './Chatbot';
-import { billsData } from './TempDataFiles/BillsData';
 
 const Dashboard = () => {
   const [filteredTransactions, setFilteredTransactions] = useState([]);
   const [transactions, setTransactions] = useState([]);
   const [accounts, setAccounts] = useState([]);
   const [budgetPlan, setBudgetPlan] = useState([]);
+  const [upcomingBills, setUpcomingBills] = useState([]);
+  const [totalUpcoming, setTotalUpcoming] = useState(0);
+  const [userName, setUserName] = useState('');
+
+  const formatDateWithSuffix = (date) => {
+    const day = date.getDate();
+    const month = date.toLocaleString('default', { month: 'short' });
+
+    const getSuffix = (n) => {
+      if (n >= 11 && n <= 13) return 'th';
+      switch (n % 10) {
+        case 1: return 'st';
+        case 2: return 'nd';
+        case 3: return 'rd';
+        default: return 'th';
+      }
+    };
+
+    return `${month} ${day}${getSuffix(day)}`;
+  };
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -49,6 +68,56 @@ const Dashboard = () => {
     fetchAccounts();
   }, []);
 
+  useEffect(() => {
+    const fetchUserName = () => {
+      const storedName = localStorage.getItem('userName');
+      if (storedName) {
+        setUserName(storedName);
+      }
+    };
+
+    fetchUserName();
+  }, []);
+
+  useEffect(() => {
+    const fetchUpcomingBills = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/recurring`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        const { outflow_streams = [] } = response.data.recurring_streams || {};
+        const today = new Date();
+        const next30 = new Date();
+        next30.setDate(today.getDate() + 30);
+
+        const bills = outflow_streams
+          .map(bill => {
+            const billDate = new Date(bill.predicted_next_date);
+            billDate.setDate(billDate.getDate() + 1);
+            return {
+              merchant: bill.merchant_name || bill.description || 'Unknown',
+              amount: bill.last_amount?.amount || 0,
+              date: billDate,
+            };
+          })
+          .filter(bill => bill.date >= today && bill.date <= next30)
+          .sort((a, b) => a.date - b.date)
+          .slice(0, 3);
+
+        const total = bills.reduce((sum, bill) => sum + parseFloat(bill.amount), 0);
+
+        setUpcomingBills(bills);
+        setTotalUpcoming(total);
+      } catch (err) {
+        console.error('Failed to fetch upcoming bills:', err);
+      }
+    };
+
+    fetchUpcomingBills();
+  }, []);
+
   const filterDays = (d) => {
     const now = new Date();
     const past = new Date();
@@ -61,17 +130,6 @@ const Dashboard = () => {
     );
   };
 
-  const today = new Date();
-  const next30 = new Date(today);
-  next30.setDate(today.getDate() + 30);
-  const upcomingBills = billsData
-    .flatMap((m) => m.bills)
-    .map((b) => ({ ...b, date: new Date(b.date) }))
-    .filter((b) => b.date >= today && b.date <= next30)
-    .sort((a, b) => a.date - b.date)
-    .slice(0, 3);
-  const totalUpcoming = upcomingBills.reduce((s, b) => s + parseFloat(b.amount), 0);
-
   return (
     <div className="flex bg-[#1B203F] text-white">
       <Sidebar />
@@ -79,7 +137,7 @@ const Dashboard = () => {
         <div className="grid grid-cols-12 gap-6">
           <header className="col-span-12 bg-[#2C325C] rounded-2xl p-6">
             <h2 className="text-2xl">Your Financial Dashboard</h2>
-            <p className="mb-4">Welcome back Daniel</p>
+            <p className="mb-4">Welcome back {userName || 'User'}</p>
             <div className="flex gap-2">
               <button onClick={() => filterDays(14)} className="px-4 py-2 rounded-lg bg-[#3a3f66] hover:bg-[#555a7c]">2 weeks</button>
               <button onClick={() => filterDays(30)} className="px-4 py-2 rounded-lg bg-[#3a3f66] hover:bg-[#555a7c]">1 month</button>
@@ -119,11 +177,11 @@ const Dashboard = () => {
                 <span className="text-white font-bold">${totalUpcoming.toFixed(2)}</span>
               </p>
               <ul className="divide-y divide-white/20 text-sm">
-                {upcomingBills.map((b) => (
-                  <li key={b.merchant} className="py-2 flex justify-between">
+                {upcomingBills.map((b, idx) => (
+                  <li key={idx} className="py-2 flex justify-between">
                     <span>
                       <strong className="mr-3">
-                        {b.date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                        {formatDateWithSuffix(b.date)}
                       </strong>
                       {b.merchant}
                     </span>
