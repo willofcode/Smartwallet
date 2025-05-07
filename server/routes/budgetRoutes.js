@@ -1,7 +1,9 @@
 const express = require("express");
 const authMiddleware = require("../middleware/authMiddleware");
 const Budget = require("../models/budgetSchema");
-
+const { updateUserBudgetWithPlaidCategories } = require("../config/budgetConfig");
+const { updateUserBudgetInDB } = require('../config/budgetConfig');
+const { plaidClient} = require('../config/plaidConfig');
 const router = express.Router();
 
 /// CRUD endpoints
@@ -34,10 +36,6 @@ router.post("/post_budget", authMiddleware, async (req, res) => {
         res.status(500).json({ message: "Server error", error });
     }
 });
-
-// filtering how a user can retrieve their budget plans
-// this should get name
-
 
 // this should get all budgets for a specific user. this could be based off id (userid)
 router.get('/get_all_budgets', authMiddleware, async(req, res) => {
@@ -118,42 +116,31 @@ router.delete('/delete_budget/:name', async(req, res) =>{
     }
 });
 
-// I can try to add a post expense and update expense endpoint
-// this was the user can add how much money they've spent directly.
-router.post('/add_expense', async (req, res) => {
-    try {
-        
-    } catch(error){
-        console.error("can't CREATE expense: ", error);
-    }
-});
+router.get('/update_budget', async (req, res) => {
+  const { accessToken, userId } = req.query;
 
-router.patch('/update_expense', async (req, res) => {
-    try{
+  if (!accessToken || !userId) {
+    return res.status(400).json({ error: 'Access token and user ID are required' });
+  }
 
-    } catch(error){
-        console.error("can't UPDATE expense: ", error);
-    }
-});
+  try {
+    const response = await plaidClient.transactionsGet({
+      access_token: 'access-production-6882cda7-cca3-430f-b038-14849cd5208f', 
+      start_date: '2025-01-01',  
+      end_date: '2025-12-31',    
+    });
 
-// From there all that's left is being able to post the budget the user intends to spend for the month
-// it's also important to save the start and end date of the monthly plan
+    const transactions = response.data.transactions;
 
-router.post('/add_monthly_budget', async (req, res) =>{
-    try{
+    const updatedBudget = await updateUserBudgetWithPlaidCategories(transactions, userId);
 
-    } catch(error){
-        console.error("can't CREATE monthly budget: ", error);
-    }
-});
+    await updateUserBudgetInDB(userId, updatedBudget);
 
-// The user should definitely be able to change the budget of the monthly plan
-router.patch('/update_monthly_budget', async (req, res) =>{
-    try{
-
-    } catch(error){
-        console.error("can't UPDATE monthly budget: ", error);
-    }
+    res.json({ message: 'User budget updated successfully' });
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).json({ error: 'An error occurred while processing transactions' });
+  }
 });
 
 module.exports = router;

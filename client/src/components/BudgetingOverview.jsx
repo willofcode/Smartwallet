@@ -6,8 +6,6 @@ import { Link } from 'react-router-dom';
 import Sidebar from './sideBar';
 
 const BudgetingOverview = () => {
-  /// I'm thinking we can have categories here for later so that we're properly grouping by our
-  /// category on the overview.
   const categories = [
     "Housing",
     "Food",
@@ -23,96 +21,114 @@ const BudgetingOverview = () => {
   const [budgetData, setBudgetData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [usedAmounts, setUsedAmounts] = useState({});
-  const [searchTerm, setSearchTerm] = useState('')
+  const [searchTerm, setSearchTerm] = useState('');
+  const [updateMessage, setUpdateMessage] = useState('');
+  const [transactions, setTransactions] = useState([]);
 
-  /// so he's fetching budgets here
   useEffect(() => {
     fetchAllBudgets();
+    fetchPlaidTransactions();
   }, []);
-  
-  /// GET all budgets <--- easiest
-  /// the goal here should be that we're getting budget plans specific to that user 
+
+  // Fetch budgets from API
   const fetchAllBudgets = async () => {
     try {
       setLoading(true);
-
-      const token = localStorage.getItem('token'); // so here we need their token
-      
-      // then I can grab all their budgetplans
-      const response = await axios.get(`${import.meta.env.VITE_API_URL}/get_all_budgets`, { 
-        
+      const token = localStorage.getItem('token');
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/get_all_budgets`, {
         headers: {
-          Authorization: `Bearer ${token}`, // here I'm checking to see the user's JWT token.
-        }
+          Authorization: `Bearer ${token}`,
+        },
       });
-
-      console.log("Fetched: ", response.data);
-      //setBudgetData(response.data)// then send the budgetplan data to our user
-      setBudgetData(Array.isArray(response.data) ? response.data : []); // we need to send an empty array otherwise null error
-    }
-    /// from here it's just error hadnling 
-    catch(error){
+      setBudgetData(Array.isArray(response.data) ? response.data : []);
+    } catch (error) {
       console.error("could not get all budgets: ", error);
-    }
-    /// then we can cut the loading 
-    finally{
+    } finally {
       setLoading(false);
     }
-
   };
 
-  /// Then I need to search by category 
+  // Fetch transactions from Plaid
+  const fetchPlaidTransactions = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.post(`${import.meta.env.VITE_API_URL}/get_transactions`, {
+        access_token: token, // Use the access_token to get transactions
+      });
+      setTransactions(response.data.transactions || []);
+    } catch (error) {
+      console.error("Error fetching Plaid transactions: ", error);
+    }
+  };
+
+  // Calculate total spending per category
+  const calculateSpentPerCategory = () => {
+    const spent = {};
+
+    transactions.forEach(transaction => {
+      const category = transaction.category[0];  // We take the first category in the list
+      const amount = transaction.amount;
+
+      if (spent[category]) {
+        spent[category] += amount;
+      } else {
+        spent[category] = amount;
+      }
+    });
+
+    return spent;
+  };
+
+  // Update the budget data with actual spent amounts
+  const updateBudgetsWithSpent = () => {
+    const spentPerCategory = calculateSpentPerCategory();
+
+    const updatedBudgetData = budgetData.map(budget => {
+      const spentAmount = spentPerCategory[budget.name] || 0;  // Get the spent amount for the category
+      return {
+        ...budget,
+        spent: spentAmount,
+        remaining: budget.budget - spentAmount,  // Calculate remaining budget
+      };
+    });
+
+    setBudgetData(updatedBudgetData);
+  };
+
+  useEffect(() => {
+    if (transactions.length > 0) {
+      updateBudgetsWithSpent();  // Update the budget data once transactions are fetched
+    }
+  }, [transactions]);
+
+  // Search through the categories
   const searchCategory = () => {
-    // idk how i want this to look beyond the base case...
-    // scratch that.. trim based on our category options 
-    if (!Array.isArray(budgetData)){
+    if (!Array.isArray(budgetData)) {
       return [];
     }
-    if (!searchTerm.trim()){
+    if (!searchTerm.trim()) {
       return budgetData;
-    }
-    
-    // otherwise, we'll return all budget data from ouur drop down,
-    // added case sensitivity to flatten the search and make sure
-    // all budget plans relating to a category ar pulled
-    else{
+    } else {
       return budgetData.filter((bgt) =>
         bgt.category?.toLowerCase().includes(searchTerm.toLowerCase())
       );
-    };
+    }
+  };
 
-  }
-
-  // Sum up all planned budgets that were successfully fetched
   const totalPlanned = Array.isArray(budgetData)
-  ? budgetData.reduce((acc, b) => {
-      return b && b.budget ? acc + b.budget : acc;
-    }, 0)
-  : 0;
-  
+    ? budgetData.reduce((acc, b) => (b && b.budget ? acc + b.budget : acc), 0)
+    : 0;
 
-  // I'm guessing we need a calendar on this page where the user can set the MONTH DAY and YEAR for their start 
-  // and their end would be exactly 1 month from that day. (since the idea is the user can track their budgets for that month)
-
-
-
-  // Example: If your “monthly budget” is $4,000 total, then “left to spend”:
-  // I'll make it so that a user can set their own monthly budget (how much they wish to spend)
-  // *** changed: the “monthly budget” now equals totalPlanned, so the bar + number always
-  //     reflect the total of the budgets you’ve set below ***
   const monthlyBudget = totalPlanned;
-  const leftToSpend  = monthlyBudget;   // we simply display the same total on top
+  const leftToSpend = monthlyBudget;
 
-  // current month name (e.g., "April")
   const currentMonthName = new Date().toLocaleString('default', { month: 'long' });
 
   return (
     <div className="flex h-screen bg-[#1B203F] text-white">
       <Sidebar />
-  
-      <div className="flex-grow overflow-y-auto p-8">
 
-        {/* our summary for the budget */}
+      <div className="flex-grow overflow-y-auto p-8">
         <div className="bg-[#2C325C] p-8 rounded-2xl shadow-md w-full mb-8">
           <div className="flex items-center gap-3 mb-4">
             <span className="inline-block w-3 h-5 rounded-full bg-purple-500" />
@@ -121,14 +137,12 @@ const BudgetingOverview = () => {
             </h2>
           </div>
 
-          {/* everything below is indented the same 24 px as the dot+gap */}
           <div className="pl-6">
             <p className="text-5xl md:text-6xl font-extrabold text-white mb-6 tracking-tight">
               ${leftToSpend.toFixed(2)}
             </p>
           </div>
 
-          {/* progress bar & scale aligned under purple dot */}
           <div>
             <div className="relative w-full bg-gray-500/60 h-5 rounded-full">
               <div
@@ -142,8 +156,7 @@ const BudgetingOverview = () => {
             </div>
           </div>
         </div>
-  
-        {/* all budget plans  */}
+
         <div className="bg-[#2C325C] p-6 rounded-2xl shadow-md w-full">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-sm md:text-base text-gray-100 font-semibold">
@@ -154,9 +167,8 @@ const BudgetingOverview = () => {
                 Settings
               </button>
             </Link>
-        </div>
+          </div>
 
-          {/* category drop down */}
           <div className="mb-6">
             <select
               value={searchTerm}
@@ -175,31 +187,29 @@ const BudgetingOverview = () => {
           <p className="text-3xl font-bold text-white mb-8">
             ${totalPlanned.toFixed(2)}
           </p>
-  
+
           {loading && <p className="text-gray-300">Loading budgets...</p>}
-  
+
           {!loading && searchCategory().length === 0 && (
             <p className="text-gray-400">No matching categories found.</p>
           )}
-  
+
           {!loading &&
             searchCategory().map((budgetObj, idx) => {
               if (!budgetObj) return null;
-  
+
               const used = usedAmounts[budgetObj.name] || 0;
               const leftover = budgetObj.budget - used;
               const usagePercent = Math.min((used / budgetObj.budget) * 100, 100);
               const isUnderBudget = leftover >= 0;
-  
+
               return (
                 <div key={budgetObj._id || idx} className="mb-8">
                   <h3 className="text-sm font-semibold text-white">{budgetObj.name}</h3>
                   <p className="text-xs text-gray-400">Category: {budgetObj.category}</p>
                   <div className="relative w-full bg-gray-600 h-5 rounded-full mt-2">
                     <div
-                      className={`absolute top-0 left-0 h-5 ${
-                        isUnderBudget ? "bg-purple-500" : "bg-red-500"
-                      } rounded-full`}
+                      className={`absolute top-0 left-0 h-5 ${isUnderBudget ? "bg-purple-500" : "bg-red-500"} rounded-full`}
                       style={{ width: `${usagePercent}%` }}
                     />
                   </div>
@@ -217,40 +227,23 @@ const BudgetingOverview = () => {
                 </div>
               );
             })}
+
+          {/* Button to trigger budget update */}
+          <button
+            //onClick={updateUserBudget}
+            className="mt-8 w-full py-2 text-white bg-purple-600 rounded-lg hover:bg-purple-700 transition"
+          >
+            Update Budget with Plaid Categories
+          </button>
+
+          {/* Display update message */}
+          {updateMessage && (
+            <p className="mt-4 text-center text-white">{updateMessage}</p>
+          )}
         </div>
       </div>
     </div>
   );
-}  
+};
 
 export default BudgetingOverview;
-
-  /// I should be able to search for a budget by name
-  // I'll ad the JWT here too since what for they know the name of another budget plan a
-  // user should not be able to see the budget plan of another user.
-  /*
-  const fetchBudgetFromName = async (name) => {
-    try {
-      setLoading(true);// we have to actually load in our budgets
-
-      const token = localStorage.getItem('token');
-      const response = await axios.get(`${import.meta.env.VITE_API_URL}/get_budget/${name}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      // I'll add a log if I'm not able to seethe data properly.
-      setBudgetData(response.data);
-
-      }
-    // if anything goes wrong we'll throw an error
-    catch(error){
-      console.error("could not fetch by name: ", error);
-    }
-    // then we can cut the loading 
-    finally {
-      setLoading(false);
-    }
-
-  };
-  */
