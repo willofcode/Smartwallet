@@ -5,13 +5,12 @@ import Sidebar from '../components/sideBar';
 import axios from 'axios';
 import PieChart from './PieChart';
 import Chatbot from './Chatbot';
-import { useCard } from './TempDataFiles/CardInfo';
 import { billsData } from './TempDataFiles/BillsData';
 
 const Dashboard = () => {
   const [filteredTransactions, setFilteredTransactions] = useState([]);
   const [transactions, setTransactions] = useState([]);
-  const { cards } = useCard();
+  const [accounts, setAccounts] = useState([]);
   const [budgetPlan, setBudgetPlan] = useState([]);
 
   useEffect(() => {
@@ -37,6 +36,19 @@ const Dashboard = () => {
     }
   }, []);
 
+  useEffect(() => {
+    const fetchAccounts = async () => {
+      try {
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/accounts`);
+        const { accounts } = response.data;
+        setAccounts(accounts);
+      } catch (err) {
+        console.error('Error fetching accounts:', err);
+      }
+    };
+    fetchAccounts();
+  }, []);
+
   const filterDays = (d) => {
     const now = new Date();
     const past = new Date();
@@ -58,41 +70,20 @@ const Dashboard = () => {
     .filter((b) => b.date >= today && b.date <= next30)
     .sort((a, b) => a.date - b.date)
     .slice(0, 3);
-  const totalUpcoming = upcomingBills.reduce(
-    (s, b) => s + parseFloat(b.amount),
-    0
-  );
+  const totalUpcoming = upcomingBills.reduce((s, b) => s + parseFloat(b.amount), 0);
 
   return (
     <div className="flex bg-[#1B203F] text-white">
-      {/* Sticky sidebar */}
       <Sidebar />
-
-      {/* Scrollable main panel */}
       <main className="flex-grow h-screen overflow-y-auto p-8">
         <div className="grid grid-cols-12 gap-6">
           <header className="col-span-12 bg-[#2C325C] rounded-2xl p-6">
             <h2 className="text-2xl">Your Financial Dashboard</h2>
             <p className="mb-4">Welcome back Daniel</p>
             <div className="flex gap-2">
-              <button
-                onClick={() => filterDays(14)}
-                className="px-4 py-2 rounded-lg bg-[#3a3f66] hover:bg-[#555a7c]"
-              >
-                2 weeks
-              </button>
-              <button
-                onClick={() => filterDays(30)}
-                className="px-4 py-2 rounded-lg bg-[#3a3f66] hover:bg-[#555a7c]"
-              >
-                1 month
-              </button>
-              <button
-                onClick={() => filterDays(90)}
-                className="px-4 py-2 rounded-lg bg-[#3a3f66] hover:bg-[#555a7c]"
-              >
-                3 months
-              </button>
+              <button onClick={() => filterDays(14)} className="px-4 py-2 rounded-lg bg-[#3a3f66] hover:bg-[#555a7c]">2 weeks</button>
+              <button onClick={() => filterDays(30)} className="px-4 py-2 rounded-lg bg-[#3a3f66] hover:bg-[#555a7c]">1 month</button>
+              <button onClick={() => filterDays(90)} className="px-4 py-2 rounded-lg bg-[#3a3f66] hover:bg-[#555a7c]">3 months</button>
             </div>
           </header>
 
@@ -107,17 +98,10 @@ const Dashboard = () => {
               <div className="grid grid-cols-2 gap-4 mt-auto">
                 {budgetPlan.slice(0, 4).map((plan) => {
                   const end = new Date(plan.end_date);
-                  const daysLeft = Math.max(
-                    0,
-                    Math.ceil((end - new Date()) / 86400000)
-                  );
+                  const daysLeft = Math.max(0, Math.ceil((end - new Date()) / 86400000));
                   return (
-                    <div
-                      key={plan._id}
-                      className="bg-white text-[#1B203F] rounded-md p-4 text-center"
-                    >
-                      {plan.category}
-                      <br />${plan.used || 0}/{plan.budget}
+                    <div key={plan._id} className="bg-white text-[#1B203F] rounded-md p-4 text-center">
+                      {plan.category}<br />${plan.used || 0}/{plan.budget}
                       <br />
                       <span className="text-sm">{daysLeft} days left</span>
                     </div>
@@ -131,20 +115,15 @@ const Dashboard = () => {
             <div className="bg-[#2C325C] rounded-2xl p-6">
               <h3 className="text-xl font-semibold mb-2">Upcoming Bills</h3>
               <p className="text-sm text-gray-300 mb-4">
-                Total Bills Due in Next&nbsp;30&nbsp;Days:{' '}
-                <span className="text-white font-bold">
-                  ${totalUpcoming.toFixed(2)}
-                </span>
+                Total Bills Due in Next 30 Days:{' '}
+                <span className="text-white font-bold">${totalUpcoming.toFixed(2)}</span>
               </p>
               <ul className="divide-y divide-white/20 text-sm">
                 {upcomingBills.map((b) => (
                   <li key={b.merchant} className="py-2 flex justify-between">
                     <span>
                       <strong className="mr-3">
-                        {b.date.toLocaleDateString(undefined, {
-                          month: 'short',
-                          day: 'numeric',
-                        })}
+                        {b.date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
                       </strong>
                       {b.merchant}
                     </span>
@@ -157,18 +136,15 @@ const Dashboard = () => {
             <div className="bg-[#2C325C] rounded-2xl p-6">
               <h3 className="text-lg mb-4">My Cards</h3>
               <div className="flex flex-col gap-4">
-                {cards.slice(0, 2).map((c) => (
-                  <div
-                    key={c.id}
-                    className={`p-4 rounded-xl ${c.bgColor} shadow-md`}
-                  >
-                    <div className="text-sm opacity-80">{c.cardName}</div>
+                {accounts.map((acc) => (
+                  <div key={acc.account_id} className="bg-purple-600 p-4 rounded-xl shadow-md">
+                    <div className="text-sm opacity-80">{acc.name}</div>
                     <div className="text-3xl font-bold mb-1">
-                      ${c.balance.toLocaleString()}
+                      ${acc.available?.toLocaleString() || '0'}
                     </div>
                     <div className="flex justify-between text-xs tracking-wide">
-                      <span>**** {c.last4}</span>
-                      <span>{c.validUntil}</span>
+                      <span>**** {acc.mask || acc.account_id.slice(-4)}</span>
+                      <span>{acc.currency}</span>
                     </div>
                   </div>
                 ))}

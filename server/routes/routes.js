@@ -337,7 +337,7 @@ router.get('/accounts', async (req, res) => {
       name: account.name,
       available: account.balances.available,
       currency: account.balances.iso_currency_code,
-      mask: account.mask, // <--- include the mask here
+      mask: account.mask,
     }));
 
     res.json({ accounts });
