@@ -23,14 +23,11 @@ const BudgetingOverview = () => {
   const [usedAmounts, setUsedAmounts] = useState({});
   const [searchTerm, setSearchTerm] = useState('');
   const [updateMessage, setUpdateMessage] = useState('');
-  const [transactions, setTransactions] = useState([]);
 
   useEffect(() => {
     fetchAllBudgets();
-    fetchPlaidTransactions();
   }, []);
 
-  // Fetch budgets from API
   const fetchAllBudgets = async () => {
     try {
       setLoading(true);
@@ -48,60 +45,36 @@ const BudgetingOverview = () => {
     }
   };
 
-  // Fetch transactions from Plaid
-  const fetchPlaidTransactions = async () => {
+  const updateUserBudget = async () => {
     try {
+      setLoading(true);
+      setUpdateMessage('');
+
       const token = localStorage.getItem('token');
-      const response = await axios.post(`${import.meta.env.VITE_API_URL}/get_transactions`, {
-        access_token: token, // Use the access_token to get transactions
-      });
-      setTransactions(response.data.transactions || []);
-    } catch (error) {
-      console.error("Error fetching Plaid transactions: ", error);
-    }
-  };
+      const userId = localStorage.getItem('userId'); // Make sure you're storing the user ID when they log in
 
-  // Calculate total spending per category
-  const calculateSpentPerCategory = () => {
-    const spent = {};
-
-    transactions.forEach(transaction => {
-      const category = transaction.category[0];  // We take the first category in the list
-      const amount = transaction.amount;
-
-      if (spent[category]) {
-        spent[category] += amount;
-      } else {
-        spent[category] = amount;
+      if (!token || !userId) {
+        setUpdateMessage('Missing token or user ID.');
+        return;
       }
-    });
 
-    return spent;
-  };
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/update_budget`, {
+        params: {
+          accessToken: token,
+          userId: userId,
+        },
+      });
 
-  // Update the budget data with actual spent amounts
-  const updateBudgetsWithSpent = () => {
-    const spentPerCategory = calculateSpentPerCategory();
-
-    const updatedBudgetData = budgetData.map(budget => {
-      const spentAmount = spentPerCategory[budget.name] || 0;  // Get the spent amount for the category
-      return {
-        ...budget,
-        spent: spentAmount,
-        remaining: budget.budget - spentAmount,  // Calculate remaining budget
-      };
-    });
-
-    setBudgetData(updatedBudgetData);
-  };
-
-  useEffect(() => {
-    if (transactions.length > 0) {
-      updateBudgetsWithSpent();  // Update the budget data once transactions are fetched
+      setUpdateMessage(response.data.message || 'Budget updated successfully!');
+      fetchAllBudgets(); // Refresh budget data after update
+    } catch (error) {
+      setUpdateMessage('Failed to update budget.');
+      console.error("Error updating budget:", error);
+    } finally {
+      setLoading(false);
     }
-  }, [transactions]);
+  };
 
-  // Search through the categories
   const searchCategory = () => {
     if (!Array.isArray(budgetData)) {
       return [];
@@ -230,7 +203,7 @@ const BudgetingOverview = () => {
 
           {/* Button to trigger budget update */}
           <button
-            //onClick={updateUserBudget}
+            onClick={updateUserBudget}
             className="mt-8 w-full py-2 text-white bg-purple-600 rounded-lg hover:bg-purple-700 transition"
           >
             Update Budget with Plaid Categories
