@@ -325,5 +325,28 @@ router.post('/get_transactions', async (req, res) => {
   }
 });
 
+router.get('/accounts', async (req, res) => {
+  try {
+    const accessToken = 'access-production-6882cda7-cca3-430f-b038-14849cd5208f';
+    const response = await plaidClient.accountsGet({
+      access_token: accessToken,
+    });
+
+    const accounts = response.data.accounts.map(account => ({
+      account_id: account.account_id,
+      name: account.name,
+      available: account.balances.available,
+      currency: account.balances.iso_currency_code,
+      mask: account.mask, // <--- include the mask here
+    }));
+
+    res.json({ accounts });
+
+  } catch (error) {
+    console.error('Error fetching accounts:', error);
+    res.status(500).json({ error: 'Failed to retrieve account data' });
+  }
+});
+
 /*    ********        ********        *******       */
 module.exports = router;

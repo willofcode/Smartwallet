@@ -51,7 +51,7 @@ const BudgetingOverview = () => {
       setUpdateMessage('');
 
       const token = localStorage.getItem('token');
-      const userId = localStorage.getItem('userId'); // Make sure you're storing the user ID when they log in
+      const userId = localStorage.getItem('userId');
 
       if (!token || !userId) {
         setUpdateMessage('Missing token or user ID.');
@@ -66,7 +66,7 @@ const BudgetingOverview = () => {
       });
 
       setUpdateMessage(response.data.message || 'Budget updated successfully!');
-      fetchAllBudgets(); // Refresh budget data after update
+      fetchAllBudgets();
     } catch (error) {
       setUpdateMessage('Failed to update budget.');
       console.error("Error updating budget:", error);
@@ -201,15 +201,12 @@ const BudgetingOverview = () => {
               );
             })}
 
-          {/* Button to trigger budget update */}
           <button
             onClick={updateUserBudget}
             className="mt-8 w-full py-2 text-white bg-purple-600 rounded-lg hover:bg-purple-700 transition"
           >
-            Update Budget with Plaid Categories
+            Update Budget with Plaid Expenses
           </button>
-
-          {/* Display update message */}
           {updateMessage && (
             <p className="mt-4 text-center text-white">{updateMessage}</p>
           )}

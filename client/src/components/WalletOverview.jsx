@@ -1,31 +1,49 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { Link } from 'react-router-dom';
 import Sidebar from '../components/sideBar';
-import { useCard } from './TempDataFiles/CardInfo';
 
 const WalletOverview = () => {
-  const { cards } = useCard();
+  const [accounts, setAccounts] = useState([]);
   const [selectedCardIndex, setSelectedCardIndex] = useState(0);
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  /* ---------- carousel helpers ---------- */
-  const handleNextSlide = () => {
-    if (currentSlide + 2 < cards.length) setCurrentSlide(currentSlide + 2);
+  const fetchAccounts = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/accounts`);
+      setAccounts(response.data.accounts);
+    } catch (err) {
+      console.error('Error fetching account data:', err);
+      setError('Failed to fetch account data');
+    } finally {
+      setLoading(false);
+    }
   };
+
+  useEffect(() => {
+    fetchAccounts();
+  }, []);
+
+  const handleNextSlide = () => {
+    if (currentSlide + 2 < accounts.length) setCurrentSlide(currentSlide + 2);
+  };
+
   const handlePrevSlide = () => {
     if (currentSlide - 2 >= 0) setCurrentSlide(currentSlide - 2);
   };
-  const visibleCards = cards.slice(currentSlide, currentSlide + 2);
+
+  const visibleAccounts = accounts.slice(currentSlide, currentSlide + 2);
 
   return (
     <div className="flex h-screen bg-[#1B203F] text-white font-[Poppins]">
       <Sidebar />
 
-      {/* main column */}
       <div className="flex-grow overflow-y-auto p-8 flex flex-col">
-        {/* header */}
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-3xl font-bold">Your Cards</h1>
           <Link
@@ -47,80 +65,80 @@ const WalletOverview = () => {
           </button>
           <button
             onClick={handleNextSlide}
-            disabled={currentSlide + 2 >= cards.length}
+            disabled={currentSlide + 2 >= accounts.length}
             className="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded-md disabled:opacity-40"
           >
             Next &gt;
           </button>
         </div>
 
-        {/* Cards carousel */}
+        {/* Account cards carousel */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          {visibleCards.map((card, i) => {
+          {visibleAccounts.map((account, i) => {
             const originalIndex = currentSlide + i;
             return (
               <div
-                key={card.id}
+                key={account.account_id}
                 onClick={() => setSelectedCardIndex(originalIndex)}
-                className={`cursor-pointer p-8 rounded-3xl shadow-lg min-h-[300px] flex flex-col justify-between text-white transition-transform ${card.bgColor} ${
+                className={`cursor-pointer p-8 rounded-3xl shadow-lg min-h-[300px] flex flex-col justify-between text-white transition-transform bg-purple-600 ${
                   selectedCardIndex === originalIndex
                     ? 'outline outline-4 outline-white scale-[1.02]'
                     : ''
                 }`}
               >
                 <div>
-                  <h2 className="text-2xl font-medium">Card Balance</h2>
+                  <h2 className="text-2xl font-medium">Available Balance</h2>
                   <p className="text-5xl font-extrabold mt-4">
-                    ${card.balance.toLocaleString()}
+                    ${account.available.toLocaleString()}
                   </p>
                 </div>
-
                 <div className="flex justify-between items-end text-lg font-semibold tracking-widest mt-6">
                   <div>
-                    <p className="text-sm opacity-80">{card.type}</p>
-                    <p>**** {card.last4}</p>
+                    <p className="text-sm opacity-80">{account.name}</p>
+                    <p>**** {account.mask || account.account_id.slice(-4)}</p>
                   </div>
-                  <p className="text-sm opacity-90">{card.validUntil}</p>
+                  <p className="text-sm opacity-90">{account.currency}</p>
                 </div>
               </div>
             );
           })}
         </div>
 
-        {/* Card information */}
-        {cards[selectedCardIndex] && (
+        {/* Detailed Account Info */}
+        {accounts.length > 0 && !loading && (
           <div className="bg-[#2C325C] p-12 rounded-3xl shadow-md flex-1 min-h-[340px]">
-            <h3 className="text-4xl font-bold mb-12">Card Information</h3>
+            <h3 className="text-4xl font-bold mb-12">Account Information</h3>
             <div className="grid grid-rows-2 grid-cols-2 h-full gap-y-16">
-              {/* TL */}
               <div>
-                <p className="text-gray-300 text-xl">Card Name</p>
+                <p className="text-gray-300 text-xl">Account Name</p>
                 <p className="text-2xl font-bold">
-                  {cards[selectedCardIndex].cardName}
+                  {accounts[selectedCardIndex]?.name}
                 </p>
               </div>
-              {/* TR */}
               <div className="text-right">
-                <p className="text-gray-300 text-xl">Card No.</p>
+                <p className="text-gray-300 text-xl">Account No.</p>
                 <p className="text-2xl font-bold">
-                  **** {cards[selectedCardIndex].last4}
+                  **** {accounts[selectedCardIndex]?.mask || accounts[selectedCardIndex]?.account_id.slice(-4)}
                 </p>
               </div>
-              {/* BL */}
               <div>
-                <p className="text-gray-300 text-xl">CVV</p>
-                <p className="text-2xl font-bold">***</p>
-              </div>
-              {/* BR */}
-              <div className="text-right">
-                <p className="text-gray-300 text-xl">Valid until</p>
+                <p className="text-gray-300 text-xl">Available Balance</p>
                 <p className="text-2xl font-bold">
-                  {cards[selectedCardIndex].validUntil}
+                  ${accounts[selectedCardIndex]?.available.toLocaleString()}
+                </p>
+              </div>
+              <div className="text-right">
+                <p className="text-gray-300 text-xl">Currency</p>
+                <p className="text-2xl font-bold">
+                  {accounts[selectedCardIndex]?.currency}
                 </p>
               </div>
             </div>
           </div>
         )}
+
+        {error && <p className="text-red-500">{error}</p>}
+        {loading && <p className="text-white">Loading account data...</p>}
       </div>
     </div>
   );
