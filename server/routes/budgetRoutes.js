@@ -125,6 +125,8 @@ router.get('/update_budget', async (req, res) => {
 
   try {
     const response = await plaidClient.transactionsGet({
+        // this will be changed later (for development purposes I needed to see if with the access token a user could update their expenses)
+        // it seems that's not currently possible with plaid. 
       access_token: 'access-production-6882cda7-cca3-430f-b038-14849cd5208f', 
       start_date: '2025-01-01',  
       end_date: '2025-12-31',    
