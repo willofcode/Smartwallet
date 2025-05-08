@@ -10,7 +10,7 @@ class BudgetForecastTool extends Tool {
 
   async _call({ access_token }) {
     try {
-      const response = await axios.post('http://localhost:3000/api/get_transactions', {
+      const response = await axios.post(`${process.env.BASE_URL}/api/get_transactions`, {
         access_token,
       });
 

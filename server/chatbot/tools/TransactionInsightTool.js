@@ -1,6 +1,6 @@
 const { Tool } = require('langchain/tools');
 const axios = require('axios');
-const { extractDateRange, extractCategory, isRecurringSearch } = require('./utils/nlpParser');
+const { extractDateRange, extractCategory, isRecurringSearch } = require('../utils/nlpParser');
 
 class TransactionInsightTool extends Tool {
   constructor() {

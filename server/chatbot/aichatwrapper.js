@@ -4,6 +4,10 @@ const { ConversationChain } = require('langchain/chains');
 const { BufferMemory } = require('langchain/memory');
 const { PromptTemplate } = require('@langchain/core/prompts');
 const Conversation = require('../models/converse');
+const TransactionInsightTool = require('./tools/TransactionInsightTool');
+const BudgetForecastTool = require('./tools/BudgetForecastTool');
+const InvestmentSimulatorTool = require('./tools/InvestmentSimulatorTool');
+const { initializeAgentExecutorWithOptions } = require('langchain/agents');
 
 class FinancialAdvisorChatbot {
   constructor(modelName = "gpt-3.5-turbo", temperature = 0.7) {
@@ -32,7 +36,7 @@ class FinancialAdvisorChatbot {
       - Recalling previous conversations to maintain context
       - Being polite, professional, and supportive
       
-      Always introduce yourself as FinBot on first interaction. Never suggest specific stocks or make promises about returns.
+      Never suggest specific stocks or make promises about returns.
       Always clarify that you provide general advice and users should consult a certified financial advisor for specific investment decisions.
       
       Previous conversation history:
@@ -46,6 +50,18 @@ class FinancialAdvisorChatbot {
       memory: this.memory,
       prompt: financialAdvisorPrompt,
       verbose: process.env.NODE_ENV === 'development',
+    });
+    
+    const tools = [
+      new TransactionInsightTool(),
+      new BudgetForecastTool(),
+      new InvestmentSimulatorTool(),
+    ];
+
+    // Initialize tools
+    this.executorPromise = initializeAgentExecutorWithOptions(tools, this.chatModel, {
+      agentType: 'zero-shot-react-description',
+      memory: this.memory,
     });
   }
 
