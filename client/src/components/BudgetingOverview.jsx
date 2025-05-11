@@ -6,212 +6,199 @@ import { Link } from 'react-router-dom';
 import Sidebar from './sideBar';
 
 const BudgetingOverview = () => {
-  const categories = [
-    "Housing",
-    "Food",
-    "Transportation",
-    "Utilities",
-    "Entertainment",
-    "Healthcare",
-    "Personal Care",
-    "Education",
-    "Misc",
-  ];
-
+  // fetched budgets
   const [budgetData, setBudgetData] = useState([]);
   const [loading, setLoading] = useState(false);
+
+  // purely local: how much has been marked "spent" (not saved server-side)
   const [usedAmounts, setUsedAmounts] = useState({});
+  const [editing, setEditing] = useState(null);   // which plan is in edit mode
+  const [tempSpent, setTempSpent] = useState({}); // { [planName]: string }
+
+  // category filter
   const [searchTerm, setSearchTerm] = useState('');
-  const [updateMessage, setUpdateMessage] = useState('');
 
   useEffect(() => {
     fetchAllBudgets();
   }, []);
 
+  // pull in your existing budgets (budgetData.budget is the monthly allocation)
   const fetchAllBudgets = async () => {
+    setLoading(true);
     try {
-      setLoading(true);
       const token = localStorage.getItem('token');
-      const response = await axios.get(`${import.meta.env.VITE_API_URL}/get_all_budgets`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      setBudgetData(Array.isArray(response.data) ? response.data : []);
-    } catch (error) {
-      console.error("could not get all budgets: ", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const updateUserBudget = async () => {
-    try {
-      setLoading(true);
-      setUpdateMessage('');
-
-      const token = localStorage.getItem('token');
-      const userId = localStorage.getItem('userId');
-
-      if (!token || !userId) {
-        setUpdateMessage('Missing token or user ID.');
-        return;
-      }
-
-      const response = await axios.get(`${import.meta.env.VITE_API_URL}/update_budget`, {
-        params: {
-          accessToken: token,
-          userId: userId,
-        },
-      });
-
-      setUpdateMessage(response.data.message || 'Budget updated successfully!');
-      fetchAllBudgets();
-    } catch (error) {
-      setUpdateMessage('Failed to update budget.');
-      console.error("Error updating budget:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const searchCategory = () => {
-    if (!Array.isArray(budgetData)) {
-      return [];
-    }
-    if (!searchTerm.trim()) {
-      return budgetData;
-    } else {
-      return budgetData.filter((bgt) =>
-        bgt.category?.toLowerCase().includes(searchTerm.toLowerCase())
+      const { data } = await axios.get(
+        `${import.meta.env.VITE_API_URL}/get_all_budgets`,
+        { headers: { Authorization: `Bearer ${token}` } }
       );
+      setBudgetData(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error('could not get all budgets:', err);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const totalPlanned = Array.isArray(budgetData)
-    ? budgetData.reduce((acc, b) => (b && b.budget ? acc + b.budget : acc), 0)
-    : 0;
+  // when you click “Save” it only updates local state
+  const handleSaveSpent = (name) => {
+    const val = Number(tempSpent[name]);
+    if (isNaN(val)) {
+      alert('Enter a valid number');
+      return;
+    }
+    setUsedAmounts(prev => ({ ...prev, [name]: val }));
+    setEditing(null);
+  };
 
-  const monthlyBudget = totalPlanned;
-  const leftToSpend = monthlyBudget;
+  // filter by category dropdown
+  const searchCategory = () => {
+    if (!searchTerm.trim()) return budgetData;
+    return budgetData.filter(b =>
+      b.category?.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  };
 
-  const currentMonthName = new Date().toLocaleString('default', { month: 'long' });
+  // totals for top summary
+  const totalPlanned = budgetData.reduce((sum, b) => sum + (b.budget || 0), 0);
+  const totalUsed    = Object.values(usedAmounts).reduce((sum, u) => sum + u, 0);
+  const totalLeft    = Math.max(totalPlanned - totalUsed, 0);
+  const monthName    = new Date().toLocaleString('default', { month: 'long' });
 
   return (
     <div className="flex h-screen bg-[#1B203F] text-white">
       <Sidebar />
 
-      <div className="flex-grow overflow-y-auto p-8">
-        <div className="bg-[#2C325C] p-8 rounded-2xl shadow-md w-full mb-8">
+      <main className="flex-grow overflow-y-auto p-8">
+        {/* TOP SUMMARY */}
+        <section className="bg-[#2C325C] p-8 rounded-2xl shadow-md mb-8">
           <div className="flex items-center gap-3 mb-4">
-            <span className="inline-block w-3 h-5 rounded-full bg-purple-500" />
-            <h2 className="text-base md:text-lg font-medium text-gray-200">
-              Left to spend for {currentMonthName}
+            <span className="w-3 h-5 rounded-full bg-purple-500" />
+            <h2 className="font-medium text-gray-200">
+              Left to spend for {monthName}
             </h2>
           </div>
 
-          <div className="pl-6">
-            <p className="text-5xl md:text-6xl font-extrabold text-white mb-6 tracking-tight">
-              ${leftToSpend.toFixed(2)}
-            </p>
+          <p className="text-6xl font-extrabold mb-6">
+            ${totalLeft.toFixed(2)}
+          </p>
+
+          <div className="relative w-full bg-gray-500/60 h-5 rounded-full">
+            <div
+              className="absolute top-0 left-0 h-5 bg-purple-500 rounded-full"
+              style={{
+                width: totalPlanned === 0
+                  ? '0%'
+                  : `${(totalLeft / totalPlanned) * 100}%`
+              }}
+            />
           </div>
 
-          <div>
-            <div className="relative w-full bg-gray-500/60 h-5 rounded-full">
-              <div
-                className="absolute top-0 left-0 h-5 bg-purple-500 rounded-full"
-                style={{ width: `${monthlyBudget === 0 ? 0 : 100}%` }}
-              />
-            </div>
-            <div className="flex justify-between text-sm text-gray-400 mt-3">
-              <span>$0</span>
-              <span>${monthlyBudget.toFixed(0)}</span>
-            </div>
+          <div className="flex justify-between text-sm text-gray-400 mt-3">
+            <span>$0</span>
+            <span>${totalPlanned.toFixed(0)}</span>
           </div>
-        </div>
+        </section>
 
-        <div className="bg-[#2C325C] p-6 rounded-2xl shadow-md w-full">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-sm md:text-base text-gray-100 font-semibold">
-              Total Planned Expenses
-            </h2>
+        {/* BUDGET LIST */}
+        <section className="bg-[#2C325C] p-6 rounded-2xl shadow-md">
+          <div className="flex justify-between mb-6">
+            <h2 className="font-semibold">Total Planned Expenses</h2>
             <Link to="/budgeting/planning">
-              <button className="px-4 py-2 text-sm font-medium text-white bg-purple-600 rounded-lg hover:bg-purple-700 transition">
+              <button className="bg-purple-600 px-4 py-2 rounded-lg">
                 Settings
               </button>
             </Link>
           </div>
 
-          <div className="mb-6">
-            <select
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="px-4 py-3 rounded-md bg-[#1B203F] border border-gray-600 w-full sm:w-60"
-            >
-              <option value="">All Categories</option>
-              {Array.from(new Set(budgetData.map(bgt => bgt.category))).map((category, idx) => (
-                <option key={idx} value={category}>
-                  {category}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <p className="text-3xl font-bold text-white mb-8">
-            ${totalPlanned.toFixed(2)}
-          </p>
-
-          {loading && <p className="text-gray-300">Loading budgets...</p>}
-
-          {!loading && searchCategory().length === 0 && (
-            <p className="text-gray-400">No matching categories found.</p>
-          )}
-
-          {!loading &&
-            searchCategory().map((budgetObj, idx) => {
-              if (!budgetObj) return null;
-
-              const used = usedAmounts[budgetObj.name] || 0;
-              const leftover = budgetObj.budget - used;
-              const usagePercent = Math.min((used / budgetObj.budget) * 100, 100);
-              const isUnderBudget = leftover >= 0;
-
-              return (
-                <div key={budgetObj._id || idx} className="mb-8">
-                  <h3 className="text-sm font-semibold text-white">{budgetObj.name}</h3>
-                  <p className="text-xs text-gray-400">Category: {budgetObj.category}</p>
-                  <div className="relative w-full bg-gray-600 h-5 rounded-full mt-2">
-                    <div
-                      className={`absolute top-0 left-0 h-5 ${isUnderBudget ? "bg-purple-500" : "bg-red-500"} rounded-full`}
-                      style={{ width: `${usagePercent}%` }}
-                    />
-                  </div>
-                  <p className="text-xs mt-1 text-gray-300">
-                    {leftover >= 0
-                      ? `$${leftover} left of $${budgetObj.budget}`
-                      : `Over by $${Math.abs(leftover)} of $${budgetObj.budget}`}
-                    {' — '}
-                    {isUnderBudget ? (
-                      <span className="text-green-400">You’re doing great!</span>
-                    ) : (
-                      <span className="text-red-400">Needs attention</span>
-                    )}
-                  </p>
-                </div>
-              );
-            })}
-
-          <button
-            onClick={updateUserBudget}
-            className="mt-8 w-full py-2 text-white bg-purple-600 rounded-lg hover:bg-purple-700 transition"
+          <select
+            value={searchTerm}
+            onChange={e => setSearchTerm(e.target.value)}
+            className="mb-6 px-4 py-2 bg-[#1B203F] rounded-md border border-gray-600"
           >
-            Update Budget with Plaid Expenses
-          </button>
-          {updateMessage && (
-            <p className="mt-4 text-center text-white">{updateMessage}</p>
-          )}
-        </div>
-      </div>
+            <option value="">All Categories</option>
+            {Array.from(new Set(budgetData.map(b => b.category))).map(cat => (
+              <option key={cat} value={cat}>{cat}</option>
+            ))}
+          </select>
+
+          <p className="text-3xl font-bold mb-8">${totalPlanned}</p>
+
+          {loading && <p>Loading budgets…</p>}
+          {!loading && searchCategory().length === 0 && <p>No budgets found.</p>}
+
+          {searchCategory().map((bgt, idx) => {
+            const used    = usedAmounts[bgt.name] || 0;
+            const left    = bgt.budget - used;
+            const pct     = bgt.budget ? Math.min((used / bgt.budget) * 100, 100) : 0;
+            const isUnder = left >= 0;
+
+            return (
+              <div key={idx} className="mb-8">
+                <div className="flex justify-between items-center">
+                  <h3 className="font-semibold">{bgt.name}</h3>
+                  <button
+                    onClick={() => {
+                      setEditing(bgt.name);
+                      setTempSpent({ [bgt.name]: used });
+                    }}
+                    className="text-blue-400 text-sm"
+                  >
+                    Edit Spent
+                  </button>
+                </div>
+
+                <p className="text-xs text-gray-400 mb-1">
+                  Category: {bgt.category}
+                </p>
+
+                {editing === bgt.name && (
+                  <div className="flex items-center gap-2 mb-2">
+                    <input
+                      type="number"
+                      value={tempSpent[bgt.name]}
+                      onChange={e =>
+                        setTempSpent({ [bgt.name]: e.target.value })
+                      }
+                      className="w-20 px-2 py-1 rounded-md bg-[#1B203F] border border-gray-600"
+                    />
+                    <button
+                      onClick={() => handleSaveSpent(bgt.name)}
+                      className="bg-green-600 px-2 py-1 rounded-md text-sm"
+                    >
+                      Save
+                    </button>
+                    <button
+                      onClick={() => setEditing(null)}
+                      className="bg-gray-600 px-2 py-1 rounded-md text-sm"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                )}
+
+                <div className="relative w-full bg-gray-600 h-5 rounded-full">
+                  <div
+                    className={`absolute top-0 left-0 h-5 ${
+                      isUnder ? 'bg-purple-500' : 'bg-red-500'
+                    } rounded-full`}
+                    style={{ width: `${pct}%` }}
+                  />
+                </div>
+
+                <p className="text-xs mt-1">
+                  {isUnder
+                    ? `$${left} left of $${bgt.budget}`
+                    : `Over by $${Math.abs(left)} of $${bgt.budget}`}
+                  {' — '}
+                  <span className={isUnder ? 'text-green-400' : 'text-red-400'}>
+                    {isUnder ? 'On track' : 'Over budget'}
+                  </span>
+                </p>
+              </div>
+            );
+          })}
+        </section>
+      </main>
     </div>
   );
 };
