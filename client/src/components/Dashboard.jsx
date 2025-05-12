@@ -11,8 +11,8 @@ import { billsData } from './TempDataFiles/BillsData';
 const Dashboard = () => {
   const [filteredTransactions, setFilteredTransactions] = useState([]);
   const [transactions, setTransactions] = useState([]); 
-  
   const {cards} = useCard();
+  const user = JSON.parse(localStorage.getItem('user')) || 'User'; // Fetch user from local storage
   
   //shows 3 upcoming bills
   const getUpcomingBills = () => {
@@ -78,7 +78,7 @@ const Dashboard = () => {
       <div className="grid grid-cols-3 gap-2">
         <div className="bg-[#2C325C] p-6 rounded-2xl shadow-md col-span-3 min-h-[250px]">
           <h2 className="text-2xl mb-4">Your Financial Dashboard</h2>
-          <p className="mb-4">Welcome back Daniel</p> {/* need to fetch account user */}
+          <p className="mb-4">{`Welcome back ${user}`}</p> {/* need to fetch account user */}
           <div className="flex gap-2">
           {/* 12 month logic & 6 month logic may or may not work, so the filter below works */}
           <button
