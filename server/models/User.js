@@ -34,12 +34,17 @@ const userSchema = new mongoose.Schema({
     type: Date
   },
 
+  plaidAccessToken: {
+    type: String,
+  },
+
   userId: {
     type: String,
     required: true,
     unique: true,
     default: uuidv4
   }
+
 }, {
   timestamps: true
 });

@@ -1,84 +1,57 @@
 'use client';
 
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import "../styles.css";
+import React from 'react';
+import '../styles.css';
 
 const LandingPage = () => {
+  return (
+    <div className="flex flex-col items-center justify-start min-h-screen bg-gradient-to-b from-[#1B203F] to-[#2C325C] text-white px-6">
+      {/* Navbar */}
+      <nav className="w-full fixed top-0 left-0 bg-[#1B203F] bg-opacity-90 py-4 px-8 flex justify-between items-center shadow-lg z-10">
+        <h1 className="text-2xl font-bold">SmartWallet</h1>
+        <ul className="flex space-x-6">
+          <li>
+            <a href="/authform" className="bg-white text-[#0c064d] px-4 py-2 rounded-2xl font-semibold shadow hover:opacity-80 transition">Get started</a>
+          </li>
+          <li>
+            <a href="#" className="text-white hover:opacity-80 transition">About Us</a>
+          </li>
+        </ul>
+      </nav>
 
-    return (
-        <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-[#0c064d] to-[#2c1e79] text-white px-6">
-            <nav className="w-full fixed top-0 left-0 bg-[#0c064d] bg-opacity-90 py-4 px-8 flex justify-between items-center shadow-lg">
-                <h1 className="text-2xl font-bold text-white">
-                    SmartWallet
-                </h1>
-                <ul className="flex space-x-6">
-                    <li>
-                        <a href="/authform" className="bg-white text-[#0c064d] px-4 py-2 rounded-2xl font-semibold shadow-lg opacity-100 hover:opacity-70 transition">Get started</a>
-                    </li>
-                    <li>
-                        <a href="#" className="text-white opacity-100 hover:opacity-70 transition">About Us</a>
-                    </li>
-                </ul>
-            </nav>
-            
-            {/* I NEEED A FLEX BOX!! */}
-            <div className="flex items-center justify-between min-h-screen px-10 w-full">
-                {/* Left  --> welcome to smart wallet */}
-                <header className="text-left max-w-2xl">
-                    <h1 className="text-4xl md:text-6xl font-bold mb-4">
-                        Welcome to SmartWallet
-                    </h1>
+      {/* Hero Section */}
+      <div className="flex flex-col items-center justify-center text-center mt-55 mb-24 px-4 space-y-6">
+      <h1 className="text-8xl md:text-7xl font-extrabold tracking-tight bg-gradient-to-r from-[#8ca0ff] to-[#cdd3f5] bg-clip-text text-transparent drop-shadow-[0_0_10px_rgba(140,160,255,0.4)] mb-10">
+            Welcome to SmartWallet
+      </h1>
 
-                    <p className="text-lg md:text-xl opacity-80 mb-6">
-                        Better Budgeting / Smarter Saving
-                    </p>
-                </header>
+      <p className="text-lg md:text-xl text-gray-100 max-w-2xl mb-10">
+        Your all-in-one hub to manage credit cards, track spending, and hit your savings goals.
+     </p>
 
-                <div className="w-1/2 flex justify-center relative overflow-hidden">
-                    <div className="logos-carousel">
-                        <div className="logos-wrapper">
-                            <img src="/images/chase-logo-removebg-preview.png" alt="Chase Logo" className="logo" />
-                            <img src="/images/bofa-logo-removebg-preview.png" alt="Bank of America Logo" className="logo" />
-                            <img src="/images/wellsfargo-logo-removebg-preview.png" alt="Wells Fargo Logo" className="logo" />
-                            <img src="/images/capitalone-logo-removebg-preview.png" alt="Capital One Logo" className="logo" />
-                            <img src="/images/citibank-logo-removebg-preview.png" alt="Citibank Logo" className="logo" />
-                            <img src="/images/tdbank-logo-removebg-preview.png" alt="TD Bank Logo" className="logo" />
-                            <img src="/images/m_tbank-logo-removebg-preview.png" alt="M&T Bank Logo" className="logo" />
-                            <img src="/images/keybank-logo-removebg-preview.png" alt="KeyBank Logo" className="logo" />
-                            <img src="/images/citizens-logo-removebg-preview.png" alt="Citizens Logo" className="logo" />
-                            <img src="/images/sofi-logo-removebg-preview.png" alt="SoFi Bank Logo" className="logo" />
-                            <img src="/images/charlesschwab-logo-removebg-preview.png" alt="Charles Schwab Logo" className="logo" />
-                            <img src="/images/americanexpress-logo-removebg-preview.png" alt="American Express Logo" className="logo" />
-                            <img src="/images/discover-logo-removebg-preview.png" alt="Discover Logo" className="logo" />
+     </div>
 
-                            {/* duplicate!!!!! */}
-                            <img src="/images/chase-logo-removebg-preview.png" alt="Chase Logo" className="logo" />
-                            <img src="/images/bofa-logo-removebg-preview.png" alt="Bank of America Logo" className="logo" />
-                            <img src="/images/wellsfargo-logo-removebg-preview.png" alt="Wells Fargo Logo" className="logo" />
-                            <img src="/images/capitalone-logo-removebg-preview.png" alt="Capital One Logo" className="logo" />
-                            <img src="/images/citibank-logo-removebg-preview.png" alt="Citibank Logo" className="logo" />
-                            <img src="/images/tdbank-logo-removebg-preview.png" alt="TD Bank Logo" className="logo" />
-                            <img src="/images/m_tbank-logo-removebg-preview.png" alt="M&T Bank Logo" className="logo" />
-                            <img src="/images/keybank-logo-removebg-preview.png" alt="KeyBank Logo" className="logo" />
-                            <img src="/images/citizens-logo-removebg-preview.png" alt="Citizens Logo" className="logo" />
-                            <img src="/images/sofi-logo-removebg-preview.png" alt="SoFi Bank Logo" className="logo" />
-                            <img src="/images/charlesschwab-logo-removebg-preview.png" alt="Charles Schwab Logo" className="logo" />
-                            <img src="/images/americanexpress-logo-removebg-preview.png" alt="American Express Logo" className="logo" />
-                            <img src="/images/discover-logo-removebg-preview.png" alt="Discover Logo" className="logo" />
-
-                            <img src="/images/chase-logo-removebg-preview.png" alt="Chase Logo" className="logo" />
-                            <img src="/images/bofa-logo-removebg-preview.png" alt="Bank of America Logo" className="logo" />
-                            <img src="/images/wellsfargo-logo-removebg-preview.png" alt="Wells Fargo Logo" className="logo" />
-                            <img src="/images/capitalone-logo-removebg-preview.png" alt="Capital One Logo" className="logo" />
-                            <img src="/images/citibank-logo-removebg-preview.png" alt="Citibank Logo" className="logo" />
-                        </div>
-                    </div>
-                </div>
-            </div>
+      {/* Carousel Section */}
+      <div className="w-full overflow-hidden -mt-10">
+      <div className="logos-carousel">
+        <div className="logos-wrapper">
+            {Array(2).fill([
+            "chase", "bofa", "wellsfargo", "capitalone", "citibank",
+            "tdbank", "m_tbank", "keybank", "citizens", "sofi",
+            "charlesschwab", "americanexpress", "discover"
+            ]).flat().map((logo, index) => (
+            <img
+                key={index}
+                src={`/images/${logo}-logo-removebg-preview.png`}
+                alt={`${logo} logo`}
+                className="logo"
+            />
+            ))}
         </div>
-    );
+        </div>
+      </div>
+    </div>
+  );
 };
 
 export default LandingPage;

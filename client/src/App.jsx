@@ -27,8 +27,6 @@ function App() {
                         <Route path="/budgeting/planning" element={<BudgetingPlanning />} />
                         <Route path="/wallet" element={<WalletOverview />} />
                         <Route path="/wallet/manage" element={<WalletManage />} />
-
-
                         {/* ProtectedRoute example (to be implemented later)
                         <Route 
                             path="/transactions"
