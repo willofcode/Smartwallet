@@ -12,7 +12,7 @@ const Dashboard = () => {
   const [filteredTransactions, setFilteredTransactions] = useState([]);
   const [transactions, setTransactions] = useState([]); 
   const {cards} = useCard();
-  const user = JSON.parse(localStorage.getItem('user')) || 'User'; // Fetch user from local storage
+  const user = localStorage.getItem('userName') || 'User'; // Fetch user from local storage
   
   //shows 3 upcoming bills
   const getUpcomingBills = () => {

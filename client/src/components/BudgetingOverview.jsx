@@ -9,39 +9,34 @@ import Sidebar from './sideBar';
 import categoryCsv from './TempDataFiles/taxonomycategory.csv?raw';
 
 export default function BudgetingOverview() {
-  // ─── Month Tabs ───
   const monthOptions = [
     'January','February','March','April','May','June',
     'July','August','September','October','November','December',
   ];
-  // default to current month
+
   const [selectedMonth, setSelectedMonth] = useState(
     new Date().toLocaleString('default',{ month: 'long' })
   );
 
-  // ─── Core State ───
-  const [budgetData, setBudgetData]           = useState([]);
-  const [transactions, setTransactions]       = useState([]);
+  const [budgetData, setBudgetData] = useState([]);
+  const [transactions, setTransactions] = useState([]);
   const [filteredTransactions, setFilteredTransactions] = useState([]);
-  const [allCategories, setAllCategories]     = useState([]);
+  const [allCategories, setAllCategories] = useState([]);
   const [primaryToDetailed, setPrimaryToDetailed] = useState({});
-  const [usedOverrides, setUsedOverrides]     = useState({});
-  const [editing, setEditing]                 = useState(null);
-  const [tempSpent, setTempSpent]             = useState({});
-  const [searchTerm, setSearchTerm]           = useState('');
+  const [usedOverrides, setUsedOverrides] = useState({});
+  const [editing, setEditing] = useState(null);
+  const [tempSpent, setTempSpent] = useState({});
+  const [searchTerm, setSearchTerm] = useState('');
+  const [loadingBudgets, setLoadingBudgets] = useState(false);
+  const [loadingTx, setLoadingTx] = useState(false);
+  const [loadingCats, setLoadingCats] = useState(false);
 
-  const [loadingBudgets, setLoadingBudgets]   = useState(false);
-  const [loadingTx, setLoadingTx]             = useState(false);
-  const [loadingCats, setLoadingCats]         = useState(false);
-
-  // ─── 1) Fetch budgets FOR selectedMonth ───
   useEffect(() => {
     const fetchBudgets = async () => {
       setLoadingBudgets(true);
       try {
         const apiToken = localStorage.getItem('token');
-        const { data } = await axios.get(
-          `${import.meta.env.VITE_API_URL}/get_all_budgets`,
+        const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/get_all_budgets`,
           {
             headers: { Authorization: `Bearer ${apiToken}` },
             params: { month: selectedMonth }
@@ -57,7 +52,6 @@ export default function BudgetingOverview() {
     fetchBudgets();
   }, [selectedMonth]);
 
-  // ─── 2) Fetch & FILTER transactions FOR selectedMonth ───
   useEffect(() => {
     const storedAccessToken = sessionStorage.getItem('accessToken');
     const apiToken          = localStorage.getItem('token');
@@ -71,7 +65,6 @@ export default function BudgetingOverview() {
     )
     .then(resp => {
       const { transactions } = resp.data;
-      // only keep those in selectedMonth
       const filtered = transactions.filter(tx => {
         const d = new Date(tx.date);
         const monthName = d.toLocaleString('default', { month: 'long' });
@@ -85,7 +78,6 @@ export default function BudgetingOverview() {
     .finally(() => setLoadingTx(false));
   }, [selectedMonth]);
 
-  // ─── 3) Parse taxonomy CSV ───
   useEffect(() => {
     setLoadingCats(true);
     Papa.parse(categoryCsv, {
@@ -93,14 +85,14 @@ export default function BudgetingOverview() {
       skipEmptyLines: true,
       transformHeader: h => h.trim(),
       complete: ({ data }) => {
-        // unique detailed list
+
         const details = data
           .map(r => r.DETAILED?.trim())
           .filter(Boolean)
           .filter((v,i,a) => a.indexOf(v) === i);
         setAllCategories(details);
 
-        // map primary → [ detailed… ]
+        // map primary to [ detailed… ]
         const p2d = data.reduce((acc, r) => {
           const p = r.PRIMARY?.trim();
           const d = r.DETAILED?.trim();
@@ -120,7 +112,6 @@ export default function BudgetingOverview() {
     });
   }, []);
 
-  // ─── 4) Compute usedAmounts ───
   const usedAmounts = useMemo(() => {
     const auto = budgetData.reduce((acc, b) => {
       acc[b.name] = 0;
@@ -141,7 +132,6 @@ export default function BudgetingOverview() {
       });
     });
 
-    // apply manual overrides
     return Object.keys(auto).reduce((acc, name) => {
       acc[name] = usedOverrides[name] ?? auto[name];
       return acc;
@@ -155,7 +145,6 @@ export default function BudgetingOverview() {
     setEditing(null);
   };
 
-  // ─── Filter budgets by category dropdown ───
   const filteredBudgets = useMemo(() => {
     if (!searchTerm) return budgetData;
     return budgetData.filter(b =>
@@ -163,7 +152,6 @@ export default function BudgetingOverview() {
     );
   }, [budgetData, searchTerm]);
 
-  // ─── Summary totals ───
   const totalPlanned = budgetData.reduce((s, b) => s + (b.budget||0), 0);
   const totalUsed = Object.values(usedAmounts).reduce((s, v) => s + v, 0);
   const totalLeft = Math.max(totalPlanned - totalUsed, 0);
