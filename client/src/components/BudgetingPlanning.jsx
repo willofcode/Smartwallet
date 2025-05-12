@@ -9,40 +9,31 @@ import Sidebar from './sideBar';
 import categoryCsv from './TempDataFiles/taxonomycategory.csv?raw';
 
 const BudgetingPlanning = () => {
-  // ---------- server & UI state ----------
-  const [budgets, setBudgets]             = useState([]);
-  const [openIndex, setOpenIndex]         = useState(null);
-  const [viewMode, setViewMode]           = useState('planning');
-  const [loading, setLoading]             = useState(false);
-
-  // ---------- new-plan form ----------
-  const [newName, setNewName]             = useState('');
-  const [newCategory, setNewCategory]     = useState([]);
-  const [newBudget, setNewBudget]         = useState('');
-  const [newMonth, setNewMonth]           = useState('');
-
-  // ---------- edit existing ----------
-  const [editValues, setEditValues]       = useState({});  
-  const [searchTerm, setSearchTerm]       = useState('');
-
-  // ---------- dynamic categories from CSV ----------
+  const [budgets, setBudgets] = useState([]);
+  const [openIndex, setOpenIndex] = useState(null);
+  const [viewMode, setViewMode] = useState('planning');
+  const [loading, setLoading] = useState(false);
+  const [newName, setNewName] = useState('');
+  const [newCategory, setNewCategory] = useState('');
+  const [newBudget, setNewBudget] = useState('');
+  const [newMonth, setNewMonth] = useState('');
+  const [editValues, setEditValues] = useState({});  
+  const [searchTerm, setSearchTerm] = useState('');
   const [AllCategories, setAllCategories] = useState([]);
+  
   const monthOptions = [
     'January','February','March','April','May','June',
     'July','August','September','October','November','December',
   ];
 
-  // toggle open/closed accordion rows
   const toggleAccordion = (idx) =>
     setOpenIndex(openIndex === idx ? null : idx);
 
-  // fetch budgets from backend
   const fetchAllBudgets = async () => {
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
-      const { data } = await axios.get(
-        `${import.meta.env.VITE_API_URL}/get_all_budgets`,
+      const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/get_all_budgets`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setBudgets(data);
@@ -60,7 +51,6 @@ const BudgetingPlanning = () => {
       skipEmptyLines: true,
       transformHeader: h => h.trim(),
       complete: ({ data }) => {
-        console.log('parsed taxonomy:', data)              // <-- sanity‐check
         const cats = data
           .map(r => r.DETAILED)
           .filter(Boolean)
@@ -80,8 +70,7 @@ const BudgetingPlanning = () => {
     }
     try {
       const token = localStorage.getItem('token');
-      const { data } = await axios.post(
-        `${import.meta.env.VITE_API_URL}/post_budget`,
+      const { data } = await axios.post(`${import.meta.env.VITE_API_URL}/post_budget`,
         {
           name: newName.trim(),
           category: newCategory,
@@ -113,9 +102,10 @@ const BudgetingPlanning = () => {
       return;
     }
     try {
-      const { data } = await axios.patch(
-        `${import.meta.env.VITE_API_URL}/update_budget/${origName}`,
-        payload
+      const token = localStorage.getItem('token');
+      const { data } = await axios.patch(`${import.meta.env.VITE_API_URL}/update_budget/${origName}`,
+        payload,
+        { headers: { Authorization: `Bearer ${token}` } }
       );
       setBudgets(prev =>
         prev.map(b => (b.name === origName ? data : b))
@@ -130,7 +120,10 @@ const BudgetingPlanning = () => {
   // handle DELETE
   const handleDelete = async (name) => {
     try {
-      await axios.delete(`${import.meta.env.VITE_API_URL}/delete_budget/${name}`);
+      const token = localStorage.getItem('token');
+      await axios.delete(`${import.meta.env.VITE_API_URL}/delete_budget/${name}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
       setBudgets(prev => prev.filter(b => b.name !== name));
     } catch (err) {
       console.error('Delete failed:', err);
@@ -138,12 +131,10 @@ const BudgetingPlanning = () => {
     }
   };
 
-  // filter by name search
   const filteredBudgets = budgets.filter(b =>
     b.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // ---------- render UI ----------
   return (
     <div className="flex min-h-screen bg-[#1B203F] text-white">
       <Sidebar />
@@ -297,7 +288,6 @@ const BudgetingPlanning = () => {
               </button>
             </>
           ) : (
-            /* ------------ ADD PLAN FORM ------------ */
             <form onSubmit={handleSubmitNewCategory} className="space-y-6">
               <h2 className="text-2xl font-bold">New Budget Plan</h2>
 

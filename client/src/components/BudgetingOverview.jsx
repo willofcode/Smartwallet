@@ -9,25 +9,19 @@ import Sidebar from './sideBar';
 import categoryCsv from './TempDataFiles/taxonomycategory.csv?raw';
 
 const BudgetingOverview = () => {
-  // — State —
-  const [budgetData, setBudgetData]                 = useState([]);
-  const [transactions, setTransactions]             = useState([]);
+  const [budgetData, setBudgetData] = useState([]);
+  const [transactions, setTransactions] = useState([]);
   const [filteredTransactions, setFilteredTransactions] = useState([]);
-  const [allCategories, setAllCategories]           = useState([]);
-  const [primaryToDetailed, setPrimaryToDetailed]   = useState({});
-  const [loadingBudgets, setLoadingBudgets]         = useState(false);
-  const [loadingTx, setLoadingTx]                   = useState(false);
-  const [loadingCats, setLoadingCats]               = useState(false);
+  const [allCategories, setAllCategories] = useState([]);
+  const [primaryToDetailed, setPrimaryToDetailed] = useState({});
+  const [loadingBudgets, setLoadingBudgets] = useState(false);
+  const [loadingtransaction, setLoadingtransaction] = useState(false);
+  const [loadingCats, setLoadingCats] = useState(false);
+  const [usedOverrides, setUsedOverrides] = useState({});
+  const [editing, setEditing] = useState(null);
+  const [tempSpent, setTempSpent] = useState({});
+  const [searchTerm, setSearchTerm] = useState('');
 
-  // manual overrides
-  const [usedOverrides, setUsedOverrides]           = useState({});
-  const [editing, setEditing]                       = useState(null);
-  const [tempSpent, setTempSpent]                   = useState({});
-
-  // filter dropdown
-  const [searchTerm, setSearchTerm]                 = useState('');
-
-  // — 1) Fetch budgets —
   useEffect(() => {
     const fetchAllBudgets = async () => {
       setLoadingBudgets(true);
@@ -47,38 +41,35 @@ const BudgetingOverview = () => {
     fetchAllBudgets();
   }, []);
 
-  // — 2) Fetch this month’s transactions —
   useEffect(() => {
     const storedAccessToken = sessionStorage.getItem('accessToken');
-    const apiToken          = localStorage.getItem('token');
+    const apiToken = localStorage.getItem('token');
     if (!storedAccessToken) return;
 
-    setLoadingTx(true);
-    axios.post(
-      `${import.meta.env.VITE_API_URL}/get_transactions`,
+    setLoadingtransaction(true);
+    axios.post(`${import.meta.env.VITE_API_URL}/get_transactions`,
       { access_token: storedAccessToken },
       { headers: { Authorization: `Bearer ${apiToken}` } }
     )
     .then(resp => {
       const { transactions } = resp.data;
       const now = new Date();
-      const filtered = transactions.filter(tx => {
-        const d = new Date(tx.date);
+      const filtered = transactions.filter(transaction => {
+        const date = new Date(transaction.date);
         return (
-          d.getFullYear() === now.getFullYear() &&
-          d.getMonth()    === now.getMonth()
+          date.getFullYear() === now.getFullYear() &&
+          date.getMonth()    === now.getMonth()
         );
       });
       setTransactions(filtered);
       setFilteredTransactions(filtered);
     })
     .catch(err => console.error('Error fetching transactions:', err))
-    .finally(() => setLoadingTx(false));
+    .finally(() => setLoadingtransaction(false));
   }, []);
 
-  // — 3) Parse taxonomy CSV → build both:
-  //    • allCategories = unique DETAILED list
-  //    • primaryToDetailed = { primary: [ detailed… ] }
+ // parse taxonomy CSV
+
   useEffect(() => {
     setLoadingCats(true);
     Papa.parse(categoryCsv, {
@@ -86,24 +77,25 @@ const BudgetingOverview = () => {
       skipEmptyLines: true,
       transformHeader: h => h.trim(),
       complete: ({ data }) => {
-        // 3a) unique detailed list
+        // unique detailed list
         const details = data
-          .map(r => r.DETAILED?.trim())
+          .map(row => row.DETAILED?.trim())
           .filter(Boolean)
+          // 
           .filter((v,i,a) => a.indexOf(v) === i);
         setAllCategories(details);
 
-        // 3b) map primary → [ detailed… ]
-        const p2d = data.reduce((acc, r) => {
-          const p = r.PRIMARY?.trim();
-          const d = r.DETAILED?.trim();
-          if (p && d) {
-            if (!acc[p]) acc[p] = [];
-            if (!acc[p].includes(d)) acc[p].push(d);
+        // map primary → [ detailed… ]
+        const primary2detail = data.reduce((acc, row) => {
+          const primary = row.PRIMARY?.trim();
+          const detail = row.DETAILED?.trim();
+          if (primary && detail) {
+            if (!acc[primary]) acc[primary] = [];
+            if (!acc[primary].includes(detail)) acc[primary].push(detail);
           }
           return acc;
         }, {});
-        setPrimaryToDetailed(p2d);
+        setPrimaryToDetailed(primary2detail);
       },
       error: err => {
         console.error('CSV parse error:', err);
@@ -112,35 +104,31 @@ const BudgetingOverview = () => {
     });
   }, []);
 
-  // — 4) Compute usedAmounts by matching budgets.category (detailed)
-  //    to each tx’s primary → detailed array
+
   const usedAmounts = useMemo(() => {
-    // init with zeroes
-    const auto = budgetData.reduce((acc, b) => {
-      acc[b.name] = 0;
+
+    const auto = budgetData.reduce((acc, budget) => {
+      acc[budget.name] = 0;
       return acc;
     }, {});
+    
+    transactions.forEach(transaction => {
 
-    transactions.forEach(tx => {
-      // grab the tx’s primary
-      const primary = Array.isArray(tx.personal_finance_category.primary)
-        ? tx.personal_finance_category.primary[0]
-        : tx.personal_finance_category.primary;
+      const primary = Array.isArray(transaction.personal_finance_category.primary)
+        ? transaction.personal_finance_category.primary[0]
+        : transaction.personal_finance_category.primary;
 
-      // what detailed categories belong to that primary?
       const ds = primaryToDetailed[primary] || [];
 
-      // for each detailed, if a budget matches it, add the amount
       ds.forEach(detailedCat => {
-        budgetData.forEach(b => {
-          if (b.category === detailedCat) {
-            auto[b.name] += Math.abs(tx.amount);
+        budgetData.forEach(budget => {
+          if (budget.category === detailedCat) {
+            auto[budget.name] += Math.abs(transaction.amount);
           }
         });
       });
     });
 
-    // apply any manual override
     return Object.keys(auto).reduce((acc, name) => {
       acc[name] = usedOverrides[name] ?? auto[name];
       return acc;
@@ -161,23 +149,23 @@ const BudgetingOverview = () => {
   // filter budgets by dropdown search
   const filteredBudgets = useMemo(() => {
     if (!searchTerm) return budgetData;
-    return budgetData.filter(b =>
-      b.category?.toLowerCase().includes(searchTerm.toLowerCase())
+    return budgetData.filter(budget =>
+      budget.category?.toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [budgetData, searchTerm]);
 
-  // summary totals
-  const totalPlanned = budgetData.reduce((s, b) => s + (b.budget||0), 0);
-  const totalUsed    = Object.values(usedAmounts).reduce((s, v) => s + v, 0);
-  const totalLeft    = Math.max(totalPlanned - totalUsed, 0);
-  const monthName    = new Date().toLocaleString('default', { month: 'long' });
+
+  const totalPlanned = budgetData.reduce((sum, budget) => sum + (budget.budget||0), 0);
+  const totalUsed = Object.values(usedAmounts).reduce((sum, value) => sum + value, 0);
+  const totalLeft = Math.max(totalPlanned - totalUsed, 0);
+  const monthName = new Date().toLocaleString('default', { month: 'long' });
 
   return (
     <div className="flex h-screen bg-[#1B203F] text-white">
       <Sidebar />
 
       <main className="flex-grow overflow-y-auto p-8">
-        {/* TOP SUMMARY */}
+        <h1 className="text-3xl font-bold mb-8">Budgeting Overview</h1>
         <section className="bg-[#2C325C] p-8 rounded-2xl shadow-md mb-8">
           <div className="flex items-center gap-3 mb-4">
             <span className="w-3 h-5 rounded-full bg-purple-500" />
@@ -204,7 +192,6 @@ const BudgetingOverview = () => {
           </div>
         </section>
 
-        {/* BUDGET LIST */}
         <section className="bg-[#2C325C] p-6 rounded-2xl shadow-md">
           <div className="flex justify-between mb-6">
             <h2 className="font-semibold">Total Planned Expenses</h2>
@@ -215,7 +202,6 @@ const BudgetingOverview = () => {
             </Link>
           </div>
 
-          {/* CATEGORY FILTER */}
           <select
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
@@ -235,9 +221,9 @@ const BudgetingOverview = () => {
           {!loadingBudgets && filteredBudgets.length === 0 && <p>No budgets found.</p>}
 
           {filteredBudgets.map((bgt, idx) => {
-            const used   = usedAmounts[bgt.name] || 0;
-            const left   = bgt.budget - used;
-            const pct    = bgt.budget ? Math.min((used / bgt.budget) * 100, 100) : 0;
+            const used = usedAmounts[bgt.name] || 0;
+            const left = bgt.budget - used;
+            const percentage = bgt.budget ? Math.min((used / bgt.budget) * 100, 100) : 0;
             const isUnder = left >= 0;
 
             return (
@@ -289,7 +275,7 @@ const BudgetingOverview = () => {
                     className={`absolute top-0 left-0 h-5 ${
                       isUnder ? 'bg-purple-500' : 'bg-red-500'
                     } rounded-full`}
-                    style={{ width: `${pct}%` }}
+                    style={{ width: `${percentage}%` }}
                   />
                 </div>
 
