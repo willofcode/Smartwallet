@@ -335,7 +335,7 @@ router.post("/get_recurring_transactions", authMiddleware, async (req, res) => {
     }
 
     try {
-      let allTransactions = [];
+      let allTransact = [];
       let hasMore = true;
       let cursor = null;
 
@@ -345,12 +345,12 @@ router.post("/get_recurring_transactions", authMiddleware, async (req, res) => {
           cursor,
         });
         const { added, next_cursor, has_more } = resp.data;
-        allTransactions = allTransactions.concat(added);
+        allTransact = allTransact.concat(added);
         cursor = next_cursor;
         hasMore = has_more;
       }
 
-      const validTransaction = allTransactions.filter(
+      const validTransaction = allTransact.filter(
         (transaction) =>
           typeof transaction.amount === "number" &&
           transaction.merchant_name &&
@@ -412,6 +412,7 @@ router.post("/get_recurring_transactions", authMiddleware, async (req, res) => {
   }
 }
 );
+
 
 /*    ********        ********        *******       */
 module.exports = router;

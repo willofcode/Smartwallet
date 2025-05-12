@@ -188,7 +188,7 @@ const TransactionsPage = () => {
                             {filteredTransactions.map((transaction, index) => (
                               <tr key={index} className="border-b hover:bg-[#555a7c] text-white">
                                 <td className="py-3 px-4">{transaction.merchant_name || transaction.name || 'Unknown'}</td>
-                                <td className="py-3 px-4">{transaction.category || 'Unknown'}</td>
+                                <td className="py-3 px-4">{transaction.personal_finance_category.primary || 'Unknown'}</td>
                                 <td className={`py-3 px-4 ${transaction.amount < 0 ? 'text-red-600' : 'text-green-600'}`}>
                                   ${transaction.amount.toFixed(2)}
                                 </td>

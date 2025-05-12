@@ -14,7 +14,7 @@ const PieChart = ({ transactions }) => {
   const grouped = useMemo(() => {
     const groupedData = {};
     transactions.forEach((transaction) => {
-      const category = Array.isArray(transaction.category) ? transaction.category[0] : transaction.category || 'Uncategorized';
+      const category = Array.isArray(transaction.personal_finance_category.primary ) ? transaction.personal_finance_category.primary[0] : transaction.personal_finance_category.primary || 'Uncategorized';
       if (!groupedData[category]) {
         groupedData[category] = [];
       }
