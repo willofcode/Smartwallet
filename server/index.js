@@ -6,24 +6,23 @@ const bodyparser = require('body-parser');
 const routes = require('./routes/routes');
 const aicb = require('./routes/aicbRoutes');
 const budgetRoutes = require('./routes/budgetRoutes');
-const billsRoutes = require('./routes/billsRoutes');
 const session = require('express-session');
 const passport = require('passport');
 
 require('./config/passportConfig');
 
 const app = express();
-/*
+
 const corsOptions = {
-    origin: "https://sd2smartwallet.netlify.app",
+    origin: "https://smartwalletalpha.netlify.app",
     methods: "GET,POST,PATCH,DELETE",
     credentials: true
   };
-*/
+
 
 app.use(express.json());
 app.use(cors());
-//app.use(cors(corsOptions));
+app.use(cors(corsOptions));
 app.use(bodyparser.json());
 
 app.use(passport.initialize());
@@ -49,4 +48,4 @@ database.once('connected', () => {
 app.use('/api', routes);
 app.use('/api', aicb);
 app.use('/api', budgetRoutes);
-app.use('/api', billsRoutes);
+
