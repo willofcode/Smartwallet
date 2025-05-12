@@ -40,7 +40,7 @@ router.post("/post_budget", authMiddleware, async (req, res) => {
 router.get("/get_all_budgets", authMiddleware, async (req, res) => {
     try {
       const userId = req.user.userId;
-      const { month } = req.query;                // e.g. ?month=May
+      const { month } = req.query;   
 
       const filter = { userId };
       if (month) filter.month = month;
