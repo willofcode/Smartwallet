@@ -104,7 +104,7 @@ const Dashboard = () => {
           })
           .filter(bill => bill.date >= today && bill.date <= next30)
           .sort((a, b) => a.date - b.date)
-          .slice(0, 3);
+          .slice(0, 6);
 
         const total = bills.reduce((sum, bill) => sum + parseFloat(bill.amount), 0);
 
@@ -136,8 +136,8 @@ const Dashboard = () => {
       <main className="flex-grow h-screen overflow-y-auto p-8">
         <div className="grid grid-cols-12 gap-6">
           <header className="col-span-12 bg-[#2C325C] rounded-2xl p-6">
-            <h2 className="text-2xl">Your Financial Dashboard</h2>
-            <p className="mb-4">Welcome back {userName || 'User'}</p>
+            <h2 className="font-poppins text-3xl font-bold tracking-tight mb-2">Your Financial Dashboard</h2>
+            <p className="text-gray-400 mb-4">Welcome back {userName || 'User'}, ready to take control of your finances?</p>
             <div className="flex gap-2">
               <button onClick={() => filterDays(14)} className="px-4 py-2 rounded-lg bg-[#3a3f66] hover:bg-[#555a7c]">2 weeks</button>
               <button onClick={() => filterDays(30)} className="px-4 py-2 rounded-lg bg-[#3a3f66] hover:bg-[#555a7c]">1 month</button>
@@ -147,12 +147,12 @@ const Dashboard = () => {
 
           <section className="col-span-12 lg:col-span-7 flex flex-col gap-6">
             <div className="bg-[#2C325C] rounded-2xl p-6 min-h-[500px] flex flex-col">
-              <h3 className="text-lg mb-4">My Spending Overview</h3>
+              <h3 className="text-xl font-semibold mb-4">My Spending Overview</h3>
               <PieChart transactions={filteredTransactions} />
             </div>
 
             <div className="bg-[#2C325C] rounded-2xl p-6 flex-1 flex flex-col">
-              <h3 className="text-lg mb-4">Improving Financial Habits</h3>
+              <h3 className="text-xl font-semibold mb-4">Improving Financial Habits</h3>
               <div className="grid grid-cols-2 gap-4 mt-auto">
                 {budgetPlan.slice(0, 4).map((plan) => {
                   const end = new Date(plan.end_date);
@@ -170,9 +170,9 @@ const Dashboard = () => {
           </section>
 
           <section className="col-span-12 lg:col-span-5 flex flex-col gap-6">
-            <div className="bg-[#2C325C] rounded-2xl p-6">
+            <div className="bg-[#2C325C] rounded-2xl flex-grow p-6">
               <h3 className="text-xl font-semibold mb-2">Upcoming Bills</h3>
-              <p className="text-sm text-gray-300 mb-4">
+              <p className="text-sm text-gray-400 mb-4">
                 Total Bills Due in Next 30 Days:{' '}
                 <span className="text-white font-bold">${totalUpcoming.toFixed(2)}</span>
               </p>
@@ -192,7 +192,7 @@ const Dashboard = () => {
             </div>
 
             <div className="bg-[#2C325C] rounded-2xl p-6">
-              <h3 className="text-lg mb-4">My Cards</h3>
+              <h3 className="text-xl font-semibold mb-4">My Cards</h3>
               <div className="flex flex-col gap-4">
                 {accounts.map((acc) => (
                   <div key={acc.account_id} className="bg-purple-600 p-4 rounded-xl shadow-md">
@@ -209,17 +209,17 @@ const Dashboard = () => {
               </div>
             </div>
 
-            <div className="bg-[#2C325C] rounded-2xl p-6 flex-1 flex flex-col">
-              <h3 className="text-lg mb-4">Spending Reduction Goals</h3>
+            {/*<div className="bg-[#2C325C] rounded-2xl p-6 flex-1 flex flex-col">
+              <h3 className="text-xl font-semibold mb-4">Spending Reduction Goals</h3>
               <p className="text-2xl mb-2">
                 <strong>$3,000/$10,000</strong>
               </p>
-              <p className="text-gray-300 text-sm leading-relaxed mt-auto">
+              <p className="text-gray-400 text-sm leading-relaxed mt-auto">
                 Overall spending increased by 20%.<br />
                 Weekly spending 2× more than last week.<br />
                 Decrease entertainment spending by $100/month.
               </p>
-            </div>
+            </div>*/}
           </section>
         </div>
       </main>
