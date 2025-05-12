@@ -23,19 +23,6 @@ const PieChart = ({ transactions }) => {
     return Object.entries(groupedData);
   }, [transactions]);
 
-  /* // Alternative method to group categories
-    const categorySpendings = useMemo(() => {
-    const spending = {};
-    transactions.forEach(({ category, amount }) => {
-      if (!category) return;
-      const key = Array.isArray(category) ? category.join(", ") : category;
-      if (!spending[key]) spending[key] = 0;
-      spending[key] += Math.abs(amount); // use absolute to avoid negative spending
-    });
-    return spending;
-  }, [transactions]);
-  */
-
   const labels = grouped.map(([category]) => category);
   const values = grouped.map(([_, trans]) =>
     trans.reduce((sum, t) => sum + Math.abs(t.amount), 0)

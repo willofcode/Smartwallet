@@ -415,21 +415,15 @@ router.post("/get_recurring_transactions", authMiddleware, async (req, res) => {
 
 
 router.get("/get_accounts", authMiddleware, async (req, res) => {
-  const { access_token } = req.header["access_token"] || req.body;
-  // access_token is not in the body, it should be in the request header
-  //
+  const access_token = req.query.access_token;
+
   if (!access_token) {
-    return res
-      .status(400)
-      .json({ error: "access_token is required in request body" });
+    return res.status(400).json({ error: "access_token is required in request body" });
   }
 
   try {
-    const response = await plaidClient.accountsGet({ access_token });
-    const accounts = response.data.accounts;
-
-    console.log("Accounts fetched:", accounts);
-    res.json({ accounts });
+    const { response } = await plaidClient.accountsGet({ access_token });
+    return res.json({ accounts: response.accounts });
   } catch (error) {
     console.error('Error fetching accounts:', error.response ? error.response.data : error.message);
     res.status(500).json({ error: "Can't Get Account information" });

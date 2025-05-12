@@ -7,7 +7,8 @@ import BillsPage from "./components/BillsPage";
 import Sidebar from "./components/sideBar";
 import BudgetingOverview from "./components/BudgetingOverview";
 import BudgetingPlanning from "./components/BudgetingPlanning";
-import WalletPage from "./components/WalletPage";
+import WalletOverview from "./components/WalletOverview";
+import WalletManage from "./components/WalletManage";
 import VerifyEmailPage from "./components/VerifyEmailPage";
 import { CardProvider } from "./components/TempDataFiles/CardInfo";
 
@@ -24,7 +25,9 @@ function App() {
                         <Route path="/bills" element={<BillsPage />} />
                         <Route path="/budgeting" element={<BudgetingOverview />} />
                         <Route path="/budgeting/planning" element={<BudgetingPlanning />} />
-                        <Route path="/wallet" element={<WalletPage />} />
+                        <Route path="/wallet" element={<WalletOverview />} />
+                        <Route path="/wallet/manage" element={<WalletManage />} />
+
 
                         {/* ProtectedRoute example (to be implemented later)
                         <Route 
