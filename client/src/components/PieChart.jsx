@@ -14,7 +14,7 @@ const PieChart = ({ transactions }) => {
   const grouped = useMemo(() => {
     const groupedData = {};
     transactions.forEach((transaction) => {
-      const category = Array.isArray(transaction.category) ? transaction.category[0] : transaction.category || 'Uncategorized';
+      const category = Array.isArray(transaction.personal_finance_category.primary ) ? transaction.personal_finance_category.primary[0] : transaction.personal_finance_category.primary || 'Uncategorized';
       if (!groupedData[category]) {
         groupedData[category] = [];
       }
@@ -22,19 +22,6 @@ const PieChart = ({ transactions }) => {
     });
     return Object.entries(groupedData);
   }, [transactions]);
-
-  /* // Alternative method to group categories
-    const categorySpendings = useMemo(() => {
-    const spending = {};
-    transactions.forEach(({ category, amount }) => {
-      if (!category) return;
-      const key = Array.isArray(category) ? category.join(", ") : category;
-      if (!spending[key]) spending[key] = 0;
-      spending[key] += Math.abs(amount); // use absolute to avoid negative spending
-    });
-    return spending;
-  }, [transactions]);
-  */
 
   const labels = grouped.map(([category]) => category);
   const values = grouped.map(([_, trans]) =>
@@ -94,10 +81,10 @@ const PieChart = ({ transactions }) => {
   };
 
   return (
-    <div className="w-fit h-fit max-w-2xl mx-auto p-4 bg-transparent shadow-md rounded-lg">
+    <div className="w-fit h-fit mx-auto bg-transparent shadow-md rounded-lg">
       <div className="flex justify-center items-center">
         {labels.length > 0 ? (
-          <div className="w-full max-w-xl justify-between h-[300px]">
+          <div className="w-full flex flex-row gap-4 max-w-3xl h-[400px]">
             <Pie data={data} options={options} />
           </div>):(<p>No transactions available.</p>)
         }

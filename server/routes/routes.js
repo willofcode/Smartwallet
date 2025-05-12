@@ -325,28 +325,114 @@ router.post('/get_transactions', async (req, res) => {
   }
 });
 
-router.get('/accounts', async (req, res) => {
-  try {
-    const accessToken = 'access-production-6882cda7-cca3-430f-b038-14849cd5208f';
-    const response = await plaidClient.accountsGet({
-      access_token: accessToken,
-    });
+// client side endpoint works
+router.post("/get_recurring_transactions", authMiddleware, async (req, res) => {
+    const { access_token } = req.body;
 
-    const accounts = response.data.accounts.map(account => ({
-      account_id: account.account_id,
-      name: account.name,
-      available: account.balances.available,
-      currency: account.balances.iso_currency_code,
-      mask: account.mask,
-    }));
+    if (!access_token) {
+      return res
+        .status(400)
+        .json({ error: "access_token is required in request body" });
+    }
 
-    res.json({ accounts });
+    try {
+      let allTransact = [];
+      let hasMore = true;
+      let cursor = null;
 
-  } catch (error) {
-    console.error('Error fetching accounts:', error);
-    res.status(500).json({ error: 'Failed to retrieve account data' });
+      while (hasMore) {
+        const resp = await plaidClient.transactionsSync({
+          access_token,
+          cursor,
+        });
+        const { added, next_cursor, has_more } = resp.data;
+        allTransact = allTransact.concat(added);
+        cursor = next_cursor;
+        hasMore = has_more;
+      }
+
+      const validTransaction = allTransact.filter(
+        (transaction) =>
+          typeof transaction.amount === "number" &&
+          transaction.merchant_name &&
+          transaction.merchant_name.trim() !== ""
+      );
+
+      const groups = validTransaction.reduce((map, transaction) => {
+        const normMerchant = transaction.merchant_name.trim().toLowerCase();
+        const key = `${normMerchant}::${transaction.amount.toFixed(2)}`;
+        if (!map[key]) map[key] = [];
+        map[key].push(transaction);
+        return map;
+      }, {});
+
+      const recurring = Object.values(groups).filter((batch) => {
+        if (batch.length < 3) return false;
+
+        const dates = batch
+          .map((t) => new Date(t.date))
+          .sort((a, b) => a - b);
+
+        for (let i = 1; i < dates.length; i++) {
+          const prev = dates[i - 1], curr = dates[i];
+          const monthDiff =
+            (curr.getFullYear() - prev.getFullYear()) * 12 +
+            (curr.getMonth()    - prev.getMonth());
+          if (monthDiff !== 1) return false;
+        }
+        return true;
+      })
+      .map((batch) => {
+        // Build sorted dates desc
+        const dates = batch
+          .map((t) => t.date)
+          .sort(
+            (a, b) => new Date(b) - new Date(a)
+          );
+
+        return {
+          icon: batch[0].personal_finance_category_icon_url,
+          merchant_name: batch[0].merchant_name,
+          account_id: batch[0].account_id,
+          amount: batch[0].amount,
+          occurrences: batch.length,
+          last_date: dates[0],
+          dates,
+        };
+      });
+
+    return res.json({ recurring });
+  } catch (err) {
+    console.error(
+      "Error in /get_recurring_transactions:",
+      err.response?.data || err.message
+    );
+    return res
+      .status(500)
+      .json({ error: "Unable to fetch recurring transactions" });
   }
-});
+}
+);
+
+
+router.get("/get_accounts", authMiddleware, async (req, res) => {
+  const access_token = req.query.access_token;
+
+  if (!access_token) {
+    return res.status(400).json({ error: "access_token is required in request body" });
+  }
+
+  try {
+    const { response } = await plaidClient.accountsGet({ access_token });
+    return res.json({ accounts: response.accounts });
+  } catch (error) {
+    console.error('Error fetching accounts:', error.response ? error.response.data : error.message);
+    res.status(500).json({ error: "Can't Get Account information" });
+  }
+}
+);
+// 200
+
 
 /*    ********        ********        *******       */
 module.exports = router;

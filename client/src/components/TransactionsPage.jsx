@@ -42,6 +42,7 @@ const TransactionsPage = () => {
 
           const { transactions, accounts } = response.data;
           if (transactions && accounts) {
+            sessionStorage.setItem('accounts', JSON.stringify(accounts));
             const sorted = transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
             setTransactions(sorted);
             setFilteredTransactions(sorted);
@@ -107,6 +108,7 @@ const TransactionsPage = () => {
 
           const { transactions, accounts } = transactionsResponse.data;
           if (transactions && accounts) {
+            sessionStorage.setItem('accounts', JSON.stringify(accounts));
             const sorted = transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
             setTransactions(sorted);
             setFilteredTransactions(sorted);
