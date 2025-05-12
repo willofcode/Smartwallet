@@ -72,6 +72,11 @@ const budgetingSchema = new mongoose.Schema({
 
     },
 
+    month:
+    { type: String,
+      required: true
+    },
+  
     budget:
     { type: Number,
       required: true

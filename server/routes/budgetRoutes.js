@@ -8,115 +8,141 @@ const router = express.Router();
 
 // these need error handling... (on try blocks).
 
+/// CREATE a new monthly budget plan
 router.post("/post_budget", authMiddleware, async (req, res) => {
     try {
-        console.log("User from middleware:", req.user);
+      const userId   = req.user.userId;
+      const { name, category, budget, month } = req.body;
 
-        /// we shouldn't require the uid the user wouldn't know that tbh
-        const { 
-            name,
-            category, 
-            budget } = req.body;
+      // month should be a string like "January"
+      if (!name || !category || !budget || !month) {
+        return res.status(400).json({ message: "name, category, budget & month are all required" });
+      }
 
-        const new_budget = new Budget({
-            userId: req.user.userId,
-            name,
-            category,
-            budget,
-        });
+      const newBudget = new Budget({
+        userId,
+        name,
+        category,
+        month,
+        budget: Number(budget),
+      });
 
-        await new_budget.save();
-        console.log("Saved Budget:", new_budget);
-        res.status(201).json(new_budget);
-
+      await newBudget.save();
+      return res.status(201).json(newBudget);
     } catch (error) {
-        console.error("Error saving budget:", error);
-        res.status(500).json({ message: "Server error", error });
+      console.error("Error saving budget:", error);
+      return res.status(500).json({ message: "Server error", error });
     }
-});
+  }
+);
 
-// filtering how a user can retrieve their budget plans
-// this should get name
+/// READ: get all budgets for this user, optionally filtered by month
+router.get("/get_all_budgets", authMiddleware, async (req, res) => {
+    try {
+      const userId = req.user.userId;
+      const { month } = req.query;                // e.g. ?month=May
 
+      const filter = { userId };
+      if (month) filter.month = month;
 
-// this should get all budgets for a specific user. this could be based off id (userid)
-router.get('/get_all_budgets', authMiddleware, async(req, res) => {
-    try{
-        //await res.json({ message: "hi get all budgets" });
-        const userId = req.user.userId;
-        const budgets = await Budget.find({ userId });
-
-        res.json(budgets);
-
-    }catch(error){
-        console.error("Error details:", error);
-        res.status(500).json({ message: "CAN'T GET ALL: ", error: error.message});
+      const budgets = await Budget.find(filter);
+      return res.json(budgets);
+    } catch (error) {
+      console.error("Error fetching budgets:", error);
+      return res
+        .status(500)
+        .json({ message: "CAN'T GET ALL", error: error.message });
     }
-});
+  }
+);
 
-router.get('/get_budget/:name', async(req, res) => {
-    try{
-        const budgetName = req.params.name;
-        const budget = await Budget.findOne({ name: budgetName });
+/// READ one budget by name (and optionally month via query)
+router.get("/get_budget/:name", authMiddleware, async (req, res) => {
+    try {
+      const userId  = req.user.userId;
+      const budgetName = req.params.name;
+      const { month }  = req.query;
 
-        res.json(budget);
-  
-    } catch(error){
-        console.error(error);
-        res.status(500).json({ message: "CAN'T GET/:name :", error});
+      const query = { userId, name: budgetName };
+      if (month) query.month = month;
+
+      const budget = await Budget.findOne(query);
+      if (!budget) {
+        return res.status(404).json({ message: "Budget not found" });
+      }
+      return res.json(budget);
+    } catch (error) {
+      console.error("Error fetching budget:", error);
+      return res.status(500).json({ message: "CAN'T GET /:name", error });
     }
-});
+  }
+);
 
-//200!
-router.patch('/update_budget/:name', async(req,res) => {
-    try{
+/// UPDATE an existing budget (name, category, budget, or month)
+router.patch( "/update_budget/:name", authMiddleware, async (req, res) => {
+    try {
+      const userId = req.user.userId;
+      const originalName = req.params.name;
+      const updates = req.body;   // may include name, category, budget, month
 
-        const findBudgetName = req.params.name;
-        const updateBudgetData = req.body;
-
-        if(Object.keys(updateBudgetData).length === 0) {
-            return res.status(404).json({ message: "Cannot update, budget not found."});
+      // remove empty fields
+      Object.keys(updates).forEach(key => {
+        if (updates[key] === undefined || updates[key] === "") {
+          delete updates[key];
         }
+      });
 
-        else{
+      if (Object.keys(updates).length === 0) {
+        return res.status(400).json({ message: "No updates provided" });
+      }
 
-            const updatedBudget =  await Budget.findOneAndUpdate(
-                { name: findBudgetName },
-                { $set: updateBudgetData },
-                { new: true,
-                runValidators: true
-                }
-            );
+      const updated = await Budget.findOneAndUpdate(
+        { userId, name: originalName },
+        { $set: updates },
+        { new: true, runValidators: true }
+      );
 
-            res.json(updatedBudget);
-        }
+      if (!updated) {
+        return res.status(404).json({ message: "Budget to update not found" });
+      }
 
-    } catch(error) {
-        console.error(error);
-        res.status(500).json({ message: "CAN'T UPDATE: ", error });
+      return res.json(updated);
+    } catch (error) {
+      console.error("Error updating budget:", error);
+      return res.status(500).json({ message: "CAN'T UPDATE", error });
     }
+  }
+);
 
-});
+/// DELETE a budget by name (and optional month filter)
+router.delete("/delete_budget/:name", authMiddleware, async (req, res) => {
+    try {
+      const userId  = req.user.userId;
+      const budgetName = req.params.name;
+      const { month }  = req.query;
 
-//200
-router.delete('/delete_budget/:name', async(req, res) =>{
-    try{
-        const budgetName = req.params.name;
-        const deletedBudget = await Budget.findOneAndDelete({ name: budgetName });
+      const query = { name: budgetName };
+      if (month) query.month = month;
 
-        if(!deletedBudget){
-            res.status(404).json({ message: "Budget Not Found."});
-        }
+      const deleted = await Budget.findOneAndDelete(query);
+      if (!deleted) {
+        return res.status(404).json({ message: "Budget not found" });
+      }
 
-        else{
-            res.json({deletedBudget, message:`${budgetName} has been deleted`});
-        }
-
-    } catch(error){
-        console.error(error);
-        res.status(500).json({ message: "CAN'T DELETE: ", error });
+      return res.json({
+        message: `${budgetName} (${deleted.month}) deleted`,
+        deletedBudget: deleted,
+      });
+    } catch (error) {
+      console.error("Error deleting budget:", error);
+      return res.status(500).json({ message: "CAN'T DELETE", error });
     }
-});
+  }
+);
+
+module.exports = router;
+
+// endpoints be was not used,
 
 // I can try to add a post expense and update expense endpoint
 // this was the user can add how much money they've spent directly.
@@ -143,7 +169,7 @@ router.post('/add_monthly_budget', async (req, res) =>{
     try{
 
     } catch(error){
-        console.error("can't CREATE monthly budget: ", error);
+        console.error("can't UPDATE monthly budget: ", error);
     }
 });
 
