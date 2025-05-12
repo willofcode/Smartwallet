@@ -54,7 +54,7 @@ export default function BudgetingOverview() {
 
   useEffect(() => {
     const storedAccessToken = sessionStorage.getItem('accessToken');
-    const apiToken          = localStorage.getItem('token');
+    const apiToken = localStorage.getItem('token');
     if (!storedAccessToken) return;
 
     setLoadingTx(true);
@@ -205,7 +205,7 @@ export default function BudgetingOverview() {
         </section>
         <section className="bg-[#2C325C] p-6 rounded-2xl shadow-md">
           <div className="flex justify-between mb-6">
-            <h2 className="font-semibold">Total Planned Expenses</h2>
+            <h2 className="text-xl font-semibold">Total Planned Expenses</h2>
             <Link to="/budgeting/planning">
               <button className="bg-purple-600 px-4 py-2 rounded-lg">
                 Settings
