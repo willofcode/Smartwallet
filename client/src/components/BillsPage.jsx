@@ -56,12 +56,12 @@ const BillsPage = () => {
         <div className="bg-[#2C325C] p-6 rounded-2xl shadow-md w-full">
           <h1 className="text-2xl font-bold mb-4">Monthly Bills</h1>
 
-          <div className="grid grid-cols-5 gap-4 text-sm font-bold mb-4">
+          <div className="grid grid-cols-4 gap-4 text-sm font-bold mb-4">
             <span>Merchant</span>
             <span>Account</span>
             <span>Amount</span>
             <span>Date</span>
-            <span>Details</span>
+            {/*<span>Details</span>*/}
           </div>
 
           {billsByMonth.map((blk, mIdx) => (
@@ -78,22 +78,25 @@ const BillsPage = () => {
 
                 return (
                   <div key={bIdx} className="mb-4">
-                    <div className="grid grid-cols-5 gap-4 p-4 bg-[#1B203F] rounded-lg">
+                    <div className="grid grid-cols-4 gap-4 p-4 bg-[#1B203F] rounded-lg">
                       <span>{bill.merchant_name}</span>
-                      <span>{bill.account_id}</span>
+                      <span className="text-xs text-gray-300 truncate">
+                          {bill.account_id}
+                      </span>
+
                       <span className={getAmountColor(amt)}>
                         ${Math.abs(amt).toFixed(2)}
                       </span>
                       <span>{dayjs(date).format('YYYY-MM-DD')}</span>
-                      <span
+                      {/*<span
                         className="text-xl cursor-pointer"
                         onClick={() => toggleDetails(mIdx, bIdx)}
                       >
                         📄
-                      </span>
+                      </span>*/}
                     </div>
 
-                    {isOpen && (
+                    {/*{isOpen && (
                       <div className="ml-4 mt-2 p-3 bg-[#2C325C] rounded-lg text-sm space-y-1">
                         <div><strong>Description:</strong> {bill.description}</div>
                         <div><strong>Category:</strong> {bill.category?.join(' > ')}</div>
@@ -103,7 +106,7 @@ const BillsPage = () => {
                         <div><strong>Status:</strong> {bill.status}</div>
                         <div><strong>Next:</strong> {bill.predicted_next_date}</div>
                       </div>
-                    )}
+                    )}*/}
                   </div>
                 );
               })}
