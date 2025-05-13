@@ -44,7 +44,6 @@ database.once('connected', () => {
     console.log('Database on!')
 });
 
-
 app.use('/api', routes);
 app.use('/api', aicb);
 app.use('/api', budgetRoutes);
