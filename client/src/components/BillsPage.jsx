@@ -18,8 +18,7 @@ async function getRecurringTransactions() {
     headers.Authorization = `Bearer ${authToken}`;
   }
 
-  const resp = await axios.post(
-    `${import.meta.env.VITE_API_URL}/get_recurring_transactions`,
+  const resp = await axios.post(`${import.meta.env.VITE_API_URL}/get_recurring_transactions`,
     { access_token },
     { headers }
   );
