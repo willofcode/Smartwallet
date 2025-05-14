@@ -1,11 +1,10 @@
-'use client';
-
 import { useEffect, useState } from 'react';
 import { usePlaidLink } from 'react-plaid-link';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import Sidebar from './sideBar';
 import Chatbot from './Chatbot';
+import TransactionsTable from './TransactionsTable';
 
 const TransactionsPage = () => {
   const [userId, setUserId] = useState(null);
@@ -22,19 +21,51 @@ const TransactionsPage = () => {
 
   useEffect(() => {
     const storedUserId = localStorage.getItem('userId');
+    const storedAccessToken = sessionStorage.getItem('accessToken');
     const storedLinkToken = localStorage.getItem('linkToken');
 
-    if (storedUserId) {
-      setUserId(storedUserId);
-      if (storedLinkToken) {
-        setLinkToken(storedLinkToken);
-        setIsLinkReady(true);
-      } else {
-        generateLinkToken();
-      }
-    } else {
+    if (!storedUserId) {
       navigate('/');
+      return;
     }
+
+    setUserId(storedUserId);
+
+    const fetchData = async () => {
+      try {
+        setIsLoading(true);
+
+        if (storedAccessToken) {
+          const response = await axios.post(`${import.meta.env.VITE_API_URL}/get_transactions`, {
+            access_token: storedAccessToken,
+          });
+
+          const { transactions, accounts } = response.data;
+          if (transactions && accounts) {
+            sessionStorage.setItem('accounts', JSON.stringify(accounts));
+            const sorted = transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
+            setTransactions(sorted);
+            setFilteredTransactions(sorted);
+            setAccounts(accounts);
+          }
+        }
+
+        if (storedLinkToken) {
+          setLinkToken(storedLinkToken);
+          setIsLinkReady(true);
+        } else {
+          await generateLinkToken();
+        }
+
+      } catch (err) {
+        console.error('Error fetching data:', err);
+        setError('Failed to fetch transactions.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
   }, [navigate]);
 
   const generateLinkToken = async () => {
@@ -66,28 +97,22 @@ const TransactionsPage = () => {
         const accessTokenResponse = await axios.post(`${import.meta.env.VITE_API_URL}/get_access_token`, {
           public_token: publicToken,
         });
-  
+
         const { access_token } = accessTokenResponse.data;
         if (access_token) {
           sessionStorage.setItem('accessToken', access_token);
-  
+
           const transactionsResponse = await axios.post(`${import.meta.env.VITE_API_URL}/get_transactions`, {
             access_token,
           });
-  
+
           const { transactions, accounts } = transactionsResponse.data;
-          /// I'm adding the logs for the api response, 
-          /// fetched transactions
-          /// and fetched accounts 
-          //. to see if we have no data on production (I'm currently on prod environment)
-          console.log(' raw api Response:', transactionsResponse.data);
           if (transactions && accounts) {
-            const sortedTransactions = transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
-            console.log('fetched transactions:', transactions);
-            console.log('fetched accounts:', accounts);  
-            setTransactions(sortedTransactions);
+            sessionStorage.setItem('accounts', JSON.stringify(accounts));
+            const sorted = transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
+            setTransactions(sorted);
+            setFilteredTransactions(sorted);
             setAccounts(accounts);
-            setFilteredTransactions(sortedTransactions);
           } else {
             setError('Failed to fetch transactions.');
           }
@@ -101,7 +126,7 @@ const TransactionsPage = () => {
       }
     },
   });
-  
+
   const getAccountDetails = (accountId) => {
     const account = accounts.find(acc => acc.account_id === accountId);
     return account ? `${account.name}` : 'Unknown Account';
@@ -124,12 +149,9 @@ const TransactionsPage = () => {
       <Sidebar />
       <div className="flex-grow overflow-y-auto p-8">
         <div className="min-h-screen flex bg-gray-900">
-  
           <main className="content flex-grow p-8">
             <header className="summary-header bg-[#3a3f66] text-white p-6 rounded-lg shadow-lg mb-6 flex justify-between">
               <h1 className="text-4xl font-semibold">Transactions</h1>
-  
-              {/* range filter */}
               <div className="mb-6">
                 <input
                   type="date"
@@ -156,7 +178,8 @@ const TransactionsPage = () => {
               {userId ? (
                 <>
                   {error && <div className="text-red-600 mb-4">{error}</div>}
-                  {isLinkReady ? (
+  
+                  {isLinkReady && (
                     <button
                       onClick={() => open()}
                       disabled={!ready}
@@ -164,50 +187,23 @@ const TransactionsPage = () => {
                     >
                       Link Bank Account
                     </button>
-                  ) : isLoading ? (
-                    <div className="mt-4 text-center text-gray-600">Generating Plaid Link...</div>
-                  ) : (
-                    <div className="mt-4 text-center text-red-600">Error creating link token. Please try again later.</div>
                   )}
   
-                  <div className="transactions-list mt-8">
-                    {filteredTransactions.length > 0 ? (
-                      <div className="overflow-x-auto">
-                        <table className="min-w-full bg-[#1b1d33] table-auto rounded-lg shadow-sm">
-                          <thead className="bg-[#3a3f66] text-white">
-                            <tr>
-                              <th className="py-3 px-4 text-left">Merchant</th>
-                              <th className="py-3 px-4 text-left">Category</th>
-                              <th className="py-3 px-4 text-left">Amount</th>
-                              <th className="py-3 px-4 text-left">Date</th>
-                              <th className="py-3 px-4 text-left">Account</th>
-                            </tr>
-                          </thead>
-  
-                          <tbody>
-                            {filteredTransactions.map((transaction, index) => (
-                              <tr key={index} className="border-b hover:bg-[#555a7c] text-white">
-                                <td className="py-3 px-4">{transaction.merchant_name || transaction.name || 'Unknown'}</td>
-                                <td className="py-3 px-4">{transaction.category || 'Unknown'}</td>
-                                <td className={`py-3 px-4 ${transaction.amount < 0 ? 'text-red-600' : 'text-green-600'}`}>
-                                  ${transaction.amount.toFixed(2)}
-                                </td>
-                                <td className="py-3 px-4">{transaction.date}</td>
-                                <td className="py-3 px-4">{getAccountDetails(transaction.account_id)}</td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    ) : isLoading ? (
-                      <div className="text-center text-gray-600">Fetching transactions...</div>
-                    ) : (
-                      <div className="text-center text-gray-600">No transactions to display.</div>
-                    )}
-                  </div>
+                  {filteredTransactions.length > 0 ? (
+                    <TransactionsTable
+                      transactions={filteredTransactions}
+                      getAccountDetails={getAccountDetails}
+                    />
+                  ) : isLoading ? (
+                    <div className="text-center text-gray-400">Fetching transactions...</div>
+                  ) : (
+                    <div className="text-center text-gray-400">No transactions to display.</div>
+                  )}
                 </>
               ) : (
-                <div className="text-center text-gray-600">You are not logged in. Please log in to view your transactions.</div>
+                <div className="text-center text-gray-600">
+                  You are not logged in. Please log in to view your transactions.
+                </div>
               )}
             </div>
           </main>
@@ -216,8 +212,8 @@ const TransactionsPage = () => {
       <div className="fixed bottom-6 right-6 z-50">
         <Chatbot />
       </div>
-  </div>
+    </div>
   );  
-}  
+};
 
 export default TransactionsPage;

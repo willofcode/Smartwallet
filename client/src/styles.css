@@ -1,25 +1,28 @@
-
-
 /* Container for the carousel */
 .logos-carousel {
-    display: flex;
-    flex-wrap: nowrap;
     width: 100%;
     overflow: hidden;
+    white-space: nowrap;
+    padding: 1rem 0;
+    position: relative;
+
   }
   
   /* Wrapper that holds the logos */
   .logos-wrapper {
-    display: flex;
-    flex-wrap: nowrap;
-    animation: scrollLogos 35s linear infinite;
+    display: inline-flex;
+    animation: scroll 10s linear infinite;
   }
   
   /* Individual logo styles */
   .logo {
-    width: 100px; /* Adjust logo width as needed */
-    height: auto;
-    margin-right: 20px; /* Space between logos */
+    height: 80px;
+    margin-right: 3rem;
+    opacity: 0.8;
+    transition: opacity 0.3s ease-in-out;
+  }
+  .logo:hover {
+    opacity: 1;
   }
   
   /* Smooth animation for the logos */
@@ -37,3 +40,12 @@
       */
     }
   }  
+
+  @keyframes scroll {
+    0% {
+      transform: translateX(0%);
+    }
+    100% {
+      transform: translateX(-50%);
+    }
+  }
