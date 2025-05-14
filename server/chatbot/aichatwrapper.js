@@ -12,17 +12,29 @@ const { initializeAgentExecutorWithOptions } = require('langchain/agents');
 class FinancialAdvisorChatbot {
   constructor(modelName = "gpt-3.5-turbo", temperature = 0.7) {
     this.chatModel = new ChatOpenAI({
-      modelName: modelName,
-      temperature: temperature,
+      modelName,
+      temperature,
       maxTokens: 500,
       openAIApiKey: process.env.OPENAI_API_KEY,
     });
 
-    // Create a memory instance
     this.memory = new BufferMemory({
       returnMessages: true,
       memoryKey: "chat_history",
       inputKey: "input",
+    });
+
+    const tools = [
+      new TransactionInsightTool(),
+      new BudgetForecastTool(),
+      new InvestmentSimulatorTool(),
+    ];
+
+    // Initialize LangChain agent executor
+    this.executorPromise = initializeAgentExecutorWithOptions(tools, this.chatModel, {
+      agentType: "zero-shot-react-description",
+      memory: this.memory,
+      verbose: true, // Logs tool selection and steps
     });
 
     // Define the financial advisor prompt template
@@ -49,79 +61,62 @@ class FinancialAdvisorChatbot {
       llm: this.chatModel,
       memory: this.memory,
       prompt: financialAdvisorPrompt,
-      inputKey: 'input',
       verbose: process.env.NODE_ENV === 'development',
-    });
-    
-    const tools = [
-      new TransactionInsightTool(),
-      new BudgetForecastTool(),
-      new InvestmentSimulatorTool(),
-    ];
-
-    // Initialize tools
-    this.executorPromise = initializeAgentExecutorWithOptions(tools, this.chatModel, {
-      agentType: 'zero-shot-react-description',
-      memory: this.memory,
-      verbose: true,
     });
   }
 
-  async chat(userInput, userId = 'default') {
+  async chat(userInput, userId = 'default', access_token = '') {
     try {
       console.log(`User ${userId}: ${userInput}`);
 
-      // Load conversation history into memory if available
       await this.loadConversationHistory(userId);
+      const executor = await this.executorPromise;
 
-      // Call the chatbot to get a response
-      const response = await this.conversation.call({ input: userInput });
+      // Format input for tools that require access_token
+      const toolInput = {
+        input: userInput,
+        access_token,
+        userId,
+      };
 
-      // Log the outgoing response
-      console.log(`FinBot: ${response.response}`);
+      const response = await executor.invoke({
+        input: JSON.stringify(toolInput)
+      });
 
-      // Save both user input and chatbot response to the database
+      const message = response.output;
+      console.log(`FinBot: ${message}`);
+
       await this.saveMessageToDB(userId, 'user', userInput);
-      await this.saveMessageToDB(userId, 'bot', response.response);
+      await this.saveMessageToDB(userId, 'bot', message);
 
-      return response.response;
+      return message;
     } catch (error) {
       console.error("Chatbot Error:", error);
       return "I apologize, but I'm having trouble processing your request right now. Could you try again in a moment?";
     }
   }
 
-  // Save message to the database
+  // Save message to database
   async saveMessageToDB(userId, role, message) {
     try {
       let conversation = await Conversation.findOne({ userId });
-
       if (!conversation) {
         conversation = await Conversation.create({
           userId,
-          messages: [{
-            role,
-            message,
-            timestamp: new Date(),
-          }],
+          messages: [{ role, message, timestamp: new Date() }],
           createdAt: new Date(),
         });
       } else {
-        conversation.messages.push({
-          role,
-          message,
-          timestamp: new Date(),
-        });
+        conversation.messages.push({ role, message, timestamp: new Date() });
         await conversation.save();
       }
-
-      console.log(`Message saved to database for user ${userId}`);
+      console.log(`Message saved for user ${userId}`);
     } catch (error) {
-      console.error("Error saving message to database:", error);
+      console.error("Error saving message to DB:", error);
     }
   }
 
-  // Load conversation history from the database into memory
+  // Load conversation memory
   async loadConversationHistory(userId) {
     try {
       const conversation = await Conversation.findOne({ userId });
@@ -130,23 +125,22 @@ class FinancialAdvisorChatbot {
           role: msg.role === 'user' ? 'Human' : 'AI',
           content: msg.message,
         }));
-        console.log(`Loaded conversation history for user ${userId}`);
+        console.log(`Loaded history for user ${userId}`);
       }
     } catch (error) {
       console.error("Error loading conversation history:", error);
     }
   }
 
-  // Method to clear the conversation memory
   clearMemory() {
     this.memory.clear();
     return "Conversation history has been cleared.";
   }
-  // Method to save the conversation history to a file or database
+
   async saveConversationHistory(userId) {
     try {
       const history = await this.memory.loadMemoryVariables({});
-      console.log(`Saving conversation history for user ${userId}`);
+      console.log(`Saving memory for user ${userId}`);
       return history;
     } catch (error) {
       console.error("Error saving conversation history:", error);

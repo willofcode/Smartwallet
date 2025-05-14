@@ -28,11 +28,22 @@ async function getRecurringTransactions() {
 
 export default function BillsPage() {
   const [bills, setBills] = useState([]);
+  const [accounts, setAccounts] = useState([]);    
   const [isLoading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
+    const acc = sessionStorage.getItem('accounts');
+    if (acc) {
+      try {
+        setAccounts(JSON.parse(acc));
+      } catch {
+        console.warn('Failed to parse sessionStorage.accounts');
+      }
+    }
+
+    // 2) fetch bills
     (async () => {
       try {
         const recurring = await getRecurringTransactions();
@@ -47,6 +58,13 @@ export default function BillsPage() {
 
   const getAmountColor = (amt) => (amt < 0 ? 'text-red-500' : 'text-green-500');
 
+  const findAccountName = (id) => {
+    if (!id || !accounts.length) return '—';
+    let acct = accounts.find(a => a.account_id === id)
+            || accounts.find(a => a.persistent_account_id === id);
+    return acct?.name || acct?.official_name || 'Unknown account';
+  };
+
   return (
     <div className="flex h-screen bg-[#1B203F] text-white font-[Poppins]">
       <Sidebar />
@@ -56,20 +74,19 @@ export default function BillsPage() {
           <h1 className="text-2xl font-bold mb-4">Recurring Bills</h1>
 
           {isLoading && <p>Loading your bills…</p>}
-          {error     && <p className="text-red-400">{error}</p>}
+          {error && <p className="text-red-400">{error}</p>}
 
           {!isLoading && !error && (
             <>
-              {/* Table Header */}
+
               <div className="grid grid-cols-5 gap-4 text-sm font-bold mb-2">
                 <span>Merchant</span>
                 <span>Account ID</span>
                 <span>Amount</span>
-                <span>Occurrences</span>
+                <span>Account Name</span>
                 <span>Last Date</span>
               </div>
 
-              {/* Rows */}
               {bills.map((b, i) => (
                 <div
                   key={i}
@@ -82,7 +99,9 @@ export default function BillsPage() {
                   <span className={getAmountColor(b.amount)}>
                     ${b.amount.toFixed(2)}
                   </span>
-                  <span>{b.occurrences}</span>
+                  <span className="truncate">
+                    {findAccountName(b.account_id)}
+                  </span>
                   <span>{b.last_date}</span>
                 </div>
               ))}

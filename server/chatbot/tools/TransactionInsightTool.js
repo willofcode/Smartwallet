@@ -6,12 +6,19 @@ class TransactionInsightTool extends Tool {
   constructor() {
     super();
     this.name = 'transaction_insight';
-    this.description = 'Analyzes transactions and provides spending insights based on category, date range, or recurrence.';
+    this.description = 'Analyzes transactions and provides spending insights based on category, date range, or recurrence. Input should be a JSON string with "input" (user message) and "access_token" fields.';
   }
 
   async _call(input) {
     try {
-      const { input: userMessage, access_token } = input;
+      // Parse input if it's a string
+      const parsedInput = typeof input === 'string' ? JSON.parse(input) : input;
+      
+      if (!parsedInput.access_token) {
+        return 'Error: Access token is required to fetch transactions.';
+      }
+
+      const { input: userMessage, access_token } = parsedInput;
       const dateRange = extractDateRange(userMessage);
       const category = extractCategory(userMessage);
       const recurring = isRecurringSearch(userMessage);
@@ -19,6 +26,10 @@ class TransactionInsightTool extends Tool {
       const response = await axios.post(`${process.env.BASE_URL}/api/get_transactions`, {
         access_token,
       });
+
+      if (!response.data || !response.data.transactions) {
+        return 'Error: Unable to fetch transactions. Please try again later.';
+      }
 
       let transactions = response.data.transactions;
 
