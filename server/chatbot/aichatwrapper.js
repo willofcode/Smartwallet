@@ -49,6 +49,7 @@ class FinancialAdvisorChatbot {
       llm: this.chatModel,
       memory: this.memory,
       prompt: financialAdvisorPrompt,
+      inputKey: 'input',
       verbose: process.env.NODE_ENV === 'development',
     });
     
@@ -62,6 +63,7 @@ class FinancialAdvisorChatbot {
     this.executorPromise = initializeAgentExecutorWithOptions(tools, this.chatModel, {
       agentType: 'zero-shot-react-description',
       memory: this.memory,
+      verbose: true,
     });
   }
 
