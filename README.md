@@ -4,6 +4,10 @@
 
 SmartWallet is a unified personal finance management application designed to give users a consolidated view of all their financial accounts. It simplifies expense tracking, budgeting, and provides actionable insights to help users make smarter spending decisions.
 
+<p align="center">
+<img src="https://github.com/willofcode/Smartwallet/blob/main/demo.gif"/>
+</p>
+
 ## TECH STACK
 
 ![React](https://img.shields.io/badge/react-%2320232a.svg?style=for-the-badge\&logo=react\&logoColor=%2361DAFB)
