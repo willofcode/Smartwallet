@@ -65,8 +65,7 @@ const Dashboard = () => {
       setLoadingBudgets(true);
       try {
         const apiToken = localStorage.getItem('token');
-        const { data } = await axios.get(
-          `${import.meta.env.VITE_API_URL}/get_all_budgets`,
+        const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/get_all_budgets`,
           {
             headers: { Authorization: `Bearer ${apiToken}` },
             params: { month: selectedMonth }
