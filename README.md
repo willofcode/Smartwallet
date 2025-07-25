@@ -56,3 +56,16 @@ This modular design ensures each layer can scale independently and allows for ea
 * [MongoDB](https://www.mongodb.com/) for the NoSQL database.
 * Inspiration from open-source finance dashboards and budgeting apps.
 
+### Contributors
+<a href="https://github.com/willofcode">
+  <img src="https://github.com/willofcode.png?size=100" width="100" height="100" style="border-radius: 50%;" alt="William Ng" />
+</a>
+<a href="https://github.com/YaredPena">
+  <img src="https://github.com/YaredPena.png?size=100" width="100" height="100" style="border-radius: 50%;" alt="Yared Pena" />
+</a>
+<a href="https://github.com/thamidachoudhury1">
+  <img src="https://github.com/thamidachoudhury1.png?size=100" width="100" height="100" style="border-radius: 50%;" alt="Thamida Choudhury" />
+</a>
+<a href="https://github.com/SajedAtwa">
+  <img src="https://github.com/SajedAtwa.png?size=100" width="100" height="100" style="border-radius: 50%;" alt="Sajed Atwa" />
+</a>
