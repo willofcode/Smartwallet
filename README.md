@@ -36,7 +36,7 @@ Our approach leverages a modern MERN stack architecture:
 1. **Frontend**: A React single-page application bootstrapped with Vite and styled with TailwindCSS for rapid development and great UX.
 2. **Backend**: An Express.js server handles API requests, user authentication, and communicates securely with the Plaid API.
 3. **Database**: MongoDB stores user profiles, linked account metadata, budgets, and categorized transactions.
-4. **AI Advisor**: A modular chatbot component provides contextual spending advice by analyzing historical transaction data.
+4. **AI Advisor**: A modular chatbot component integrated with Agentic Workflow provides contextual spending advice by analyzing historical transaction data.
 
 This modular design ensures each layer can scale independently and allows for easy integration of additional features in the future.
 
